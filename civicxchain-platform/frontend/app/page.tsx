@@ -1832,7 +1832,7 @@ export default function Home() {
 
 
 
-/*
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -2157,7 +2157,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
-      {/* Header *
+      {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
         <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 mb-4">
           🌍 EcoChain Governance
@@ -2167,7 +2167,7 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Navigation *
+      {/* Navigation */}
       <div className="max-w-7xl mx-auto flex items-center space-x-4 mb-8">
         <button
           onClick={() => setCurrentView('feed')}
@@ -2199,7 +2199,7 @@ export default function Home() {
         />
       ) : (
         <div className="max-w-7xl mx-auto">
-          {/* Environmental Data Cards *
+          {/* Environmental Data Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {environmentalData && (
               <>
@@ -2227,7 +2227,7 @@ export default function Home() {
             )}
           </div>
 
-          {/* Satellite Data *
+          {/* Satellite Data */}
           {satelliteData && (
             <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-purple-500/20 p-6 mb-8">
               <div className="flex items-center mb-4">
@@ -2256,7 +2256,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Commitment Creation Form *
+          {/* Commitment Creation Form */}
           <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-cyan-500/20 p-6 mb-8">
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
               <span className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-lg flex items-center justify-center mr-3">
@@ -2370,7 +2370,7 @@ export default function Home() {
             </form>
           </div>
 
-          {/* Commitments Feed *
+          {/* Commitments Feed */}
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
               <span className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center mr-3">
@@ -2442,9 +2442,9 @@ export default function Home() {
     </div>
   );
 }
-*/
 
 
+/*
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -2858,7 +2858,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
-      {/* Header */}
+      {/* Header *
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex justify-between items-start">
           <div>
@@ -2877,7 +2877,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Navigation */}
+      {/* Navigation *
       <div className="max-w-7xl mx-auto flex items-center space-x-4 mb-8">
         <button
           onClick={() => setCurrentView('feed')}
@@ -2909,7 +2909,7 @@ export default function Home() {
         />
       ) : (
         <div className="max-w-7xl mx-auto">
-          {/* Environmental Data Cards */}
+          {/* Environmental Data Cards *
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {environmentalData && (
               <>
@@ -2937,7 +2937,7 @@ export default function Home() {
             )}
           </div>
 
-          {/* Satellite Data */}
+          {/* Satellite Data *
           {satelliteData && (
             <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-purple-500/20 p-6 mb-8">
               <div className="flex items-center mb-4">
@@ -2972,7 +2972,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Commitment Creation Form */}
+          {/* Commitment Creation Form *
           <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-cyan-500/20 p-6 mb-8">
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
               <span className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-lg flex items-center justify-center mr-3">
@@ -3086,7 +3086,7 @@ export default function Home() {
             </form>
           </div>
 
-          {/* Commitments Feed */}
+          {/* Commitments Feed *
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
               <span className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center mr-3">
@@ -3167,3 +3167,8 @@ export default function Home() {
     </div>
   );
 }
+  */
+
+
+
+
