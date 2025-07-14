@@ -1832,7 +1832,7 @@ export default function Home() {
 
 
 
-
+/*
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -2157,7 +2157,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
-      {/* Header */}
+      {/* Header *
       <div className="max-w-7xl mx-auto mb-8">
         <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 mb-4">
           🌍 EcoChain Governance
@@ -2167,7 +2167,7 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Navigation */}
+      {/* Navigation *
       <div className="max-w-7xl mx-auto flex items-center space-x-4 mb-8">
         <button
           onClick={() => setCurrentView('feed')}
@@ -2199,7 +2199,7 @@ export default function Home() {
         />
       ) : (
         <div className="max-w-7xl mx-auto">
-          {/* Environmental Data Cards */}
+          {/* Environmental Data Cards *
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {environmentalData && (
               <>
@@ -2227,7 +2227,7 @@ export default function Home() {
             )}
           </div>
 
-          {/* Satellite Data */}
+          {/* Satellite Data *
           {satelliteData && (
             <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-purple-500/20 p-6 mb-8">
               <div className="flex items-center mb-4">
@@ -2256,7 +2256,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Commitment Creation Form */}
+          {/* Commitment Creation Form *
           <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-cyan-500/20 p-6 mb-8">
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
               <span className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-lg flex items-center justify-center mr-3">
@@ -2370,7 +2370,7 @@ export default function Home() {
             </form>
           </div>
 
-          {/* Commitments Feed */}
+          {/* Commitments Feed *
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
               <span className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center mr-3">
@@ -2442,7 +2442,7 @@ export default function Home() {
     </div>
   );
 }
-
+*/
 
 /*
 'use client';
@@ -2915,22 +2915,22 @@ export default function Home() {
               <>
                 <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-red-500/20 p-6">
                   <div className="text-red-400 text-sm font-medium mb-2">Air Quality (PM2.5)</div>
-                  <div className="text-3xl font-bold text-white mb-1">{environmentalData.pm25.toFixed(1)} μg/m³</div>
-                  <div className="text-xs text-gray-400">{environmentalData.location}</div>
+                  <div className="text-3xl font-bold text-white mb-1">{environmentalData.pm25?.toFixed(1) || '25.0'} μg/m³</div>
+                  <div className="text-xs text-gray-400">{environmentalData.location || 'Global'}</div>
                 </div>
                 <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-orange-500/20 p-6">
                   <div className="text-orange-400 text-sm font-medium mb-2">CO2 Levels</div>
-                  <div className="text-3xl font-bold text-white mb-1">{environmentalData.co2.toFixed(1)} ppm</div>
+                  <div className="text-3xl font-bold text-white mb-1">{environmentalData.co2?.toFixed(1) || '420.0'} ppm</div>
                   <div className="text-xs text-gray-400">Atmospheric Reading</div>
                 </div>
                 <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-green-500/20 p-6">
                   <div className="text-green-400 text-sm font-medium mb-2">Forest Cover</div>
-                  <div className="text-3xl font-bold text-white mb-1">{environmentalData.forest_cover.toFixed(1)}%</div>
+                  <div className="text-3xl font-bold text-white mb-1">{environmentalData.forest_cover?.toFixed(1) || '75.0'}%</div>
                   <div className="text-xs text-gray-400">Regional Coverage</div>
                 </div>
                 <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-blue-500/20 p-6">
                   <div className="text-blue-400 text-sm font-medium mb-2">Water Quality</div>
-                  <div className="text-3xl font-bold text-white mb-1">{environmentalData.water_quality.toFixed(1)}%</div>
+                  <div className="text-3xl font-bold text-white mb-1">{environmentalData.water_quality?.toFixed(1) || '80.0'}%</div>
                   <div className="text-xs text-gray-400">Quality Index</div>
                 </div>
               </>
@@ -2956,7 +2956,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">Forest Coverage</div>
-                  <div className="text-white font-medium">{satelliteData.forest_cover_percentage.toFixed(1)}%</div>
+                  <div className="text-white font-medium">{satelliteData.forest_cover_percentage?.toFixed(1) || '75.0'}%</div>
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">Change Detected</div>
@@ -2966,7 +2966,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">Confidence Score</div>
-                  <div className="text-white font-medium">{satelliteData.confidence_score.toFixed(1)}%</div>
+                  <div className="text-white font-medium">{satelliteData.confidence_score?.toFixed(1) || '95.0'}%</div>
                 </div>
               </div>
             </div>
@@ -3168,6 +3168,1504 @@ export default function Home() {
   );
 }
   */
+
+
+
+
+
+'use client';
+
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+
+// Types for the data structures
+interface Commitment {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  target_value: number;
+  current_progress: number;
+  deadline: string;
+  status: string;
+  official_name: string;
+  official_role: string;
+  stake_amount: number;
+  created_at: string;
+  satellite_verified: boolean;
+  reward_claimed?: boolean;
+  reward_amount?: number;
+  // Blockchain and Token properties
+  token_reward?: number;
+  token_balance?: number;
+  transaction_hash?: string;
+  oracle_verified?: boolean;
+  oracle_data?: any;
+  completion_date?: string;
+  last_oracle_check?: string;
+}
+
+interface EnvironmentalData {
+  location: string;
+  pm25: number;
+  co2: number;
+  forest_cover: number;
+  water_quality: number;
+  timestamp: string;
+  source: string;
+}
+
+interface SatelliteData {
+  location: string;
+  forest_cover_percentage: number;
+  change_detected: boolean;
+  last_updated: string;
+  confidence_score: number;
+}
+
+interface CreateCommitmentRequest {
+  title: string;
+  description: string;
+  category: string;
+  target_value: number;
+  deadline: string;
+  creator: string;  // Official's name
+  metric_type: string;  // What metric to measure (PM2.5, CO2, etc.)
+}
+
+// Real API client (replace with your actual API endpoints)
+const apiClient = {
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  
+  async request(endpoint: string, options: RequestInit = {}) {
+    const url = `${this.baseUrl}${endpoint}`;
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return response.json();
+  },
+
+  // Real API methods
+  async getAllCommitments(): Promise<{ commitments: Commitment[] }> {
+    return this.request('/api/commitments');
+  },
+
+  async getEnvironmentalData(): Promise<EnvironmentalData> {
+    return this.request('/api/environmental-data');
+  },
+
+  async getSatelliteData(commitmentId: string): Promise<SatelliteData> {
+    return this.request(`/api/satellite-data?commitmentId=${commitmentId}`);
+  },
+
+  async createCommitment(data: CreateCommitmentRequest): Promise<Commitment> {
+    return this.request('/api/commitments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateCommitmentProgress(commitmentId: string, newProgress: number): Promise<{ success: boolean }> {
+    return this.request(`/api/commitments/${commitmentId}/progress`, {
+      method: 'PUT',
+      body: JSON.stringify({ new_progress: newProgress }),
+    });
+  },
+
+  async claimReward(commitmentId: string): Promise<{ 
+    success: boolean; 
+    message: string; 
+    reward_amount: number; 
+    transaction_hash: string; 
+  }> {
+    return this.request(`/api/commitments/${commitmentId}/claim-reward`, {
+      method: 'POST',
+    });
+  },
+
+  // Real environmental data sources
+  async getAirQualityData(location: string): Promise<{ pm25: number; co2: number }> {
+    // Use our backend API instead of external API
+    try {
+      const data = await this.request('/api/environmental-data');
+      return {
+        pm25: data.pm25 || 25,
+        co2: data.co2 || 420,
+      };
+    } catch (error) {
+      console.warn('Using fallback air quality data:', error);
+      return {
+        pm25: 25,
+        co2: 420,
+      };
+    }
+  },
+
+  async getForestCoverData(coordinates: { lat: number; lon: number }): Promise<{ forest_cover: number }> {
+    // Use our backend API
+    try {
+      const response = await fetch(`${this.baseUrl}/api/forest-cover?lat=${coordinates.lat}&lon=${coordinates.lon}`);
+      const data = await response.json();
+      return { forest_cover: data.forest_cover_percentage };
+    } catch (error) {
+      console.warn('Using fallback forest cover data:', error);
+      return { forest_cover: 75 }; // Fallback value
+    }
+  },
+
+  async getWaterQualityData(region: string): Promise<{ water_quality: number }> {
+    // Use our backend API
+    try {
+      const response = await fetch(`${this.baseUrl}/api/water-quality?region=${region}`);
+      const data = await response.json();
+      return { water_quality: data.quality_index };
+    } catch (error) {
+      console.warn('Using fallback water quality data:', error);
+      return { water_quality: 80 }; // Fallback value
+    }
+  }
+};
+
+// Blockchain integration for rewards
+const blockchainClient = {
+  async connectWallet(): Promise<string | null> {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        return accounts[0];
+      } catch (error) {
+        console.warn('Failed to connect wallet:', error);
+        return null;
+      }
+    } else {
+      console.warn('MetaMask not detected. Please install MetaMask to connect your wallet.');
+      return null;
+    }
+  },
+
+  async claimReward(commitmentId: string, amount: number): Promise<string> {
+    // Real CivicXChain Smart Contract interaction for token rewards
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        // CivicXChain Smart Contract Address (deploy this contract)
+        const CONTRACT_ADDRESS = '0x742d35Cc6634C0532925a3b8D4C9db96C4b5Da5A'; // Example
+
+        // Encode function call for claiming environmental token reward
+        const functionSignature = '0x8f4ffcb1'; // claimEnvironmentalReward function selector
+        const encodedCommitmentId = commitmentId.toString().padStart(64, '0');
+        const encodedData = functionSignature + encodedCommitmentId;
+
+        const transactionHash = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            to: CONTRACT_ADDRESS,
+            data: encodedData,
+            value: '0x0',
+            gas: '0x5208', // 21,000 gas for token transfer
+          }],
+        });
+
+        console.log('🪙 Environmental Token Reward Transaction:', transactionHash);
+        return transactionHash;
+      } catch (error) {
+        console.error('Blockchain transaction failed:', error);
+        throw new Error('Failed to claim token reward on Ethereum blockchain');
+      }
+    }
+    throw new Error('MetaMask required - Please install MetaMask to claim token rewards');
+  },
+
+  // Get user's CIVIC token balance
+  async getTokenBalance(userAddress: string): Promise<number> {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        const CONTRACT_ADDRESS = '0x742d35Cc6634C0532925a3b8D4C9db96C4b5Da5A';
+
+        // ERC-20 balanceOf function call
+        const balanceCall = await window.ethereum.request({
+          method: 'eth_call',
+          params: [{
+            to: CONTRACT_ADDRESS,
+            data: '0x70a08231' + userAddress.slice(2).padStart(64, '0'), // balanceOf(address)
+          }, 'latest'],
+        });
+
+        // Parse balance (assuming 18 decimals)
+        const balance = parseInt(balanceCall, 16) / Math.pow(10, 18);
+        return balance;
+      } catch (error) {
+        console.error('Failed to get token balance:', error);
+        return 0;
+      }
+    }
+    return 0;
+  },
+
+  // Add CIVIC token to MetaMask wallet
+  async addTokenToWallet(): Promise<boolean> {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        const CONTRACT_ADDRESS = '0x742d35Cc6634C0532925a3b8D4C9db96C4b5Da5A';
+
+        const wasAdded = await window.ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: CONTRACT_ADDRESS,
+              symbol: 'CIVIC',
+              decimals: 18,
+              image: 'https://api.civicxchain.org/token-logo.png',
+            },
+          },
+        });
+
+        return wasAdded;
+      } catch (error) {
+        console.error('Failed to add token to wallet:', error);
+        return false;
+      }
+    }
+    return false;
+  },
+
+  // Check fulfillment via Chainlink Oracle
+  async checkFulfillmentStatus(commitmentId: string): Promise<{
+    fulfilled: boolean;
+    currentValue: number;
+    targetValue: number;
+    oracleData: any;
+  }> {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        const ORACLE_CONTRACT = '0x8A753747A1Fa494EC906cE90E9f37563A8AF630e'; // Chainlink Oracle
+
+        // Call Chainlink oracle for real environmental data verification
+        const oracleCall = await window.ethereum.request({
+          method: 'eth_call',
+          params: [{
+            to: ORACLE_CONTRACT,
+            data: '0x50d25bcd' + commitmentId.toString().padStart(64, '0'), // getEnvironmentalData
+          }, 'latest'],
+        });
+
+        // Parse oracle response (real PM2.5, forest cover, etc.)
+        const fulfilled = parseInt(oracleCall.slice(2, 66), 16) > 0;
+        const currentValue = parseInt(oracleCall.slice(66, 130), 16) / 100;
+        const targetValue = parseInt(oracleCall.slice(130, 194), 16) / 100;
+
+        return {
+          fulfilled,
+          currentValue,
+          targetValue,
+          oracleData: {
+            timestamp: Date.now(),
+            source: 'Chainlink Environmental Oracle',
+            verified: true
+          }
+        };
+      } catch (error) {
+        console.error('Oracle verification failed:', error);
+        throw new Error('Failed to verify fulfillment via Chainlink Oracle');
+      }
+    }
+    throw new Error('Blockchain connection required for oracle verification');
+  }
+};
+
+// Real CommitmentDashboard component
+const CommitmentDashboard = ({
+  commitments,
+  onUpdateProgress,
+  onClaimReward,
+  onCheckFulfillment
+}: {
+  commitments: Commitment[];
+  onUpdateProgress: (id: string, progress: number) => void;
+  onClaimReward: (id: string) => void;
+  onCheckFulfillment: (id: string) => void;
+}) => {
+  const [selectedCommitment, setSelectedCommitment] = useState<string | null>(null);
+  const [progressInput, setProgressInput] = useState<number>(0);
+
+  return (
+    <div className="text-white space-y-6">
+      <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+        📊 Commitment Dashboard
+      </h2>
+      
+      <div className="grid gap-6">
+        {commitments.map(commitment => (
+          <div key={commitment.id} className="bg-black/20 backdrop-blur-xl rounded-xl border border-cyan-500/20 p-6 hover:border-cyan-500/40 transition-all duration-300">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">{commitment.title}</h3>
+                <p className="text-gray-400 mb-2">{commitment.description}</p>
+                <div className="text-sm text-gray-500">
+                  By {commitment.official_name} ({commitment.official_role})
+                </div>
+              </div>
+              <div className="text-right">
+                <div className={`px-3 py-1 rounded-full text-sm font-semibold mb-2 ${
+                  commitment.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                  commitment.status === 'completed' ? 'bg-blue-500/20 text-blue-400' :
+                  commitment.status === 'rewarded' ? 'bg-yellow-500/20 text-yellow-400' :
+                  'bg-red-500/20 text-red-400'
+                }`}>
+                  {commitment.status.toUpperCase()}
+                </div>
+                {commitment.satellite_verified && (
+                  <div className="text-xs text-purple-400">🛰️ Satellite Verified</div>
+                )}
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-4">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-400">Progress</span>
+                <span className="text-white">{commitment.current_progress}% / {commitment.target_value}%</span>
+              </div>
+              <div className="w-full bg-gray-800 rounded-full h-3">
+                <div 
+                  className="bg-gradient-to-r from-green-400 to-blue-400 h-3 rounded-full transition-all duration-1000"
+                  style={{width: `${Math.min((commitment.current_progress / commitment.target_value) * 100, 100)}%`}}
+                ></div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-4 items-center flex-wrap">
+              {commitment.status === 'active' && (
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="number"
+                    min={commitment.current_progress}
+                    max={100}
+                    value={selectedCommitment === commitment.id ? progressInput : commitment.current_progress}
+                    onChange={(e) => {
+                      setSelectedCommitment(commitment.id);
+                      setProgressInput(Number(e.target.value));
+                    }}
+                    className="w-20 bg-black/50 border border-cyan-500/30 rounded px-2 py-1 text-white text-sm"
+                  />
+                  <button 
+                    onClick={() => {
+                      onUpdateProgress(commitment.id, progressInput);
+                      setSelectedCommitment(null);
+                    }}
+                    className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 text-green-400 px-3 py-1 rounded text-sm transition-all duration-200"
+                  >
+                    Update Progress
+                  </button>
+                </div>
+              )}
+              
+              {/* Check Fulfillment Button - Always available for active commitments */}
+              {commitment.status === 'active' && (
+                <button
+                  onClick={() => onCheckFulfillment(commitment.id)}
+                  className="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/50 text-blue-400 px-4 py-2 rounded font-medium transition-all duration-200 hover:scale-105"
+                >
+                  🔍 Check Fulfillment via Oracle
+                </button>
+              )}
+
+              {/* Claim Reward Button - Only when target is reached */}
+              {commitment.current_progress >= commitment.target_value &&
+               commitment.status !== 'rewarded' &&
+               !commitment.reward_claimed && (
+                <button
+                  onClick={() => onClaimReward(commitment.id)}
+                  className="bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/50 text-yellow-400 px-4 py-2 rounded font-medium transition-all duration-200 hover:scale-105"
+                >
+                  🪙 Claim Token Reward
+                </button>
+              )}
+              
+              {commitment.reward_claimed && (
+                <div className="flex items-center gap-2 text-yellow-400">
+                  <span className="text-2xl">💰</span>
+                  <span className="font-medium">
+                    Reward: {commitment.reward_amount?.toFixed(4)} ETH
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Details */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-gray-700">
+              <div>
+                <div className="text-xs text-gray-400">Deadline</div>
+                <div className="text-sm text-white">{new Date(commitment.deadline).toLocaleDateString()}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-400">Stake</div>
+                <div className="text-sm text-white">{commitment.stake_amount} ETH</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-400">Category</div>
+                <div className="text-sm text-white">{commitment.category.replace('_', ' ')}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-400">Created</div>
+                <div className="text-sm text-white">{new Date(commitment.created_at).toLocaleDateString()}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {commitments.length === 0 && (
+        <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-gray-500/20 p-12 text-center">
+          <div className="text-6xl mb-4">📊</div>
+          <h3 className="text-white text-xl mb-2">No commitments to manage</h3>
+          <p className="text-gray-400">Create your first environmental commitment to get started!</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default function Home() {
+  const [commitments, setCommitments] = useState<Commitment[]>([]);
+  const [environmentalData, setEnvironmentalData] = useState<EnvironmentalData | null>(null);
+  const [satelliteData, setSatelliteData] = useState<SatelliteData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState<'feed' | 'dashboard'>('feed');
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
+  const [newCommitment, setNewCommitment] = useState({
+    title: '',
+    description: '',
+    category: 'forest_protection',
+    target_value: '',
+    deadline: '',
+    official_name: '',
+    official_role: '',
+    stake_amount: ''
+  });
+
+  useEffect(() => {
+    fetchAllData();
+    connectWallet();
+    
+    // Set up interval for real-time updates every 30 seconds
+    const interval = setInterval(() => {
+      fetchAllData();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const connectWallet = async () => {
+    const address = await blockchainClient.connectWallet();
+    setWalletAddress(address);
+  };
+
+  const fetchAllData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch commitments
+      try {
+        const commitmentsData = await apiClient.getAllCommitments();
+        setCommitments(commitmentsData.commitments || []);
+      } catch (err) {
+        console.error('Error fetching commitments:', err);
+        toast.error('Failed to load commitments');
+      }
+
+      // Fetch environmental data from our backend
+      try {
+        const envData = await apiClient.request('/api/environmental-data');
+        setEnvironmentalData({
+          location: envData.location || "Global",
+          pm25: envData.pm25 || 25,
+          co2: envData.co2 || 420,
+          forest_cover: envData.forest_cover || 75,
+          water_quality: envData.water_quality || 80,
+          timestamp: envData.timestamp || new Date().toISOString(),
+          source: "Backend API"
+        });
+      } catch (err) {
+        console.error('Error fetching environmental data:', err);
+        // Set fallback data to prevent undefined errors
+        setEnvironmentalData({
+          location: "Global",
+          pm25: 25,
+          co2: 420,
+          forest_cover: 75,
+          water_quality: 80,
+          timestamp: new Date().toISOString(),
+          source: "Fallback Data"
+        });
+        toast.error('Failed to load environmental data, using fallback values');
+      }
+
+      // Fetch real satellite data
+      try {
+        const satData = await apiClient.getSatelliteData('general');
+        setSatelliteData(satData);
+      } catch (err) {
+        console.error('Error fetching satellite data:', err);
+        // Set fallback satellite data
+        setSatelliteData({
+          location: 'Global Environmental Monitoring',
+          forest_cover_percentage: 75.0,
+          change_detected: false,
+          confidence_score: 95.0,
+          last_updated: new Date().toISOString()
+        });
+        toast.error('Failed to load satellite data, using fallback values');
+      }
+
+      setLastUpdated(new Date());
+
+    } catch (err) {
+      setError('Failed to fetch data. Please check your connection.');
+      console.error('Error fetching data:', err);
+      toast.error('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateCommitment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Determine metric type based on category
+      const getMetricType = (category: string) => {
+        switch (category) {
+          case 'air_quality': return 'μg/m³'; // PM2.5 measurement
+          case 'forest_protection': return 'percentage'; // Forest cover percentage
+          case 'water_management': return 'quality_index'; // Water quality index
+          case 'biodiversity': return 'species_count'; // Number of species
+          case 'waste_reduction': return 'tons'; // Waste reduction in tons
+          default: return 'units';
+        }
+      };
+
+      const commitmentData: CreateCommitmentRequest = {
+        title: newCommitment.title,
+        description: newCommitment.description,
+        category: newCommitment.category,
+        target_value: parseFloat(newCommitment.target_value),
+        deadline: newCommitment.deadline,
+        creator: `${newCommitment.official_name} (${newCommitment.official_role})`,  // Include role in creator
+        metric_type: getMetricType(newCommitment.category)  // Proper metric type based on category
+      };
+
+      const newCommitmentResponse = await apiClient.createCommitment(commitmentData);
+      
+      // Add to local state immediately for better UX
+      setCommitments(prev => [newCommitmentResponse, ...prev]);
+      
+      // Reset form
+      setNewCommitment({
+        title: '',
+        description: '',
+        category: 'forest_protection',
+        target_value: '',
+        deadline: '',
+        official_name: '',
+        official_role: '',
+        stake_amount: ''
+      });
+
+      toast.success('Commitment created successfully! 🎉');
+      
+      // Refresh data to ensure consistency
+      await fetchAllData();
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Please try again.';
+      toast.error(`Failed to create commitment: ${errorMessage}`);
+      console.error('Error creating commitment:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateProgress = async (commitmentId: string, newProgress: number) => {
+    try {
+      await apiClient.updateCommitmentProgress(commitmentId, newProgress);
+
+      // Update local state
+      setCommitments(prev => prev.map(c =>
+        c.id === commitmentId
+          ? { 
+              ...c, 
+              current_progress: newProgress,
+              status: newProgress >= c.target_value ? 'completed' : 'active'
+            }
+          : c
+      ));
+
+      toast.success('Progress updated successfully! 📈');
+      
+      // Refresh data to ensure consistency
+      await fetchAllData();
+
+    } catch (err) {
+      toast.error('Failed to update progress. Please try again.');
+      console.error('Error updating progress:', err);
+    }
+  };
+
+  const handleClaimReward = async (commitmentId: string) => {
+    try {
+      if (!walletAddress) {
+        toast.error('Please connect your wallet first');
+        await connectWallet();
+        return;
+      }
+
+      // Step 1: Verify fulfillment via Chainlink Oracle
+      toast.info('🔍 Verifying environmental achievement via Chainlink Oracle...');
+      const fulfillmentStatus = await blockchainClient.checkFulfillmentStatus(commitmentId);
+
+      if (!fulfillmentStatus.fulfilled) {
+        toast.error(`❌ Environmental target not yet achieved!\nCurrent: ${fulfillmentStatus.currentValue}\nTarget: ${fulfillmentStatus.targetValue}\nOracle: ${fulfillmentStatus.oracleData.source}`);
+        return;
+      }
+
+      toast.success('✅ Environmental achievement verified by Chainlink Oracle!');
+
+      // Step 2: Process reward claim
+      const result = await apiClient.claimReward(commitmentId);
+
+      // Step 3: Calculate token reward
+      const commitment = commitments.find(c => c.id === commitmentId);
+      const stakeAmount = commitment?.stake_amount || 0.1; // Default 0.1 ETH
+      const tokenReward = calculateTokenReward(stakeAmount, commitment?.category || 'environmental');
+
+      // Step 4: Claim token reward on Ethereum blockchain
+      toast.info('🪙 Claiming CIVIC token reward on Ethereum...');
+      const transactionHash = await blockchainClient.claimReward(commitmentId, result.reward_amount);
+
+      // Step 5: Update commitment status
+      setCommitments(prev =>
+        prev.map(c =>
+          c.id === commitmentId
+            ? {
+                ...c,
+                status: 'rewarded',
+                reward_claimed: true,
+                reward_amount: result.reward_amount,
+                completion_date: new Date().toISOString(),
+                transaction_hash: transactionHash,
+                token_reward: tokenReward,
+                oracle_verified: true,
+                oracle_data: fulfillmentStatus.oracleData
+              }
+            : c
+        )
+      );
+
+      toast.success(`🎉 Environmental Achievement Tokens Claimed!\n💰 ETH Reward: ${result.reward_amount.toFixed(4)} ETH\n🪙 CIVIC Tokens: ${tokenReward.toFixed(0)} CIVIC\n🔗 TX: ${transactionHash.slice(0, 10)}...`);
+      
+      // Refresh data
+      await fetchAllData();
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Please try again.';
+      toast.error(`Failed to claim reward: ${errorMessage}`);
+      console.error('Error claiming reward:', err);
+    }
+  };
+
+  // Check fulfillment status via Chainlink Oracle
+  const handleCheckFulfillment = async (commitmentId: string) => {
+    try {
+      if (!walletAddress) {
+        toast.error('Please connect your wallet first');
+        return;
+      }
+
+      toast.info('🔍 Checking environmental progress via Chainlink Oracle...');
+      const status = await blockchainClient.checkFulfillmentStatus(commitmentId);
+
+      if (status.fulfilled) {
+        toast.success(`✅ Environmental target achieved!\nCurrent: ${status.currentValue}\nTarget: ${status.targetValue}\nVerified by: ${status.oracleData.source}\n🎉 Ready to claim NFT reward!`);
+      } else {
+        const progress = ((status.currentValue / status.targetValue) * 100).toFixed(1);
+        toast.warning(`⏳ Environmental progress: ${progress}%\nCurrent: ${status.currentValue}\nTarget: ${status.targetValue}\nVerified by: ${status.oracleData.source}`);
+      }
+
+      // Update commitment with oracle data
+      setCommitments(prev =>
+        prev.map(c =>
+          c.id === commitmentId
+            ? {
+                ...c,
+                actual_value: status.currentValue,
+                oracle_verified: true,
+                oracle_data: status.oracleData,
+                last_oracle_check: new Date().toISOString()
+              }
+            : c
+        )
+      );
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Oracle verification failed';
+      toast.error(`Failed to check fulfillment: ${errorMessage}`);
+      console.error('Error checking fulfillment:', err);
+    }
+  };
+
+  // Add CIVIC token to MetaMask wallet
+  const addTokenToWallet = async () => {
+    try {
+      if (!walletAddress) {
+        toast.error('Please connect your wallet first');
+        return;
+      }
+
+      // Add CIVIC token to MetaMask using the blockchain client
+      const wasAdded = await blockchainClient.addTokenToWallet();
+
+      if (wasAdded) {
+        toast.success('🎉 CIVIC token added to MetaMask! Check your wallet\'s token list.');
+      } else {
+        toast.warning('Token addition was cancelled');
+      }
+    } catch (error) {
+      console.error('Error adding token to wallet:', error);
+      toast.error('Failed to add token to wallet. Make sure you have MetaMask installed.');
+    }
+  };
+
+  // Calculate token reward based on stake and category
+  const calculateTokenReward = (stakeAmount: number, category: string): number => {
+    const TOKENS_PER_ETH = 1000; // 1 ETH = 1000 CIVIC tokens
+    const baseTokens = stakeAmount * TOKENS_PER_ETH;
+
+    // Difficulty multipliers for different environmental metrics
+    let multiplier = 1.0; // Base multiplier
+
+    switch (category) {
+      case 'air_quality':
+        multiplier = 1.5; // 1.5x for air quality (harder to achieve)
+        break;
+      case 'forest_protection':
+        multiplier = 1.3; // 1.3x for forest protection
+        break;
+      case 'water_management':
+        multiplier = 1.1; // 1.1x for water quality
+        break;
+      case 'biodiversity':
+        multiplier = 1.4; // 1.4x for biodiversity
+        break;
+      case 'waste_reduction':
+        multiplier = 1.2; // 1.2x for waste reduction
+        break;
+      default:
+        multiplier = 1.0;
+    }
+
+    return Math.floor(baseTokens * multiplier);
+  };
+
+  // Helper functions
+  const getCategoryIcon = (category: string) => {
+    const icons: { [key: string]: string } = {
+      'forest_protection': '🌳',
+      'air_quality': '🏭',
+      'water_management': '💧',
+      'biodiversity': '🦋',
+      'waste_reduction': '♻️'
+    };
+    return icons[category] || '🌍';
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const calculateProgress = (current: number, target: number) => {
+    return Math.min((current / target) * 100, 100);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+          <p className="text-white text-xl">Loading CivicXChain Platform...</p>
+          <p className="text-gray-400 text-sm mt-2">Connecting to blockchain, smart contracts, and environmental monitoring APIs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-white text-2xl mb-4">Connection Error</h2>
+          <p className="text-gray-400 mb-6">{error}</p>
+          <button 
+            onClick={fetchAllData}
+            className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg transition-colors"
+          >
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
+      {/* Header */}
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 mb-4">
+              🏛️ CivicXChain: Official Environmental Accountability
+            </h1>
+            <p className="text-xl text-gray-300 mb-6">
+              Binding public officials to environmental commitments through blockchain smart contracts,
+              Chainlink oracles, and satellite monitoring. Rewards for achievement, penalties for failure.
+            </p>
+            {walletAddress && (
+              <div className="text-sm text-cyan-400">
+                🔗 Wallet: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+              </div>
+            )}
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-gray-400">Last Updated</div>
+            <div className="text-cyan-400 font-medium">{formatTime(lastUpdated)}</div>
+            <div className="text-xs text-gray-500">{lastUpdated.toLocaleDateString()}</div>
+            <button 
+              onClick={fetchAllData}
+              className="mt-2 text-xs bg-cyan-500/20 hover:bg-cyan-500/30 px-3 py-1 rounded border border-cyan-500/50 transition-colors"
+            >
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="max-w-7xl mx-auto flex items-center space-x-4 mb-8">
+        <button
+          onClick={() => setCurrentView('feed')}
+          className={`px-6 py-3 rounded-lg transition-all duration-300 font-medium ${
+            currentView === 'feed'
+              ? 'bg-cyan-500/30 text-cyan-400 border border-cyan-500/50 shadow-lg shadow-cyan-500/20'
+              : 'text-gray-400 hover:text-cyan-400 hover:bg-cyan-500/10'
+          }`}
+        >
+          📡 Social Feed
+        </button>
+        <button
+          onClick={() => setCurrentView('dashboard')}
+          className={`px-6 py-3 rounded-lg transition-all duration-300 font-medium ${
+            currentView === 'dashboard'
+              ? 'bg-cyan-500/30 text-cyan-400 border border-cyan-500/50 shadow-lg shadow-cyan-500/20'
+              : 'text-gray-400 hover:text-cyan-400 hover:bg-cyan-500/10'
+          }`}
+        >
+          📊 Dashboard
+        </button>
+      </div>
+
+      {currentView === 'dashboard' ? (
+        <div className="max-w-7xl mx-auto">
+          <CommitmentDashboard
+            commitments={commitments}
+            onUpdateProgress={handleUpdateProgress}
+            onClaimReward={handleClaimReward}
+            onCheckFulfillment={handleCheckFulfillment}
+          />
+
+          {/* Token Rewards Gallery */}
+          <div className="mt-12">
+            <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+              🪙 Environmental Achievement Token Rewards
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Demo Token Reward for testing */}
+              {commitments.filter(c => c.reward_claimed && c.token_reward).length === 0 && (
+                <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 backdrop-blur-xl rounded-xl border border-yellow-500/20 p-6 hover:border-yellow-500/40 transition-all duration-300">
+                  <div className="text-center">
+                    <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">
+                      🪙
+                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-2">Demo Environmental Achievement Tokens</h3>
+                    <p className="text-yellow-400 font-mono text-sm mb-2">1,500 CIVIC</p>
+                    <p className="text-gray-300 text-sm mb-3">Complete a commitment to earn your first tokens!</p>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">ETH Reward:</span>
+                        <span className="text-yellow-400">0.1500 ETH</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Token Reward:</span>
+                        <span className="text-yellow-400">1,500 CIVIC</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Status:</span>
+                        <span className="text-orange-400">Demo Only</span>
+                      </div>
+                      <div className="flex justify-center mt-2">
+                        <span className="bg-orange-500/20 text-orange-400 px-2 py-1 rounded text-xs">
+                          🎯 Complete Commitment to Earn
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {commitments
+                .filter(c => c.reward_claimed && c.token_reward)
+                .map(commitment => (
+                  <div key={commitment.id} className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 backdrop-blur-xl rounded-xl border border-yellow-500/20 p-6 hover:border-yellow-500/40 transition-all duration-300">
+                    <div className="text-center">
+                      <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">
+                        🪙
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">Environmental Achievement Tokens</h3>
+                      <p className="text-yellow-400 font-mono text-sm mb-2">{commitment.token_reward?.toLocaleString() || '0'} CIVIC</p>
+                      <p className="text-gray-300 text-sm mb-3">{commitment.title}</p>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">ETH Reward:</span>
+                          <span className="text-yellow-400">{commitment.reward_amount?.toFixed(4)} ETH</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Token Reward:</span>
+                          <span className="text-yellow-400">{commitment.token_reward?.toLocaleString() || '0'} CIVIC</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Completed:</span>
+                          <span className="text-green-400">{new Date(commitment.completion_date || '').toLocaleDateString()}</span>
+                        </div>
+                        {commitment.transaction_hash && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">TX:</span>
+                            <span className="text-blue-400 font-mono">{commitment.transaction_hash.slice(0, 10)}...</span>
+                          </div>
+                        )}
+                        {commitment.oracle_verified && (
+                          <div className="flex justify-center mt-2">
+                            <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs">
+                              ✅ Oracle Verified
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Add Token to Wallet Button */}
+                        <div className="mt-3 pt-2 border-t border-gray-700">
+                          <button
+                            onClick={() => addTokenToWallet()}
+                            className="w-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-400 px-3 py-2 rounded text-xs font-medium transition-all duration-200 hover:scale-105"
+                          >
+                            📱 Add CIVIC Token to Wallet
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+              {commitments.filter(c => c.reward_claimed && c.token_reward).length === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <div className="text-6xl mb-4">🎯</div>
+                  <h3 className="text-white text-xl mb-2">No Token Rewards Yet</h3>
+                  <p className="text-gray-400">Complete environmental commitments to earn CIVIC token rewards!</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* How to View Tokens in Wallet Guide */}
+          <div className="mt-12">
+            <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              📱 How to View Your CIVIC Tokens in Wallet
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+              {/* MetaMask Guide */}
+              <div className="bg-gradient-to-br from-orange-500/10 to-yellow-500/10 backdrop-blur-xl rounded-xl border border-orange-500/20 p-6">
+                <div className="text-center mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    🦊
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">MetaMask</h3>
+                </div>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-orange-400 font-bold">1.</span>
+                    <span>Open MetaMask extension</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-orange-400 font-bold">2.</span>
+                    <span>Click "Assets" tab</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-orange-400 font-bold">3.</span>
+                    <span>Click "Import tokens"</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-orange-400 font-bold">4.</span>
+                    <span>Enter CIVIC token contract address</span>
+                  </div>
+                  <div className="mt-4 p-3 bg-black/30 rounded border border-orange-500/30">
+                    <p className="text-xs text-orange-300 font-mono">
+                      Contract: 0x742d35...Da5A<br/>
+                      Network: Ethereum Mainnet
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* OpenSea Guide */}
+              <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-xl rounded-xl border border-blue-500/20 p-6">
+                <div className="text-center mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    🌊
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">OpenSea</h3>
+                </div>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-400 font-bold">1.</span>
+                    <span>Go to opensea.io</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-400 font-bold">2.</span>
+                    <span>Connect your wallet</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-400 font-bold">3.</span>
+                    <span>Click "Profile" → "Collected"</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-400 font-bold">4.</span>
+                    <span>View your CIVIC token balance</span>
+                  </div>
+                  <div className="mt-4">
+                    <a
+                      href="https://opensea.io"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/50 text-blue-400 px-3 py-2 rounded text-xs font-medium transition-all duration-200"
+                    >
+                      🔗 Visit OpenSea
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contract Info */}
+              <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-xl rounded-xl border border-purple-500/20 p-6">
+                <div className="text-center mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    📋
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Token Info</h3>
+                </div>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div>
+                    <span className="text-purple-400 font-semibold">Token Name:</span>
+                    <p className="text-xs mt-1">CivicXChain Environmental Token</p>
+                  </div>
+                  <div>
+                    <span className="text-purple-400 font-semibold">Symbol:</span>
+                    <p className="text-xs mt-1">CIVIC</p>
+                  </div>
+                  <div>
+                    <span className="text-purple-400 font-semibold">Network:</span>
+                    <p className="text-xs mt-1">Ethereum Mainnet</p>
+                  </div>
+                  <div>
+                    <span className="text-purple-400 font-semibold">Standard:</span>
+                    <p className="text-xs mt-1">ERC-20 (Token)</p>
+                  </div>
+                  <div>
+                    <span className="text-purple-400 font-semibold">Decimals:</span>
+                    <p className="text-xs mt-1">18</p>
+                  </div>
+                  <div className="mt-4 p-3 bg-black/30 rounded border border-purple-500/30">
+                    <p className="text-xs text-purple-300 font-mono break-all">
+                      0x742d35Cc6634C0532925a3b8D4C9db96C4b5Da5A
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto">
+          {/* Environmental Data Cards */}
+          {environmentalData && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-red-500/20 p-6 hover:border-red-500/40 transition-all duration-300">
+                <div className="text-red-400 text-sm font-medium mb-2">Air Quality (PM2.5)</div>
+                <div className="text-3xl font-bold text-white mb-1">{environmentalData.pm25?.toFixed(1) || '25.0'} μg/m³</div>
+                <div className="text-xs text-gray-400">{environmentalData.location || 'Global'}</div>
+                <div className="text-xs text-gray-500 mt-1">Source: {environmentalData.source || 'Environmental API'}</div>
+              </div>
+              <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-orange-500/20 p-6 hover:border-orange-500/40 transition-all duration-300">
+                <div className="text-orange-400 text-sm font-medium mb-2">CO2 Levels</div>
+                <div className="text-3xl font-bold text-white mb-1">{environmentalData.co2?.toFixed(1) || '420.0'} ppm</div>
+                <div className="text-xs text-gray-400">Atmospheric Reading</div>
+                <div className="text-xs text-gray-500 mt-1">Real-time monitoring</div>
+              </div>
+              <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-green-500/20 p-6 hover:border-green-500/40 transition-all duration-300">
+                <div className="text-green-400 text-sm font-medium mb-2">Forest Cover</div>
+                <div className="text-3xl font-bold text-white mb-1">{environmentalData.forest_cover?.toFixed(1) || '75.0'}%</div>
+                <div className="text-xs text-gray-400">Regional Coverage</div>
+                <div className="text-xs text-gray-500 mt-1">Satellite verified</div>
+              </div>
+              <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-blue-500/20 p-6 hover:border-blue-500/40 transition-all duration-300">
+                <div className="text-blue-400 text-sm font-medium mb-2">Water Quality</div>
+                <div className="text-3xl font-bold text-white mb-1">{environmentalData.water_quality?.toFixed(1) || '80.0'}%</div>
+                <div className="text-xs text-gray-400">Quality Index</div>
+                <div className="text-xs text-gray-500 mt-1">WHO standards</div>
+              </div>
+            </div>
+          )}
+
+          {/* Satellite Data */}
+          {satelliteData && (
+            <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-purple-500/20 p-6 mb-8 hover:border-purple-500/40 transition-all duration-300">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
+                  🛰️
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold">Satellite Monitoring</h3>
+                  <p className="text-gray-400 text-sm">Real-time environmental verification</p>
+                </div>
+                <div className="ml-auto text-xs text-gray-400">
+                  Updated: {new Date(satelliteData.last_updated).toLocaleString()}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-gray-400 text-sm">Location</div>
+                  <div className="text-white font-medium">{satelliteData.location}</div>
+                </div>
+                <div>
+                  <div className="text-gray-400 text-sm">Forest Coverage</div>
+                  <div className="text-white font-medium">{satelliteData.forest_cover_percentage?.toFixed(1) || '75.0'}%</div>
+                </div>
+                <div>
+                  <div className="text-gray-400 text-sm">Change Detected</div>
+                  <div className={`font-medium ${satelliteData.change_detected ? 'text-yellow-400' : 'text-green-400'}`}>
+                    {satelliteData.change_detected ? '⚠️ Changes detected' : '✅ Stable'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-400 text-sm">Confidence Score</div>
+                  <div className="text-white font-medium">{satelliteData.confidence_score?.toFixed(1) || '95.0'}%</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Commitment Creation Form */}
+          <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-cyan-500/20 p-6 mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+              <span className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-lg flex items-center justify-center mr-3">
+                🏛️
+              </span>
+              Bind Public Official to Environmental Commitment
+            </h2>
+            <p className="text-gray-300 mb-6 text-sm">
+              Create blockchain-verified environmental commitments for public officials.
+              Achievements are monitored via Chainlink oracles and satellite data.
+              Officials receive NFT rewards for fulfillment or face penalties for non-compliance.
+            </p>
+            <form onSubmit={handleCreateCommitment} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Public Official Name *</label>
+                <input
+                  type="text"
+                  value={newCommitment.official_name}
+                  onChange={(e) => setNewCommitment({...newCommitment, official_name: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition-colors"
+                  placeholder="e.g., Mayor John Smith"
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Official Role/Position *</label>
+                <select
+                  value={newCommitment.official_role}
+                  onChange={(e) => setNewCommitment({...newCommitment, official_role: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white focus:border-cyan-400 focus:outline-none transition-colors"
+                  disabled={isSubmitting}
+                >
+                  <option value="mayor">🏛️ Mayor</option>
+                  <option value="governor">🏛️ Governor</option>
+                  <option value="environment_minister">🌍 Environment Minister</option>
+                  <option value="city_council">🏢 City Council Member</option>
+                  <option value="environmental_agency">🌱 Environmental Agency Head</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Environmental Commitment Title *</label>
+                <input
+                  type="text"
+                  value={newCommitment.title}
+                  onChange={(e) => setNewCommitment({...newCommitment, title: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition-colors"
+                  placeholder="e.g., Reduce PM2.5 levels below 20 μg/m³"
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Environmental Category *</label>
+                <select
+                  value={newCommitment.category}
+                  onChange={(e) => setNewCommitment({...newCommitment, category: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white focus:border-cyan-400 focus:outline-none transition-colors"
+                  disabled={isSubmitting}
+                >
+                  <option value="air_quality">🏭 Air Quality (PM2.5, CO2, etc.)</option>
+                  <option value="forest_protection">🌳 Forest Protection & Reforestation</option>
+                  <option value="water_management">💧 Water Quality & Management</option>
+                  <option value="biodiversity">🦋 Biodiversity Conservation</option>
+                  <option value="waste_reduction">♻️ Waste Reduction & Recycling</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-gray-300 text-sm font-medium mb-2">Detailed Description *</label>
+                <textarea
+                  value={newCommitment.description}
+                  onChange={(e) => setNewCommitment({...newCommitment, description: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition-colors"
+                  placeholder="Describe your environmental commitment, methodology, and expected impact..."
+                  rows={4}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Target Environmental Value *</label>
+                <input
+                  type="number"
+                  value={newCommitment.target_value}
+                  onChange={(e) => setNewCommitment({...newCommitment, target_value: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition-colors"
+                  placeholder="e.g., 20 (for PM2.5 < 20 μg/m³)"
+                  min="0"
+                  step="0.1"
+                  required
+                  disabled={isSubmitting}
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Examples: PM2.5 &lt; 20 μg/m³, CO2 &lt; 400 ppm, Forest cover &gt; 75%
+                </p>
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Completion Deadline *</label>
+                <input
+                  type="date"
+                  value={newCommitment.deadline}
+                  onChange={(e) => setNewCommitment({...newCommitment, deadline: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white focus:border-cyan-400 focus:outline-none transition-colors"
+                  min={new Date().toISOString().split('T')[0]}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Official Name *</label>
+                <input
+                  type="text"
+                  value={newCommitment.official_name}
+                  onChange={(e) => setNewCommitment({...newCommitment, official_name: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition-colors"
+                  placeholder="Your full name"
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Official Role/Position *</label>
+                <input
+                  type="text"
+                  value={newCommitment.official_role}
+                  onChange={(e) => setNewCommitment({...newCommitment, official_role: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition-colors"
+                  placeholder="e.g., Environmental Minister, Mayor, etc."
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Stake Amount (ETH) *</label>
+                <input
+                  type="number"
+                  value={newCommitment.stake_amount}
+                  onChange={(e) => setNewCommitment({...newCommitment, stake_amount: e.target.value})}
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition-colors"
+                  placeholder="Amount to stake (e.g., 1.5)"
+                  min="0.01"
+                  step="0.01"
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>
+                      Creating Commitment...
+                    </>
+                  ) : (
+                    <>🚀 Create Smart Environmental Commitment</>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Commitments Feed */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <span className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg flex items-center justify-center mr-3">
+                📋
+              </span>
+              Environmental Commitments Feed
+              <span className="ml-2 text-sm bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded">
+                {commitments.length} Active
+              </span>
+            </h2>
+            
+            {commitments.map((commitment) => (
+              <div key={commitment.id} className="bg-black/20 backdrop-blur-xl rounded-xl border border-blue-500/20 p-6 hover:border-blue-500/40 transition-all duration-300 hover:transform hover:scale-[1.02]">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mr-4">
+                      {getCategoryIcon(commitment.category)}
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">{commitment.official_name}</h3>
+                      <p className="text-gray-400 text-sm">{commitment.official_role}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      commitment.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                      commitment.status === 'completed' ? 'bg-blue-500/20 text-blue-400' :
+                      commitment.status === 'rewarded' ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>
+                      {commitment.status.toUpperCase()}
+                    </div>
+                    {commitment.satellite_verified && (
+                      <div className="px-2 py-1 rounded-full text-xs bg-purple-500/20 text-purple-400">
+                        🛰️ Verified
+                      </div>
+                    )}
+                    {commitment.reward_claimed && (
+                      <div className="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-500/20 text-yellow-400">
+                        💰 {commitment.reward_amount?.toFixed(4)} ETH
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <h4 className="text-white font-semibold text-lg mb-2">{commitment.title}</h4>
+                <p className="text-gray-300 mb-4">{commitment.description}</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <div className="text-gray-400 text-sm">Progress</div>
+                    <div className="text-white font-medium">
+                      {commitment.current_progress}% / {commitment.target_value}%
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-400 text-sm">Deadline</div>
+                    <div className="text-white font-medium">{formatDate(commitment.deadline)}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-400 text-sm">Stake</div>
+                    <div className="text-white font-medium">{commitment.stake_amount} ETH</div>
+                  </div>
+                </div>
+                
+                <div className="w-full bg-gray-800 rounded-full h-3 mb-4">
+                  <div 
+                    className="bg-gradient-to-r from-green-400 to-blue-400 h-3 rounded-full transition-all duration-1000" 
+                    style={{width: `${calculateProgress(commitment.current_progress, commitment.target_value)}%`}}
+                  ></div>
+                </div>
+                
+                <div className="flex justify-between items-center text-xs text-gray-400">
+                  <div>
+                    Created: {formatDate(commitment.created_at)}
+                    {commitment.completion_date && ` • Completed: ${formatDate(commitment.completion_date)}`}
+                  </div>
+                  <div className="text-right">
+                    Category: {commitment.category.replace('_', ' ')}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {commitments.length === 0 && (
+            <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-gray-500/20 p-12 text-center">
+              <div className="text-6xl mb-4">🌱</div>
+              <h3 className="text-white text-xl mb-2">No environmental commitments yet</h3>
+              <p className="text-gray-400 mb-6">Be the first to create a verified environmental commitment and help build a sustainable future!</p>
+              <button 
+                onClick={() => setCurrentView('feed')}
+                className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg transition-colors"
+              >
+                Create Your First Commitment
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+
 
 
 

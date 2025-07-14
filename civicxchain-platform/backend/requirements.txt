@@ -39,3 +39,10 @@ pytest-asyncio==0.21.1
 
 # Optional: For more advanced crypto operations
 cryptography==41.0.3
+
+
+
+fastapi
+uvicorn
+python-multipart
+python-dotenv
