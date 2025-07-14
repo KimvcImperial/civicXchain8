@@ -1,0 +1,38 @@
+{
+  "name": "civicxchain-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for CivicXChain Environmental Governance Platform",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:sepolia": "hardhat run deploy.js --network sepolia",
+    "deploy:mainnet": "hardhat run deploy.js --network mainnet",
+    "test": "hardhat test",
+    "verify": "hardhat verify"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.0",
+    "@chainlink/contracts": "^0.6.1"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "hardhat": "^2.17.0",
+    "ethers": "^5.7.2",
+    "dotenv": "^16.0.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "ethereum-waffle": "^4.0.10",
+    "chai": "^4.3.7"
+  },
+  "keywords": [
+    "ethereum",
+    "smart-contracts",
+    "environmental",
+    "governance",
+    "chainlink",
+    "nft",
+    "defi"
+  ],
+  "author": "CivicXChain Team",
+  "license": "MIT"
+}
