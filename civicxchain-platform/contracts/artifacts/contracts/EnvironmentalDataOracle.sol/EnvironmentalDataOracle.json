@@ -1,0 +1,275 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "EnvironmentalDataOracle",
+  "sourceName": "contracts/EnvironmentalDataOracle.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "dataType",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "int256",
+          "name": "value",
+          "type": "int256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DataUpdated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "co2Data",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "value",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "forestCoverData",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "value",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getEnvironmentalReport",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "pm25Value",
+          "type": "int256"
+        },
+        {
+          "internalType": "int256",
+          "name": "co2Value",
+          "type": "int256"
+        },
+        {
+          "internalType": "int256",
+          "name": "forestValue",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lastUpdated",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getLatestCO2Data",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getLatestForestCoverData",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getLatestPM25Data",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestRoundData",
+      "outputs": [
+        {
+          "internalType": "uint80",
+          "name": "roundId",
+          "type": "uint80"
+        },
+        {
+          "internalType": "int256",
+          "name": "answer",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "updatedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint80",
+          "name": "answeredInRound",
+          "type": "uint80"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pm25Data",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "value",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "round",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int256",
+          "name": "_value",
+          "type": "int256"
+        }
+      ],
+      "name": "updateCO2Data",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int256",
+          "name": "_value",
+          "type": "int256"
+        }
+      ],
+      "name": "updateForestCoverData",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int256",
+          "name": "_value",
+          "type": "int256"
+        }
+      ],
+      "name": "updatePM25Data",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234609b57600080546001600160a01b0319163317905560016040602460a0565b6103dc815242602082015201526103dc60015542600255600160035560016040604a60a0565b61a4a68152426020820152015261a4a660045542600555600160065560016040607060a0565b611ac281524260208201520152611ac26007554260085560016009556040516104da90816100d58239f35b600080fd5b60405190606082016001600160401b0381118382101760be57604052565b634e487b7160e01b600052604160045260246000fdfe6080604052600436101561001257600080fd5b60003560e01c80631f4ca974146103a957806320da1e8414610377578063313ce5671461035b57806340f9fc13146103295780634e0f0f12146102f75780638da5cb5b146102ce578063a3c4f4c11461026e578063ad20d3b2146101e3578063b53eeb6f146101c5578063bb99b969146101a7578063bcf7545c14610115578063bf0eca7e146100f75763feaf968c146100ab57600080fd5b346100f25760003660031901126100f25760a069ffffffffffffffffffff600354166001549060025460405192828452602084015280604084015260608301526080820152f35b600080fd5b346100f25760003660031901126100f2576020600454604051908152f35b346100f25760203660031901126100f2577f732ee320a887fb5bfc6d04ed20fb7c242d0d36f91fcedbbd158ffd4fd4a0285460a0600435610160600180841b03600054163314610433565b806007554260085561017360095461047f565b6009556040519060608252600b60608301526a2337b932b9ba21b7bb32b960a91b60808301526020820152426040820152a1005b346100f25760003660031901126100f2576020600754604051908152f35b346100f25760003660031901126100f2576020600154604051908152f35b346100f25760203660031901126100f2577f732ee320a887fb5bfc6d04ed20fb7c242d0d36f91fcedbbd158ffd4fd4a0285460a060043561022e600180841b03600054163314610433565b806001554260025561024160035461047f565b60035560405190606082526004606083015263504d323560e01b60808301526020820152426040820152a1005b346100f25760003660031901126100f25760806002546005548181116102c6575b506008548181116102be575b506001549060045460075490604051938452602084015260408301526060820152f35b90508261029b565b90508261028f565b346100f25760003660031901126100f2576000546040516001600160a01b039091168152602090f35b346100f25760003660031901126100f25760075460085460095460408051938452602084019290925290820152606090f35b346100f25760003660031901126100f25760015460025460035460408051938452602084019290925290820152606090f35b346100f25760003660031901126100f257602060405160088152f35b346100f25760003660031901126100f25760045460055460065460408051938452602084019290925290820152606090f35b346100f25760203660031901126100f2577f732ee320a887fb5bfc6d04ed20fb7c242d0d36f91fcedbbd158ffd4fd4a0285460a06004356103f4600180841b03600054163314610433565b806004554260055561040760065461047f565b6006556040519060608252600360608301526221a79960e91b60808301526020820152426040820152a1005b1561043a57565b60405162461bcd60e51b815260206004820152601a60248201527f4f6e6c79206f776e65722063616e2075706461746520646174610000000000006044820152606490fd5b600019811461048e5760010190565b634e487b7160e01b600052601160045260246000fdfea26469706673582212207e63f212874b47cce9b57a806d6b661bbe6bd57ccf60ff3dad36eb77ee3c1e9e64736f6c634300081c0033",
+  "deployedBytecode": "0x6080604052600436101561001257600080fd5b60003560e01c80631f4ca974146103a957806320da1e8414610377578063313ce5671461035b57806340f9fc13146103295780634e0f0f12146102f75780638da5cb5b146102ce578063a3c4f4c11461026e578063ad20d3b2146101e3578063b53eeb6f146101c5578063bb99b969146101a7578063bcf7545c14610115578063bf0eca7e146100f75763feaf968c146100ab57600080fd5b346100f25760003660031901126100f25760a069ffffffffffffffffffff600354166001549060025460405192828452602084015280604084015260608301526080820152f35b600080fd5b346100f25760003660031901126100f2576020600454604051908152f35b346100f25760203660031901126100f2577f732ee320a887fb5bfc6d04ed20fb7c242d0d36f91fcedbbd158ffd4fd4a0285460a0600435610160600180841b03600054163314610433565b806007554260085561017360095461047f565b6009556040519060608252600b60608301526a2337b932b9ba21b7bb32b960a91b60808301526020820152426040820152a1005b346100f25760003660031901126100f2576020600754604051908152f35b346100f25760003660031901126100f2576020600154604051908152f35b346100f25760203660031901126100f2577f732ee320a887fb5bfc6d04ed20fb7c242d0d36f91fcedbbd158ffd4fd4a0285460a060043561022e600180841b03600054163314610433565b806001554260025561024160035461047f565b60035560405190606082526004606083015263504d323560e01b60808301526020820152426040820152a1005b346100f25760003660031901126100f25760806002546005548181116102c6575b506008548181116102be575b506001549060045460075490604051938452602084015260408301526060820152f35b90508261029b565b90508261028f565b346100f25760003660031901126100f2576000546040516001600160a01b039091168152602090f35b346100f25760003660031901126100f25760075460085460095460408051938452602084019290925290820152606090f35b346100f25760003660031901126100f25760015460025460035460408051938452602084019290925290820152606090f35b346100f25760003660031901126100f257602060405160088152f35b346100f25760003660031901126100f25760045460055460065460408051938452602084019290925290820152606090f35b346100f25760203660031901126100f2577f732ee320a887fb5bfc6d04ed20fb7c242d0d36f91fcedbbd158ffd4fd4a0285460a06004356103f4600180841b03600054163314610433565b806004554260055561040760065461047f565b6006556040519060608252600360608301526221a79960e91b60808301526020820152426040820152a1005b1561043a57565b60405162461bcd60e51b815260206004820152601a60248201527f4f6e6c79206f776e65722063616e2075706461746520646174610000000000006044820152606490fd5b600019811461048e5760010190565b634e487b7160e01b600052601160045260246000fdfea26469706673582212207e63f212874b47cce9b57a806d6b661bbe6bd57ccf60ff3dad36eb77ee3c1e9e64736f6c634300081c0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

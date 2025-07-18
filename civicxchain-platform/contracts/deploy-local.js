@@ -59,11 +59,11 @@ async function deployMockOracles() {
   console.log("📊 Deploying PM2.5 Oracle...");
   const pm25Feed = await MockAggregator.deploy(pm25Value, 8);
   await pm25Feed.deployed();
-  
+
   console.log("🌍 Deploying CO2 Oracle...");
   const co2Feed = await MockAggregator.deploy(co2Value, 8);
   await co2Feed.deployed();
-  
+
   console.log("🌳 Deploying Forest Cover Oracle...");
   const forestFeed = await MockAggregator.deploy(forestValue, 8);
   await forestFeed.deployed();

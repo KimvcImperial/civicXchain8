@@ -4,11 +4,7 @@ const axios = require("axios");
 
 // Configuration
 const UPDATE_INTERVAL = 30000; // 30 seconds
-const ORACLE_ADDRESSES = {
-  PM25: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  CO2: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-  FOREST: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-};
+const ORACLE_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Single environmental oracle
 
 class RealTimeEnvironmentalDataFetcher {
   // Fetch real PM2.5 data from multiple sources
@@ -129,21 +125,15 @@ class OracleUpdater {
 
   async initialize() {
     console.log("🔗 Initializing Oracle Updater...");
-    
+
     // Get contract factory
-    this.MockAggregator = await ethers.getContractFactory("MockAggregator");
-    
-    // Connect to oracle contracts
-    this.oracles = {
-      pm25: this.MockAggregator.attach(ORACLE_ADDRESSES.PM25),
-      co2: this.MockAggregator.attach(ORACLE_ADDRESSES.CO2),
-      forest: this.MockAggregator.attach(ORACLE_ADDRESSES.FOREST)
-    };
-    
-    console.log("✅ Connected to oracle contracts");
-    console.log(`   PM2.5 Oracle: ${ORACLE_ADDRESSES.PM25}`);
-    console.log(`   CO2 Oracle: ${ORACLE_ADDRESSES.CO2}`);
-    console.log(`   Forest Oracle: ${ORACLE_ADDRESSES.FOREST}`);
+    this.EnvironmentalOracle = await ethers.getContractFactory("EnvironmentalDataOracle");
+
+    // Connect to oracle contract
+    this.oracle = this.EnvironmentalOracle.attach(ORACLE_ADDRESS);
+
+    console.log("✅ Connected to oracle contract");
+    console.log(`   Environmental Oracle: ${ORACLE_ADDRESS}`);
   }
 
   async performUpdate() {
@@ -165,9 +155,9 @@ class OracleUpdater {
       // Update all oracles in parallel
       console.log("\n📡 Updating blockchain oracles...");
       const [pm25Tx, co2Tx, forestTx] = await Promise.all([
-        this.oracles.pm25.updateAnswer(pm25Value),
-        this.oracles.co2.updateAnswer(co2Value),
-        this.oracles.forest.updateAnswer(forestValue)
+        this.oracle.updatePM25Data(pm25Value),
+        this.oracle.updateCO2Data(co2Value),
+        this.oracle.updateForestCoverData(forestValue)
       ]);
 
       // Wait for transactions to be mined and log receipts
@@ -183,23 +173,31 @@ class OracleUpdater {
       console.log(`   CO2: ${co2Receipt.transactionHash} (Block: ${co2Receipt.blockNumber})`);
       console.log(`   Forest: ${forestReceipt.transactionHash} (Block: ${forestReceipt.blockNumber})`);
       
-      // Verify the updates by reading back the values
+      // Verify the updates by reading back the values (with error handling)
       console.log("🔍 Verifying oracle updates...");
-      const [pm25Data, co2Data, forestData] = await Promise.all([
-        this.oracles.pm25.latestRoundData(),
-        this.oracles.co2.latestRoundData(),
-        this.oracles.forest.latestRoundData()
-      ]);
+      try {
+        const [pm25Data, co2Data, forestData] = await Promise.all([
+          this.oracle.getLatestPM25Data(),
+          this.oracle.getLatestCO2Data(),
+          this.oracle.getLatestForestCoverData()
+        ]);
 
-      const pm25Current = pm25Data[1]; // answer is at index 1
-      const co2Current = co2Data[1];
-      const forestCurrent = forestData[1];
+        const pm25Current = pm25Data;
+        const co2Current = co2Data;
+        const forestCurrent = forestData;
 
-      console.log("✅ All oracles updated successfully!");
-      console.log(`   PM2.5: ${(pm25Value/100).toFixed(2)} μg/m³ (Verified: ${(pm25Current/100).toFixed(2)})`);
-      console.log(`   CO2: ${(co2Value/100).toFixed(2)} ppm (Verified: ${(co2Current/100).toFixed(2)})`);
-      console.log(`   Forest: ${(forestValue/100).toFixed(2)}% (Verified: ${(forestCurrent/100).toFixed(2)}%)`);
-      
+        console.log("✅ All oracles updated successfully!");
+        console.log(`   PM2.5: ${(pm25Value/100).toFixed(2)} μg/m³ (Verified: ${(pm25Current/100).toFixed(2)})`);
+        console.log(`   CO2: ${(co2Value/100).toFixed(2)} ppm (Verified: ${(co2Current/100).toFixed(2)})`);
+        console.log(`   Forest: ${(forestValue/100).toFixed(2)}% (Verified: ${(forestCurrent/100).toFixed(2)}%)`);
+
+      } catch (verifyError) {
+        console.log("⚠️ Verification failed, but data was written to blockchain");
+        console.log(`   PM2.5: ${(pm25Value/100).toFixed(2)} μg/m³`);
+        console.log(`   CO2: ${(co2Value/100).toFixed(2)} ppm`);
+        console.log(`   Forest: ${(forestValue/100).toFixed(2)}%`);
+      }
+
       return { pm25Value, co2Value, forestValue, success: true };
       
     } catch (error) {

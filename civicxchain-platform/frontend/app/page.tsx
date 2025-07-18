@@ -48,6 +48,13 @@ export default function Home() {
                 {/* Debug Network Info */}
                 <div className="text-xs text-cyan-400/70">
                   Chain ID: {chainId || 'Not connected'}
+                  <br />
+                  <button
+                    onClick={() => console.log('Debug: Opening browser console')}
+                    className="text-yellow-400 underline"
+                  >
+                    Check Console for Errors
+                  </button>
                 </div>
                 <button
                   onClick={() => connect({ connector: injected() })}
@@ -155,6 +162,20 @@ export default function Home() {
                 <span className="font-medium">Connected:</span> {address?.slice(0, 6)}...{address?.slice(-4)}
               </div>
               <button
+                onClick={() => {
+                  console.log('🔍 Connection Debug:', {
+                    chainId,
+                    isConnected,
+                    address,
+                    expectedChainId: 31337,
+                    isCorrectNetwork: chainId === 31337
+                  });
+                }}
+                className="text-xs text-yellow-400 underline"
+              >
+                Debug
+              </button>
+              <button
                 onClick={() => disconnect()}
                 className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 px-3 py-1 rounded-lg text-sm transition-all duration-300"
               >
@@ -172,4 +193,3 @@ export default function Home() {
     </div>
   );
 }
-

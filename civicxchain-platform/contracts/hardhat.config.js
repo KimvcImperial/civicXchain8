@@ -30,10 +30,19 @@ module.exports = {
   networks: {
     hardhat: {
       chainId: 31337
+      // Forking disabled for now - will use direct mainnet connection for oracles
     },
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 31337
+    },
+    // Mainnet fork for Chainlink oracles (local, free)
+    "mainnet-fork": {
+      url: "http://127.0.0.1:8545",
+      chainId: 31337,
+      accounts: [
+        "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80", // Default hardhat account
+      ]
     },
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL || "https://sepolia.infura.io/v3/YOUR_INFURA_KEY",

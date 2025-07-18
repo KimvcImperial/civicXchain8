@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "source venv/bin/activate && python app/main.py",
+    "start": "source venv/bin/activate && python app/main.py",
+    "setup": "python3 -m venv venv && source venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

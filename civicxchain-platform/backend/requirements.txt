@@ -31,7 +31,7 @@ Pillow==10.0.0
 python-dotenv==1.0.0
 
 # Oracle Integration (Chainlink)
-chainlink-feeds==0.3.0
+chainlink-feeds==0.2.9
 
 # Development & Testing
 pytest==7.4.0
