@@ -56,6 +56,7 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
     event CommitmentFulfilled(uint256 indexed commitmentId, uint256 actualValue, uint256 tokensRewarded);
     event TokensRewarded(uint256 indexed commitmentId, address indexed official, uint256 tokenAmount);
     event PenaltyApplied(uint256 indexed commitmentId, address indexed official, uint256 penaltyAmount);
+    event CommitmentCancelled(uint256 indexed commitmentId, address indexed official, uint256 refundAmount);
     event OracleDataReceived(uint256 indexed commitmentId, uint256 value, uint256 timestamp);
 
     constructor(
@@ -181,7 +182,41 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
 
         return tokenReward;
     }
-    
+
+    /**
+     * @dev Cancel a commitment before deadline (with small penalty)
+     * @param _commitmentId ID of the commitment to cancel
+     */
+    function cancelCommitment(uint256 _commitmentId) external nonReentrant {
+        EnvironmentalCommitment storage commitment = commitments[_commitmentId];
+        require(commitment.officialAddress == msg.sender, "Only commitment creator can cancel");
+        require(commitment.isActive, "Commitment not active");
+        require(!commitment.isFulfilled, "Cannot cancel fulfilled commitment");
+        require(!commitment.rewardClaimed, "Cannot cancel claimed commitment");
+        require(block.timestamp < commitment.deadline, "Cannot cancel after deadline");
+
+        // Mark commitment as inactive
+        commitment.isActive = false;
+
+        // Apply 10% cancellation fee, refund 90% of stake
+        uint256 cancellationFee = commitment.stakeAmount / 10; // 10% fee
+        uint256 refundAmount = commitment.stakeAmount - cancellationFee;
+
+        totalStaked -= commitment.stakeAmount;
+
+        // Send cancellation fee to contract owner (environmental fund)
+        if (cancellationFee > 0) {
+            payable(owner()).transfer(cancellationFee);
+        }
+
+        // Refund remaining stake to the official
+        if (refundAmount > 0) {
+            payable(msg.sender).transfer(refundAmount);
+        }
+
+        emit CommitmentCancelled(_commitmentId, msg.sender, refundAmount);
+    }
+
     /**
      * @dev Apply penalty for unfulfilled commitment after deadline
      * @param _commitmentId ID of the commitment

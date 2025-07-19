@@ -19,15 +19,15 @@ export const CONTRACT_CONFIG = {
     CO2_ORACLE: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',   // BTC/USD as CO2 proxy
     FOREST_ORACLE: '0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c', // LINK/USD as Forest proxy
 
-    // LOCAL CONTRACTS (deployed locally) - WORKING ORACLE
-    GOVERNANCE_CONTRACT: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
-    PM25_ORACLE_LOCAL: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
-    CO2_ORACLE_LOCAL: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
-    FOREST_ORACLE_LOCAL: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
+    // LOCAL CONTRACTS (deployed locally) - LATEST DEPLOYMENT
+    GOVERNANCE_CONTRACT: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82',
+    PM25_ORACLE_LOCAL: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
+    CO2_ORACLE_LOCAL: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+    FOREST_ORACLE_LOCAL: '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0',
 
     // Legacy compatibility
-    CIVIC_CONTRACT: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
-    ENVIRONMENTAL_ORACLE: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', // Working Oracle
+    CIVIC_CONTRACT: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82',
+    ENVIRONMENTAL_ORACLE: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788', // Working Oracle
   };
   
   // CHAINLINK AGGREGATOR ABI - FOR REAL ORACLE DATA
@@ -323,13 +323,23 @@ export const CONTRACT_CONFIG = {
           "inputs": [
             {
               "internalType": "string",
+              "name": "_title",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
               "name": "_description",
               "type": "string"
             },
             {
-              "internalType": "uint256",
-              "name": "_deadline",
-              "type": "uint256"
+              "internalType": "string",
+              "name": "_officialName",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "_officialRole",
+              "type": "string"
             },
             {
               "internalType": "uint256",
@@ -337,25 +347,19 @@ export const CONTRACT_CONFIG = {
               "type": "uint256"
             },
             {
-              "internalType": "string",
-              "name": "_metricType",
-              "type": "string"
+              "internalType": "uint256",
+              "name": "_deadline",
+              "type": "uint256"
             },
             {
               "internalType": "string",
-              "name": "_dataSource",
+              "name": "_metricType",
               "type": "string"
             }
           ],
           "name": "createCommitment",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "nonpayable",
+          "outputs": [],
+          "stateMutability": "payable",
           "type": "function"
         },
         {

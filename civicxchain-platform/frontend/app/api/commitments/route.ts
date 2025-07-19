@@ -1,25 +1,8 @@
 // app/api/commitments/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
-// Mock data for commitments - replace with your actual data source
-const mockCommitments = [
-  {
-    id: 1,
-    title: "Reduce Carbon Emissions",
-    description: "Commit to reducing carbon emissions by 50% by 2030",
-    target: "50% reduction",
-    deadline: "2030-12-31",
-    status: "active"
-  },
-  {
-    id: 2,
-    title: "Renewable Energy",
-    description: "Switch to 100% renewable energy sources",
-    target: "100% renewable",
-    deadline: "2025-12-31",
-    status: "in_progress"
-  }
-];
+// No mock data - Track Status will show real blockchain commitments
+const mockCommitments: any[] = [];
 
 export async function GET(request: NextRequest) {
   try {

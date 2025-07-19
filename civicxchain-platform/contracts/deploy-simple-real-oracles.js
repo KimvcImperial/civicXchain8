@@ -69,7 +69,7 @@ async function main() {
   
   const [deployer] = await ethers.getSigners();
   console.log("Deploying with account:", deployer.address);
-  console.log("Account balance:", ethers.utils.formatEther(await deployer.getBalance()), "ETH");
+  console.log("Account balance:", ethers.utils.formatEther(await ethers.provider.getBalance(deployer.address)), "ETH");
 
   // Fetch REAL environmental data from APIs
   console.log("\n📡 Fetching REAL environmental data from APIs...");

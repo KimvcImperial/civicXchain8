@@ -351,8 +351,8 @@
       ]
     },
     "/Users/kimberleycheung/CiviXchain/civicxchain-platform/contracts/contracts/CivicXChainGovernance.sol": {
-      "lastModificationDate": 1752509070150,
-      "contentHash": "fbd1cdc7a1275c59557e3ca0ccd89437",
+      "lastModificationDate": 1752931188362,
+      "contentHash": "331e54b8bfd93c8cffad16b550f22339",
       "sourceName": "contracts/CivicXChainGovernance.sol",
       "solcConfig": {
         "version": "0.8.28",

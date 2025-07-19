@@ -5,7 +5,7 @@
   "NETWORK": "localhost",
   "RPC_URL": "http://localhost:8545",
   "CHAIN_ID": 31337,
-  "DEPLOYED_AT": "2025-07-16T15:42:18.665Z",
+  "DEPLOYED_AT": "2025-07-18T22:30:41.077Z",
   "REAL_DATA": true,
   "FEATURES": [
     "Real environmental data from APIs",

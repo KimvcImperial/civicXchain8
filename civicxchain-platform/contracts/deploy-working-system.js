@@ -29,10 +29,11 @@ async function main() {
   await token.deployed();
   console.log("✅ CIVIC Token deployed to:", token.address);
 
-  // Step 3: Deploy Governance Contract
+  // Step 3: Deploy Governance Contract (ETH-based staking)
   console.log("\n🏛️ Deploying Governance Contract...");
-  const CivicXChainComplete = await ethers.getContractFactory("CivicXChainComplete");
-  const governance = await CivicXChainComplete.deploy(oracle.address, token.address);
+  const CivicXChainGovernance = await ethers.getContractFactory("CivicXChainGovernance");
+  // Use our oracle for all three feeds (PM2.5, CO2, Forest Cover)
+  const governance = await CivicXChainGovernance.deploy(oracle.address, oracle.address, oracle.address);
   await governance.deployed();
   console.log("✅ Governance Contract deployed to:", governance.address);
 

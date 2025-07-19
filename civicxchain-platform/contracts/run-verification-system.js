@@ -18,9 +18,11 @@ const ORACLE_ABI = [
 ];
 
 const GOVERNANCE_ABI = [
-  "function verifyCommitment(uint256 _commitmentId) external",
-  "function getCommitment(uint256 _commitmentId) external view returns (tuple(uint256 id, string title, string description, address official, string officialName, string role, uint256 targetValue, uint256 deadline, uint256 stakeAmount, bool isActive, bool isFulfilled, bool isVerified, uint256 createdAt, uint256 verifiedAt, string metricType, uint256 actualValue, uint256 baselineValue))",
-  "function getStats() external view returns (uint256 total, uint256 fulfilled, uint256 failed, uint256 active)",
+  "function createCommitment(string _title, string _description, string _officialName, string _officialRole, uint256 _targetValue, uint256 _deadline, string _metricType) external payable",
+  "function getCommitment(uint256 _commitmentId) external view returns (tuple(uint256 id, string title, string description, address officialAddress, string officialName, string officialRole, uint256 targetValue, uint256 deadline, string metricType, bool isActive, bool isFulfilled, bool rewardClaimed, uint256 stakeAmount, uint256 tokenReward, bytes32 oracleJobId))",
+  "function checkFulfillment(uint256 _commitmentId) external view returns (bool fulfilled, uint256 currentValue, uint256 targetValue)",
+  "function claimEnvironmentalReward(uint256 _commitmentId) external returns (uint256 tokensRewarded)",
+  "function applyPenalty(uint256 _commitmentId) external",
   "function nextCommitmentId() external view returns (uint256)"
 ];
 
@@ -108,51 +110,69 @@ class VerificationSystem {
     try {
       console.log("\n🔍 Checking for commitments ready for verification...");
       
-      const stats = await this.governance.getStats();
       const nextId = await this.governance.nextCommitmentId();
-      
-      console.log(`📊 System stats: ${stats.total} total, ${stats.active} active commitments`);
-      
-      if (stats.active == 0) {
-        console.log("📝 No active commitments to verify");
-        return;
-      }
+      console.log(`📊 Checking commitments up to ID: ${nextId}`);
+
+      let activeCount = 0;
 
       // Check each commitment
       for (let i = 1; i < nextId; i++) {
         try {
           const commitment = await this.governance.getCommitment(i);
           
-          if (commitment.isActive && !commitment.isVerified) {
+          if (commitment.isActive) {
+            activeCount++;
+            console.log(`\n📋 Commitment ${i}: "${commitment.title}"`);
+            console.log(`   Official: ${commitment.officialName}`);
+            console.log(`   Metric: ${commitment.metricType}`);
+            console.log(`   Target: ${(Number(commitment.targetValue) / 100).toFixed(2)}`);
+            console.log(`   Deadline: ${new Date(Number(commitment.deadline) * 1000).toLocaleString()}`);
+
             const now = Math.floor(Date.now() / 1000);
             const deadline = Number(commitment.deadline);
-            
-            if (now >= deadline) {
-              console.log(`⏰ Commitment ${i} ready for verification`);
-              console.log(`   Title: ${commitment.title}`);
-              console.log(`   Official: ${commitment.officialName}`);
-              console.log(`   Metric: ${commitment.metricType}`);
-              console.log(`   Target: ${(Number(commitment.targetValue) / 100).toFixed(2)}`);
-              
-              // Verify the commitment
-              const tx = await this.governance.verifyCommitment(i);
-              const receipt = await tx.wait();
-              
-              console.log(`✅ Commitment ${i} verified! Transaction: ${receipt.transactionHash}`);
-              
-              // Check if it was fulfilled
-              const updatedCommitment = await this.governance.getCommitment(i);
-              if (updatedCommitment.isFulfilled) {
-                console.log(`🎉 Commitment ${i} FULFILLED! Tokens rewarded.`);
-              } else {
-                console.log(`❌ Commitment ${i} FAILED. Penalty applied.`);
+
+            if (now >= deadline && !commitment.isFulfilled && !commitment.rewardClaimed) {
+              console.log(`⏰ Commitment ${i} ready for verification (deadline passed)`);
+
+              // Check fulfillment status
+              const [fulfilled, currentValue, targetValue] = await this.governance.checkFulfillment(i);
+
+              console.log(`   Current Value: ${(Number(currentValue) / 100).toFixed(2)}`);
+              console.log(`   Target Value: ${(Number(targetValue) / 100).toFixed(2)}`);
+              console.log(`   Fulfilled: ${fulfilled ? '✅ YES' : '❌ NO'}`);
+
+              if (fulfilled && !commitment.rewardClaimed) {
+                console.log(`🎉 Commitment ${i} FULFILLED! Attempting to claim reward...`);
+                try {
+                  const tx = await this.governance.claimEnvironmentalReward(i);
+                  const receipt = await tx.wait();
+                  console.log(`✅ Reward claimed! Transaction: ${receipt.transactionHash}`);
+                } catch (claimError) {
+                  console.log(`⚠️ Could not claim reward: ${claimError.message}`);
+                }
+              } else if (!fulfilled) {
+                console.log(`❌ Commitment ${i} FAILED. Applying penalty...`);
+                try {
+                  const tx = await this.governance.applyPenalty(i);
+                  const receipt = await tx.wait();
+                  console.log(`✅ Penalty applied! Transaction: ${receipt.transactionHash}`);
+                } catch (penaltyError) {
+                  console.log(`⚠️ Could not apply penalty: ${penaltyError.message}`);
+                }
               }
+            } else if (now < deadline) {
+              console.log(`⏳ Commitment ${i} still active (deadline not reached)`);
+            } else {
+              console.log(`✅ Commitment ${i} already processed`);
             }
           }
         } catch (error) {
           console.log(`⚠️ Error checking commitment ${i}:`, error.message);
         }
       }
+
+      console.log(`\n📊 Summary: Found ${activeCount} active commitments`);
+
     } catch (error) {
       console.error("❌ Verification check failed:", error.message);
     }
@@ -162,18 +182,50 @@ class VerificationSystem {
     console.log("🚀 Starting Continuous Verification System...");
     console.log("⏰ Update interval: 30 seconds");
     console.log("🔄 Features: Real data updates + Automatic verification");
+    console.log("🎯 Reward testing enabled");
     console.log("=" .repeat(60));
-    
+
     // Initial run
     await this.updateOracleData();
     await this.checkAndVerifyCommitments();
-    
+
     // Set up continuous monitoring
     setInterval(async () => {
       console.log(`\n⏰ ${new Date().toLocaleString()} - Running system cycle...`);
       await this.updateOracleData();
       await this.checkAndVerifyCommitments();
     }, 30000); // Every 30 seconds
+  }
+
+  // Test reward claiming functionality
+  async testRewardClaiming() {
+    try {
+      console.log("\n🎯 Testing reward claiming system...");
+
+      const nextId = await this.governance.nextCommitmentId();
+
+      console.log(`📊 Checking commitments for reward testing`);
+
+      // Check each commitment for reward claiming
+      for (let i = 1; i < nextId; i++) {
+        try {
+          const commitment = await this.governance.getCommitment(i);
+
+          if (commitment.isFulfilled && commitment.isVerified) {
+            console.log(`🎉 Found fulfilled commitment ${i}:`);
+            console.log(`   Title: ${commitment.title}`);
+            console.log(`   Official: ${commitment.officialName}`);
+            console.log(`   Target: ${(Number(commitment.targetValue) / 100).toFixed(2)}`);
+            console.log(`   Actual: ${(Number(commitment.actualValue) / 100).toFixed(2)}`);
+            console.log(`   ✅ Ready for reward claiming!`);
+          }
+        } catch (error) {
+          console.log(`⚠️ Error checking commitment ${i}:`, error.message);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Reward test failed:", error.message);
+    }
   }
 }
 

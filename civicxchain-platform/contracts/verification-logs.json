@@ -1,0 +1,768 @@
+[
+  {
+    "type": "system_shutdown",
+    "status": "info",
+    "message": "Verification system shutting down gracefully",
+    "timestamp": "2025-07-18T16:34:31.930Z",
+    "id": 1752856471930
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 41ms",
+    "duration": 41,
+    "timestamp": "2025-07-18T16:34:12.326Z",
+    "id": 1752856452326
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:34:12.326Z",
+    "id": 1752856452326
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:34:12.324Z",
+    "id": 1752856452324
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 60ms",
+    "duration": 60,
+    "timestamp": "2025-07-18T16:33:42.346Z",
+    "id": 1752856422346
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:33:42.345Z",
+    "id": 1752856422345
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:33:42.343Z",
+    "id": 1752856422343
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 36ms",
+    "duration": 36,
+    "timestamp": "2025-07-18T16:33:12.320Z",
+    "id": 1752856392320
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:33:12.319Z",
+    "id": 1752856392319
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:33:12.318Z",
+    "id": 1752856392318
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 62ms",
+    "duration": 62,
+    "timestamp": "2025-07-18T16:32:42.346Z",
+    "id": 1752856362346
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:32:42.345Z",
+    "id": 1752856362345
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:32:42.343Z",
+    "id": 1752856362343
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 67ms",
+    "duration": 67,
+    "timestamp": "2025-07-18T16:32:12.350Z",
+    "id": 1752856332350
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:32:12.349Z",
+    "id": 1752856332349
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:32:12.346Z",
+    "id": 1752856332346
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 37ms",
+    "duration": 37,
+    "timestamp": "2025-07-18T16:31:42.319Z",
+    "id": 1752856302319
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:31:42.319Z",
+    "id": 1752856302319
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:31:42.317Z",
+    "id": 1752856302317
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 50ms",
+    "duration": 50,
+    "timestamp": "2025-07-18T16:31:12.331Z",
+    "id": 1752856272331
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:31:12.330Z",
+    "id": 1752856272330
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:31:12.328Z",
+    "id": 1752856272328
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 38ms",
+    "duration": 38,
+    "timestamp": "2025-07-18T16:30:42.319Z",
+    "id": 1752856242319
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:30:42.319Z",
+    "id": 1752856242319
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:30:42.318Z",
+    "id": 1752856242318
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 44ms",
+    "duration": 44,
+    "timestamp": "2025-07-18T16:30:12.324Z",
+    "id": 1752856212324
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:30:12.323Z",
+    "id": 1752856212323
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:30:12.321Z",
+    "id": 1752856212321
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 36ms",
+    "duration": 36,
+    "timestamp": "2025-07-18T16:29:42.315Z",
+    "id": 1752856182315
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:29:42.315Z",
+    "id": 1752856182315
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:29:42.314Z",
+    "id": 1752856182314
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 33ms",
+    "duration": 33,
+    "timestamp": "2025-07-18T16:29:12.312Z",
+    "id": 1752856152312
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:29:12.312Z",
+    "id": 1752856152312
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:29:12.311Z",
+    "id": 1752856152311
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 44ms",
+    "duration": 44,
+    "timestamp": "2025-07-18T16:28:42.322Z",
+    "id": 1752856122322
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:28:42.322Z",
+    "id": 1752856122322
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:28:42.319Z",
+    "id": 1752856122319
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 39ms",
+    "duration": 39,
+    "timestamp": "2025-07-18T16:28:12.317Z",
+    "id": 1752856092317
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:28:12.317Z",
+    "id": 1752856092317
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:28:12.316Z",
+    "id": 1752856092316
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 44ms",
+    "duration": 44,
+    "timestamp": "2025-07-18T16:27:42.321Z",
+    "id": 1752856062321
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:27:42.321Z",
+    "id": 1752856062321
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:27:42.320Z",
+    "id": 1752856062320
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 44ms",
+    "duration": 44,
+    "timestamp": "2025-07-18T16:27:12.320Z",
+    "id": 1752856032320
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:27:12.319Z",
+    "id": 1752856032319
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:27:12.316Z",
+    "id": 1752856032316
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 61ms",
+    "duration": 61,
+    "timestamp": "2025-07-18T16:26:42.336Z",
+    "id": 1752856002336
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:26:42.335Z",
+    "id": 1752856002335
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:26:42.332Z",
+    "id": 1752856002332
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 47ms",
+    "duration": 47,
+    "timestamp": "2025-07-18T16:26:12.323Z",
+    "id": 1752855972323
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:26:12.321Z",
+    "id": 1752855972321
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:26:12.318Z",
+    "id": 1752855972318
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 55ms",
+    "duration": 55,
+    "timestamp": "2025-07-18T16:25:42.330Z",
+    "id": 1752855942330
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:25:42.329Z",
+    "id": 1752855942329
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:25:42.326Z",
+    "id": 1752855942326
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 113ms",
+    "duration": 113,
+    "timestamp": "2025-07-18T16:25:12.387Z",
+    "id": 1752855912387
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:25:12.387Z",
+    "id": 1752855912387
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:25:12.385Z",
+    "id": 1752855912385
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 55ms",
+    "duration": 55,
+    "timestamp": "2025-07-18T16:24:07.339Z",
+    "id": 1752855847339
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:24:07.338Z",
+    "id": 1752855847339
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:24:07.332Z",
+    "id": 1752855847332
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 67ms",
+    "duration": 67,
+    "timestamp": "2025-07-18T16:23:37.351Z",
+    "id": 1752855817351
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:23:37.351Z",
+    "id": 1752855817351
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:23:37.348Z",
+    "id": 1752855817348
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 51ms",
+    "duration": 51,
+    "timestamp": "2025-07-18T16:23:07.336Z",
+    "id": 1752855787336
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:23:07.336Z",
+    "id": 1752855787336
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:23:07.332Z",
+    "id": 1752855787332
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 49ms",
+    "duration": 49,
+    "timestamp": "2025-07-18T16:22:37.340Z",
+    "id": 1752855757340
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:22:37.339Z",
+    "id": 1752855757339
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:22:37.338Z",
+    "id": 1752855757338
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 48ms",
+    "duration": 48,
+    "timestamp": "2025-07-18T16:22:15.878Z",
+    "id": 1752855735878
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:22:15.877Z",
+    "id": 1752855735877
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:22:15.875Z",
+    "id": 1752855735875
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 58ms",
+    "duration": 58,
+    "timestamp": "2025-07-18T16:22:07.361Z",
+    "id": 1752855727361
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:22:07.361Z",
+    "id": 1752855727361
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:22:07.357Z",
+    "id": 1752855727357
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 52ms",
+    "duration": 52,
+    "timestamp": "2025-07-18T16:21:45.880Z",
+    "id": 1752855705880
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:21:45.879Z",
+    "id": 1752855705879
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:21:45.877Z",
+    "id": 1752855705877
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 50ms",
+    "duration": 50,
+    "timestamp": "2025-07-18T16:21:37.352Z",
+    "id": 1752855697352
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:21:37.351Z",
+    "id": 1752855697351
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:21:37.349Z",
+    "id": 1752855697349
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 41ms",
+    "duration": 41,
+    "timestamp": "2025-07-18T16:21:15.869Z",
+    "id": 1752855675869
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:21:15.869Z",
+    "id": 1752855675869
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:21:15.867Z",
+    "id": 1752855675867
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 42ms",
+    "duration": 42,
+    "timestamp": "2025-07-18T16:21:07.344Z",
+    "id": 1752855667344
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:21:07.344Z",
+    "id": 1752855667344
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:21:07.341Z",
+    "id": 1752855667341
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 47ms",
+    "duration": 47,
+    "timestamp": "2025-07-18T16:20:45.874Z",
+    "id": 1752855645874
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:20:45.873Z",
+    "id": 1752855645873
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:20:45.870Z",
+    "id": 1752855645870
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 62ms",
+    "duration": 62,
+    "timestamp": "2025-07-18T16:20:37.363Z",
+    "id": 1752855637363
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:20:37.362Z",
+    "id": 1752855637362
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:20:37.360Z",
+    "id": 1752855637360
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 58ms",
+    "duration": 58,
+    "timestamp": "2025-07-18T16:20:15.884Z",
+    "id": 1752855615884
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"nextCommitmentId()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:20:15.884Z",
+    "id": 1752855615884
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:20:15.880Z",
+    "id": 1752855615880
+  },
+  {
+    "type": "system_cycle",
+    "status": "success",
+    "message": "System cycle completed in 76ms",
+    "duration": 76,
+    "timestamp": "2025-07-18T16:20:07.376Z",
+    "id": 1752855607376
+  },
+  {
+    "type": "verification_check",
+    "status": "error",
+    "message": "Verification check failed: call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "error": "call revert exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method=\"getStats()\", data=\"0x\", errorArgs=null, errorName=null, errorSignature=null, reason=null, code=CALL_EXCEPTION, version=abi/5.8.0)",
+    "timestamp": "2025-07-18T16:20:07.376Z",
+    "id": 1752855607376
+  },
+  {
+    "type": "oracle_update",
+    "status": "success",
+    "message": "Oracle data updated successfully",
+    "timestamp": "2025-07-18T16:20:07.372Z",
+    "id": 1752855607372
+  }
+]

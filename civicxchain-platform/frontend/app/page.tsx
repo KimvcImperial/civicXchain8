@@ -95,12 +95,12 @@ export default function Home() {
 
                 <div className="bg-black/30 backdrop-blur-xl rounded-xl border border-purple-500/20 p-6">
                   <div className="text-3xl mb-3">💰</div>
-                  <h3 className="text-purple-400 font-semibold mb-2">CIVIC Token Rewards</h3>
-                  <p className="text-gray-300 text-sm">Earn tokens for achieving environmental commitments</p>
+                  <h3 className="text-purple-400 font-semibold mb-2">ETH Rewards</h3>
+                  <p className="text-gray-300 text-sm">Earn ETH for achieving environmental commitments</p>
                   <div className="mt-3 text-xs text-purple-300">
-                    <p>💎 100M CIVIC tokens available</p>
-                    <p>🏆 150 CIVIC per commitment</p>
-                    <p>📈 150% ETH stake return</p>
+                    <p>💎 ETH rewards pool available</p>
+                    <p>🏆 150% ETH stake return</p>
+                    <p>📈 Instant reward distribution</p>
                   </div>
                 </div>
 

@@ -57,13 +57,11 @@ export default function CreateCommitmentForm({ onSuccess }: CreateCommitmentForm
         abi: GOVERNANCE_ABI,
         functionName: 'createCommitment',
         args: [
-          formData.title,
           formData.description,
-          formData.officialName,
-          formData.officialRole,
-          BigInt(targetValueScaled),
           BigInt(deadlineTimestamp),
-          formData.metricType
+          BigInt(targetValueScaled),
+          formData.metricType,
+          'chainlink_oracle' // dataSource parameter
         ],
         value: parseEther(formData.stakeAmount),
       });
@@ -208,13 +206,16 @@ export default function CreateCommitmentForm({ onSuccess }: CreateCommitmentForm
               ⏰ Deadline *
             </label>
             <input
-              type="date"
+              type="datetime-local"
               required
               value={formData.deadline}
               onChange={(e) => setFormData({...formData, deadline: e.target.value})}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().slice(0, 16)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Set precise deadline including hours and minutes for testing
+            </p>
           </div>
 
           {/* Stake Amount */}
@@ -233,7 +234,7 @@ export default function CreateCommitmentForm({ onSuccess }: CreateCommitmentForm
               placeholder="0.1"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Higher stakes earn more CIVIC tokens. Recommended: 0.1 - 1.0 ETH
+              Higher stakes earn higher ETH rewards. Recommended: 0.1 - 1.0 ETH
             </p>
           </div>
 
@@ -241,8 +242,7 @@ export default function CreateCommitmentForm({ onSuccess }: CreateCommitmentForm
           <div className="bg-green-50 rounded-lg p-4">
             <h4 className="text-sm font-semibold text-green-800 mb-2">🏆 Estimated Rewards</h4>
             <div className="text-sm text-green-700 space-y-1">
-              <p>CIVIC Tokens: ~{(parseFloat(formData.stakeAmount || '0') * 1000 * 1.5).toFixed(0)} CIVIC</p>
-              <p>ETH Return: {(parseFloat(formData.stakeAmount || '0') * 1.5).toFixed(2)} ETH (150% of stake)</p>
+              <p>ETH Reward: {(parseFloat(formData.stakeAmount || '0') * 1.5).toFixed(4)} ETH (150% of stake)</p>
               <p className="text-xs">*Rewards only paid upon successful completion</p>
             </div>
           </div>

@@ -4,17 +4,125 @@ import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { parseEther, formatEther, createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
-import { CONTRACT_CONFIG, CHAINLINK_AGGREGATOR_ABI } from '../../config/contracts.js';
+import { CHAINLINK_AGGREGATOR_ABI } from '../../config/contracts.js';
+import { CONTRACT_CONFIG } from '../../config/contracts.js';
 import { GOVERNANCE_ABI, ENVIRONMENTAL_ORACLE_ABI, CIVIC_TOKEN_ABI } from '../../config/complete-system-abi.js';
+
+// Import the correct ABI from the deployed contract
+const CIVIC_CONTRACT_ABI = [
+  {
+    "inputs": [
+      {"internalType": "address", "name": "_pm25Feed", "type": "address"},
+      {"internalType": "address", "name": "_co2Feed", "type": "address"},
+      {"internalType": "address", "name": "_forestCoverFeed", "type": "address"}
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {"internalType": "string", "name": "_title", "type": "string"},
+      {"internalType": "string", "name": "_description", "type": "string"},
+      {"internalType": "string", "name": "_officialName", "type": "string"},
+      {"internalType": "string", "name": "_officialRole", "type": "string"},
+      {"internalType": "uint256", "name": "_targetValue", "type": "uint256"},
+      {"internalType": "uint256", "name": "_deadline", "type": "uint256"},
+      {"internalType": "string", "name": "_metricType", "type": "string"}
+    ],
+    "name": "createCommitment",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
+    "name": "getCommitment",
+    "outputs": [
+      {
+        "components": [
+          {"internalType": "uint256", "name": "id", "type": "uint256"},
+          {"internalType": "string", "name": "title", "type": "string"},
+          {"internalType": "string", "name": "description", "type": "string"},
+          {"internalType": "address", "name": "officialAddress", "type": "address"},
+          {"internalType": "string", "name": "officialName", "type": "string"},
+          {"internalType": "string", "name": "officialRole", "type": "string"},
+          {"internalType": "uint256", "name": "targetValue", "type": "uint256"},
+          {"internalType": "uint256", "name": "deadline", "type": "uint256"},
+          {"internalType": "string", "name": "metricType", "type": "string"},
+          {"internalType": "bool", "name": "isActive", "type": "bool"},
+          {"internalType": "bool", "name": "isFulfilled", "type": "bool"},
+          {"internalType": "bool", "name": "rewardClaimed", "type": "bool"},
+          {"internalType": "uint256", "name": "stakeAmount", "type": "uint256"},
+          {"internalType": "uint256", "name": "tokenReward", "type": "uint256"},
+          {"internalType": "bytes32", "name": "oracleJobId", "type": "bytes32"}
+        ],
+        "internalType": "struct CivicXChainGovernance.EnvironmentalCommitment",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "_official", "type": "address"}],
+    "name": "getOfficialCommitments",
+    "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
+    "name": "claimEnvironmentalReward",
+    "outputs": [{"internalType": "uint256", "name": "tokensRewarded", "type": "uint256"}],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
+    "name": "cancelCommitment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
+    "name": "checkFulfillment",
+    "outputs": [
+      {"internalType": "bool", "name": "fulfilled", "type": "bool"},
+      {"internalType": "uint256", "name": "currentValue", "type": "uint256"},
+      {"internalType": "uint256", "name": "targetValue", "type": "uint256"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextCommitmentId",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
+    "name": "balanceOf",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
 import { EnvironmentalDataService } from '../services/environmentalDataService';
+import JudgePanel from './JudgePanel';
+import RoleBasedLogin, { UserRole } from './RoleBasedLogin';
+import AutoVerificationMonitor from './AutoVerificationMonitor';
 
 // ABIs are now imported from complete-system-abi.js
 
 // Component to display individual commitment details
-function CommitmentCard({ commitmentId }: { commitmentId: bigint }) {
+function CommitmentCard({ commitmentId, onCancel }: { commitmentId: bigint, onCancel?: (id: bigint) => void }) {
   const { data: commitment } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: GOVERNANCE_ABI,
+    abi: CIVIC_CONTRACT_ABI,
     functionName: 'getCommitment',
     args: [commitmentId],
   });
@@ -92,6 +200,18 @@ function CommitmentCard({ commitmentId }: { commitmentId: bigint }) {
         <span>Created: {new Date(Number(commitment.createdAt) * 1000).toLocaleDateString()} | </span>
         <span>Verified: {commitment.isVerified ? '✅ Yes' : '⏳ Pending'}</span>
       </div>
+
+      {/* Cancel button - only show for active commitments before deadline */}
+      {commitment.isActive && !commitment.isFulfilled && !isExpired && onCancel && (
+        <div className="mt-4 pt-3 border-t border-gray-700">
+          <button
+            onClick={() => onCancel(commitmentId)}
+            className="w-full bg-gradient-to-r from-red-500/20 to-red-600/20 hover:from-red-500/30 hover:to-red-600/30 border border-red-500/50 text-red-400 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm"
+          >
+            🗑️ Cancel Commitment (10% fee)
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -103,6 +223,7 @@ export default function CyberpunkDashboard() {
   const chainId = useChainId();
   const [activeTab, setActiveTab] = useState('feed');
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [userRole, setUserRole] = useState<UserRole>(null);
 
   // Create mainnet client for Chainlink oracles
   const mainnetClient = createPublicClient({
@@ -127,13 +248,13 @@ export default function CyberpunkDashboard() {
   // Read contract data with refetch capability
   const { data: nextCommitmentId, refetch: refetchCommitmentId } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: GOVERNANCE_ABI,
+    abi: CIVIC_CONTRACT_ABI,
     functionName: 'nextCommitmentId',
   });
 
   const { data: userCommitments, refetch: refetchUserCommitments } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: GOVERNANCE_ABI,
+    abi: CIVIC_CONTRACT_ABI,
     functionName: 'getOfficialCommitments',
     args: [address as `0x${string}`],
   });
@@ -143,7 +264,7 @@ export default function CyberpunkDashboard() {
 
   const { data: latestCommitment, refetch: refetchLatestCommitment } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: GOVERNANCE_ABI,
+    abi: CIVIC_CONTRACT_ABI,
     functionName: 'getCommitment',
     args: latestCommitmentId ? [latestCommitmentId] : undefined,
     query: {
@@ -245,7 +366,7 @@ export default function CyberpunkDashboard() {
   // Write contract functions
   const { writeContract: createCommitment, data: createHash, error: createError } = useWriteContract();
   const { writeContract: claimReward, data: claimHash, error: claimError } = useWriteContract();
-  const { writeContract: approveTokens, data: approveHash, error: approveError } = useWriteContract();
+  const { writeContract: cancelCommitment, data: cancelHash, error: cancelError } = useWriteContract();
   
   const { isLoading: isCreateConfirming, isSuccess: isCreateConfirmed } = useWaitForTransactionReceipt({
     hash: createHash,
@@ -253,6 +374,10 @@ export default function CyberpunkDashboard() {
   
   const { isLoading: isClaimConfirming, isSuccess: isClaimConfirmed } = useWaitForTransactionReceipt({
     hash: claimHash,
+  });
+
+  const { isLoading: isCancelConfirming, isSuccess: isCancelConfirmed } = useWaitForTransactionReceipt({
+    hash: cancelHash,
   });
 
   useEffect(() => {
@@ -317,6 +442,32 @@ Make sure you:
     }
   }, [createError]);
 
+  // Handle successful reward claim
+  useEffect(() => {
+    if (isClaimConfirmed) {
+      alert('🎉 Reward claimed successfully!');
+      // Refresh data
+      setTimeout(() => {
+        refetchCommitmentId();
+        refetchUserCommitments();
+        refetchLatestCommitment();
+      }, 2000);
+    }
+  }, [isClaimConfirmed, refetchCommitmentId, refetchUserCommitments, refetchLatestCommitment]);
+
+  // Handle successful commitment cancellation
+  useEffect(() => {
+    if (isCancelConfirmed) {
+      alert('✅ Commitment cancelled successfully!\n\n90% of your stake has been refunded.');
+      // Refresh data
+      setTimeout(() => {
+        refetchCommitmentId();
+        refetchUserCommitments();
+        refetchLatestCommitment();
+      }, 2000);
+    }
+  }, [isCancelConfirmed, refetchCommitmentId, refetchUserCommitments, refetchLatestCommitment]);
+
   const handleCreateCommitment = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -365,20 +516,30 @@ Make sure you:
         userAddress: address
       });
 
-      // Create commitment with ETH staking (no token approval needed)
+      // Create commitment with ETH staking
       console.log('📝 Creating commitment with ETH stake...');
+      console.log('Debug values:', {
+        title: newCommitment.title || 'Environmental Commitment',
+        description: newCommitment.description,
+        targetValue: targetValueScaled,
+        deadline: deadlineTimestamp,
+        currentTime: Math.floor(Date.now() / 1000),
+        metricType: newCommitment.metricType,
+        stakeAmount: stakeAmountWei.toString()
+      });
+
       createCommitment({
         address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
         abi: GOVERNANCE_ABI,
         functionName: 'createCommitment',
         args: [
-          newCommitment.title,
-          newCommitment.description,
-          newCommitment.officialName,
-          newCommitment.officialRole,
-          BigInt(targetValueScaled),
-          BigInt(deadlineTimestamp),
-          newCommitment.metricType
+          newCommitment.title || 'Environmental Commitment', // _title
+          newCommitment.description || 'Environmental commitment description', // _description
+          newCommitment.officialName || 'Public Official', // _officialName
+          newCommitment.officialRole || 'Environmental Officer', // _officialRole
+          BigInt(targetValueScaled), // _targetValue
+          BigInt(deadlineTimestamp), // _deadline
+          newCommitment.metricType || 'pm25' // _metricType
         ],
         value: stakeAmountWei, // ETH stake amount
       });
@@ -394,12 +555,39 @@ Make sure you:
     try {
       claimReward({
         address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-        abi: GOVERNANCE_ABI,
-        functionName: 'claimReward',
+        abi: CIVIC_CONTRACT_ABI,
+        functionName: 'claimEnvironmentalReward',
         args: [latestCommitmentId],
       });
     } catch (err) {
       console.error('Error claiming reward:', err);
+    }
+  };
+
+  const handleCancelCommitment = async (commitmentId?: bigint) => {
+    const idToCancel = commitmentId || latestCommitmentId;
+    if (!idToCancel) return;
+
+    // Confirm cancellation
+    const confirmed = window.confirm(
+      'Are you sure you want to cancel this commitment?\n\n' +
+      '⚠️ You will lose 10% of your stake as a cancellation fee.\n' +
+      '💰 You will receive 90% of your stake back.\n\n' +
+      'This action cannot be undone.'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      cancelCommitment({
+        address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+        abi: CIVIC_CONTRACT_ABI,
+        functionName: 'cancelCommitment',
+        args: [idToCancel],
+      });
+    } catch (err) {
+      console.error('Error canceling commitment:', err);
+      alert('Error canceling commitment: ' + (err as Error).message);
     }
   };
 
@@ -506,10 +694,10 @@ Make sure you:
     });
   }, [pm25Value, aqiValue, forestValue, pm25Loading, aqiLoading, forestLoading, pm25Error, aqiError, forestError]);
 
-  // Read actual CIVIC token balance from token contract
+  // Read actual CIVIC token balance from the token contract
   const { data: tokenBalance } = useReadContract({
     address: CONTRACT_CONFIG.CIVIC_TOKEN as `0x${string}`,
-    abi: CIVIC_TOKEN_ABI,
+    abi: CIVIC_CONTRACT_ABI,
     functionName: 'balanceOf',
     args: [address as `0x${string}`],
   });
@@ -542,16 +730,50 @@ Make sure you:
     address: address
   });
 
-  const tabs = [
-    { id: 'feed', name: 'Live Feed', icon: '📡' },
-    { id: 'create', name: 'Create', icon: '➕' },
-    { id: 'track', name: 'Track Status', icon: '📊' },
-    { id: 'rewards', name: 'Rewards', icon: '💰' },
-    { id: 'punishments', name: 'Penalties', icon: '⚠️' },
-  ];
+  // Role-based tabs
+  const getTabsForRole = (role: UserRole) => {
+    const baseTabs = [
+      { id: 'feed', name: 'Live Feed', icon: '📡' },
+      { id: 'monitor', name: 'Auto Monitor', icon: '🤖' },
+    ];
+
+    if (role === 'public_official') {
+      return [
+        ...baseTabs,
+        { id: 'create', name: 'Create', icon: '➕' },
+        { id: 'track', name: 'My Status', icon: '📊' },
+        { id: 'rewards', name: 'Rewards', icon: '💰' },
+      ];
+    } else if (role === 'judge') {
+      return [
+        ...baseTabs,
+        { id: 'judge', name: 'Judge Panel', icon: '⚖️' },
+        { id: 'track', name: 'All Status', icon: '📊' },
+        { id: 'punishments', name: 'Penalties', icon: '⚠️' },
+      ];
+    } else if (role === 'citizen') {
+      return [
+        ...baseTabs,
+        { id: 'track', name: 'Track All', icon: '📊' },
+        { id: 'punishments', name: 'Penalties', icon: '⚠️' },
+      ];
+    }
+
+    return baseTabs;
+  };
+
+  const tabs = getTabsForRole(userRole);
+
+  // Show login screen if no role selected
+  if (!userRole) {
+    return <RoleBasedLogin onRoleSelected={setUserRole} currentRole={userRole} />;
+  }
 
   return (
     <div className="space-y-6">
+      {/* Role-based Login Header */}
+      <RoleBasedLogin onRoleSelected={setUserRole} currentRole={userRole} />
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-black/30 backdrop-blur-xl rounded-xl border border-cyan-500/20 p-6 shadow-2xl">
@@ -638,9 +860,9 @@ Make sure you:
         <div className="bg-black/30 backdrop-blur-xl rounded-xl border border-yellow-500/20 p-6 shadow-2xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-yellow-400 text-sm font-medium">CIVIC Tokens</p>
-              <p className="text-2xl font-bold text-white">{parseFloat(balance).toFixed(0)}</p>
-              <p className="text-yellow-300 text-xs">Balance</p>
+              <p className="text-yellow-400 text-sm font-medium">ETH Balance</p>
+              <p className="text-2xl font-bold text-white">{parseFloat(balance).toFixed(4)}</p>
+              <p className="text-yellow-300 text-xs">ETH</p>
             </div>
             <div className="text-2xl">💰</div>
           </div>
@@ -767,7 +989,11 @@ Make sure you:
                 {userCommitments && userCommitments.length > 0 ? (
                   <div className="space-y-4">
                     {userCommitments.slice(-3).reverse().map((commitmentId) => {
-                      return <CommitmentCard key={commitmentId.toString()} commitmentId={commitmentId} />;
+                      return <CommitmentCard
+                        key={commitmentId.toString()}
+                        commitmentId={commitmentId}
+                        onCancel={handleCancelCommitment}
+                      />;
                     })}
                   </div>
                 ) : (
@@ -851,7 +1077,27 @@ Make sure you:
             </div>
           )}
 
-          {activeTab === 'create' && (
+          {activeTab === 'monitor' && (
+            <div className="space-y-6">
+              <h3 className="text-xl text-white mb-6 flex items-center">
+                <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"></span>
+                Automatic Verification Monitor
+              </h3>
+              <AutoVerificationMonitor />
+            </div>
+          )}
+
+          {activeTab === 'judge' && userRole === 'judge' && (
+            <div className="space-y-6">
+              <h3 className="text-xl text-white mb-6 flex items-center">
+                <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></span>
+                Judge Panel - Manual Verification
+              </h3>
+              <JudgePanel />
+            </div>
+          )}
+
+          {activeTab === 'create' && userRole === 'public_official' && (
             <div className="max-w-2xl mx-auto">
               <h3 className="text-xl text-white mb-6 flex items-center">
                 <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"></span>
@@ -1033,18 +1279,18 @@ Make sure you:
               <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-purple-500/30 p-6">
                 <h4 className="text-lg font-semibold text-purple-400 mb-4">📊 Active Commitments Progress</h4>
 
-                {latestCommitment ? (
+                {latestCommitment && latestCommitment[2] && latestCommitment[4] ? (
                   <div className="space-y-4">
                     <div className="bg-black/30 rounded-lg p-4 border border-cyan-500/20">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h5 className="text-white font-medium">{latestCommitment[2] || 'Environmental Commitment'}</h5>
+                          <h5 className="text-white font-medium">{latestCommitment[2]}</h5>
                           <p className="text-gray-400 text-sm">{latestCommitment[7] || 'Official'}</p>
                         </div>
                         <div className="text-right">
                           <div className="text-sm text-gray-400">Deadline</div>
                           <div className="text-white text-sm">
-                            {latestCommitment[3] ? new Date(Number(latestCommitment[3]) * 1000).toLocaleDateString() : 'Dec 31, 2024'}
+                            {latestCommitment[3] ? new Date(Number(latestCommitment[3]) * 1000).toLocaleDateString() : 'No deadline set'}
                           </div>
                         </div>
                       </div>
@@ -1053,7 +1299,7 @@ Make sure you:
                         <div>
                           <div className="text-xs text-gray-400">Target Value</div>
                           <div className="text-cyan-400 font-medium">
-                            {latestCommitment[4] ? Number(latestCommitment[4]).toFixed(2) : '25.00'}
+                            {Number(latestCommitment[4]).toFixed(2)}
                             {latestCommitment[6] === 'pm25' ? ' μg/m³' : latestCommitment[6] === 'aqi' ? ' AQI' : '%'}
                           </div>
                         </div>
@@ -1098,7 +1344,7 @@ Make sure you:
                         <div className="text-sm">
                           <span className="text-gray-400">Reward: </span>
                           <span className="text-yellow-400 font-medium">
-                            {latestCommitment[13] ? formatEther(latestCommitment[13]) : '0'} CIVIC
+                            {latestCommitment[13] ? formatEther(latestCommitment[13]) : '0'} ETH
                           </span>
                         </div>
                       </div>
@@ -1128,7 +1374,7 @@ Make sure you:
             <div className="space-y-6">
               <h3 className="text-xl text-white mb-6 flex items-center">
                 <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"></span>
-                CIVIC Rewards & Claims
+                ETH Rewards & Claims
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1138,8 +1384,8 @@ Make sure you:
                     <div className="text-4xl mb-4">💰</div>
                     <div className="space-y-2">
                       <p className="text-yellow-400 text-sm">Current Balance</p>
-                      <p className="text-3xl font-bold text-white">{parseFloat(balance).toFixed(2)}</p>
-                      <p className="text-yellow-300 text-sm">CIVIC Tokens</p>
+                      <p className="text-3xl font-bold text-white">{parseFloat(balance).toFixed(4)}</p>
+                      <p className="text-yellow-300 text-sm">ETH</p>
                     </div>
 
                     {parseFloat(balance) > 0 && (
@@ -1162,7 +1408,7 @@ Make sure you:
                       <p className="text-3xl font-bold text-white">
                         {latestCommitment && latestCommitment[8] && !latestCommitment[9] ? '150' : '0'}
                       </p>
-                      <p className="text-green-300 text-sm">CIVIC Tokens</p>
+                      <p className="text-green-300 text-sm">ETH</p>
                     </div>
 
                     {latestCommitment && latestCommitment[8] && !latestCommitment[9] && (
@@ -1197,7 +1443,7 @@ Make sure you:
                           <div className="text-green-400 text-sm">PM2.5 Reduction Target Met</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-green-400 font-bold">+{balance} CIVIC</div>
+                          <div className="text-green-400 font-bold">+{balance} ETH</div>
                           <div className="text-gray-400 text-xs">{new Date().toLocaleDateString()}</div>
                         </div>
                       </div>
@@ -1206,7 +1452,7 @@ Make sure you:
                     <div className="text-center py-6">
                       <div className="text-3xl mb-2">🎯</div>
                       <p className="text-gray-400">No rewards claimed yet</p>
-                      <p className="text-sm text-gray-500 mt-1">Complete commitments to earn CIVIC tokens</p>
+                      <p className="text-sm text-gray-500 mt-1">Complete commitments to earn ETH rewards</p>
                     </div>
                   )}
                 </div>
