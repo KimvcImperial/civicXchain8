@@ -3,122 +3,26 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
-import { CONTRACT_CONFIG } from '../../config/contracts';
+import { CONTRACT_CONFIG, CIVIC_CONTRACT_ABI } from '../../config/contracts';
 import EnvironmentalDataDisplay from './EnvironmentalDataDisplay';
 import CommitmentList from './CommitmentList';
 import CreateCommitmentForm from './CreateCommitmentForm';
 import TokenBalance from './TokenBalance';
 
-// Simplified ABI for the main functions we need
-const GOVERNANCE_ABI = [
-  {
-    "inputs": [
-      {"internalType": "string", "name": "_title", "type": "string"},
-      {"internalType": "string", "name": "_description", "type": "string"},
-      {"internalType": "string", "name": "_officialName", "type": "string"},
-      {"internalType": "string", "name": "_officialRole", "type": "string"},
-      {"internalType": "uint256", "name": "_targetValue", "type": "uint256"},
-      {"internalType": "uint256", "name": "_deadline", "type": "uint256"},
-      {"internalType": "string", "name": "_metricType", "type": "string"}
-    ],
-    "name": "createCommitment",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
-    "name": "getCommitment",
-    "outputs": [
-      {
-        "components": [
-          {"internalType": "uint256", "name": "id", "type": "uint256"},
-          {"internalType": "string", "name": "title", "type": "string"},
-          {"internalType": "string", "name": "description", "type": "string"},
-          {"internalType": "address", "name": "officialAddress", "type": "address"},
-          {"internalType": "string", "name": "officialName", "type": "string"},
-          {"internalType": "string", "name": "officialRole", "type": "string"},
-          {"internalType": "uint256", "name": "targetValue", "type": "uint256"},
-          {"internalType": "uint256", "name": "deadline", "type": "uint256"},
-          {"internalType": "string", "name": "metricType", "type": "string"},
-          {"internalType": "bool", "name": "isActive", "type": "bool"},
-          {"internalType": "bool", "name": "isFulfilled", "type": "bool"},
-          {"internalType": "bool", "name": "rewardClaimed", "type": "bool"},
-          {"internalType": "uint256", "name": "stakeAmount", "type": "uint256"},
-          {"internalType": "uint256", "name": "tokenReward", "type": "uint256"}
-        ],
-        "internalType": "struct CivicXChainGovernance.EnvironmentalCommitment",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
-    "name": "checkFulfillment",
-    "outputs": [
-      {"internalType": "bool", "name": "fulfilled", "type": "bool"},
-      {"internalType": "uint256", "name": "currentValue", "type": "uint256"},
-      {"internalType": "uint256", "name": "targetValue", "type": "uint256"}
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
-    "name": "claimEnvironmentalReward",
-    "outputs": [{"internalType": "uint256", "name": "tokensRewarded", "type": "uint256"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "address", "name": "_account", "type": "address"}],
-    "name": "getTokenBalance",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getContractTokenBalance",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  }
-] as const;
+// Use the consistent ABI from contracts config
 
 export default function CivicXChainDashboard() {
   const { address } = useAccount();
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Read contract data
-  const { data: userTokenBalance } = useReadContract({
-    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: GOVERNANCE_ABI,
-    functionName: 'getTokenBalance',
-    args: [address as `0x${string}`],
-  });
-
-  const { data: contractTokenBalance } = useReadContract({
-    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: GOVERNANCE_ABI,
-    functionName: 'getContractTokenBalance',
-  });
-
   // Get commitment data (we know there's at least commitment ID 1)
   const { data: commitment1 } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: GOVERNANCE_ABI,
+    abi: CIVIC_CONTRACT_ABI,
     functionName: 'getCommitment',
     args: [1n],
   });
-
-  const { data: fulfillmentStatus } = useReadContract({
-    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: GOVERNANCE_ABI,
     functionName: 'checkFulfillment',
     args: [1n],
   });

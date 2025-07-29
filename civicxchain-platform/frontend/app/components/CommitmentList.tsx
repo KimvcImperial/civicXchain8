@@ -32,14 +32,14 @@ export default function CommitmentList({ commitment, fulfillmentStatus, onRefres
 
   const handleClaimReward = async () => {
     if (!commitment || !fulfillmentStatus?.[0]) return;
-    
+
     setIsClaimingReward(true);
     try {
       writeContract({
         address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
         abi: GOVERNANCE_ABI,
         functionName: 'claimEnvironmentalReward',
-        args: [1n],
+        args: [BigInt(commitment.id)], // Use actual commitment ID instead of hardcoded 1n
       });
     } catch (err) {
       console.error('Error claiming reward:', err);
@@ -65,7 +65,7 @@ export default function CommitmentList({ commitment, fulfillmentStatus, onRefres
     );
   }
 
-  const deadline = new Date(Number(commitment[7]) * 1000);
+  const deadline = new Date(Number(commitment.deadline) * 1000);
   const isExpired = deadline < new Date();
   const daysLeft = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
@@ -84,11 +84,11 @@ export default function CommitmentList({ commitment, fulfillmentStatus, onRefres
         <div className="bg-gradient-to-r from-green-50 to-blue-50 px-6 py-4 border-b">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">{commitment[1]}</h3>
-              <p className="text-sm text-gray-600 mt-1">ID: #{Number(commitment[0])}</p>
+              <h3 className="text-lg font-semibold text-gray-900">{commitment.title}</h3>
+              <p className="text-sm text-gray-600 mt-1">ID: #{Number(commitment.id)}</p>
             </div>
             <div className="flex items-center space-x-2">
-              {commitment[10] ? (
+              {commitment.isFulfilled ? (
                 <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
                   ✅ Fulfilled
                 </span>
@@ -112,16 +112,16 @@ export default function CommitmentList({ commitment, fulfillmentStatus, onRefres
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm font-medium text-gray-700 mb-2">📝 Description</h4>
-                <p className="text-gray-600 text-sm">{commitment[2]}</p>
+                <p className="text-gray-600 text-sm">{commitment.description}</p>
               </div>
 
               <div>
                 <h4 className="text-sm font-medium text-gray-700 mb-2">👤 Official</h4>
                 <div className="text-sm">
-                  <p className="font-medium">{commitment[4]}</p>
-                  <p className="text-gray-600">{commitment[5]}</p>
+                  <p className="font-medium">{commitment.officialName}</p>
+                  <p className="text-gray-600">{commitment.officialRole}</p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {commitment[3].slice(0, 8)}...{commitment[3].slice(-6)}
+                    {commitment.officialAddress.slice(0, 8)}...{commitment.officialAddress.slice(-6)}
                   </p>
                 </div>
               </div>
@@ -142,11 +142,11 @@ export default function CommitmentList({ commitment, fulfillmentStatus, onRefres
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Metric Type:</span>
-                    <span className="font-medium uppercase">{commitment[8]}</span>
+                    <span className="font-medium uppercase">{commitment.metricType}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Target Value:</span>
-                    <span className="font-medium">{(Number(commitment[6]) / 100).toFixed(2)} μg/m³</span>
+                    <span className="font-medium">{(Number(commitment.targetValue) / 100).toFixed(2)} μg/m³</span>
                   </div>
                   {fulfillmentStatus && (
                     <div className="flex justify-between text-sm">

@@ -13,13 +13,13 @@ interface RoleBasedLoginProps {
 // Mock role registry - in production, this would be stored in smart contracts or a secure database
 const ROLE_REGISTRY: Record<string, UserRole> = {
   // Public Officials (can create commitments)
-  '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266': 'public_official', // Default Hardhat account 0
   '0x70997970c51812dc3a010c7d01b50e0d17dc79c8': 'public_official', // Default Hardhat account 1
-  
+
   // Judges (can manually verify)
+  '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266': 'judge', // Default Hardhat account 0 - YOUR CURRENT ACCOUNT
   '0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc': 'judge', // Default Hardhat account 2
   '0x90f79bf6eb2c4f870365e785982e1f101e93b906': 'judge', // Default Hardhat account 3
-  
+
   // Citizens (can view and monitor) - any other address defaults to citizen
 };
 
@@ -78,12 +78,49 @@ export default function RoleBasedLogin({ onRoleSelected, currentRole }: RoleBase
               </div>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm"
-          >
-            Logout
-          </button>
+
+          <div className="flex items-center space-x-3">
+            {/* Role Switcher Buttons */}
+            <div className="flex bg-black/50 rounded-lg p-1 border border-gray-600">
+              <button
+                onClick={() => onRoleSelected('public_official')}
+                className={`px-3 py-1 rounded text-sm transition-all ${
+                  currentRole === 'public_official'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}
+              >
+                🏛️ Official
+              </button>
+              <button
+                onClick={() => onRoleSelected('judge')}
+                className={`px-3 py-1 rounded text-sm transition-all ${
+                  currentRole === 'judge'
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}
+              >
+                ⚖️ Judge
+              </button>
+              <button
+                onClick={() => onRoleSelected('citizen')}
+                className={`px-3 py-1 rounded text-sm transition-all ${
+                  currentRole === 'citizen'
+                    ? 'bg-green-600 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}
+              >
+                👥 Citizen
+              </button>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     );

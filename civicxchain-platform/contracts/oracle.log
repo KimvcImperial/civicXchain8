@@ -1,0 +1,11 @@
+🌍 STARTING LIVE ORACLE UPDATES FOR CIVICXCHAIN...
+📊 This will simulate real environmental data changes every 30 seconds
+⏹️  Press Ctrl+C to stop
+
+HardhatError: HH700: Artifact for contract "MockAggregator" not found. 
+    at Artifacts._handleWrongArtifactForContractName (/Users/kimberleycheung/CiviXchain/civicxchain-platform/contracts/node_modules/hardhat/internal/artifacts.js:493:15)
+    at Artifacts._getArtifactPathFromFiles (/Users/kimberleycheung/CiviXchain/civicxchain-platform/contracts/node_modules/hardhat/internal/artifacts.js:589:25)
+    at Artifacts._getArtifactPath (/Users/kimberleycheung/CiviXchain/civicxchain-platform/contracts/node_modules/hardhat/internal/artifacts.js:353:27)
+    at async Artifacts.readArtifact (/Users/kimberleycheung/CiviXchain/civicxchain-platform/contracts/node_modules/hardhat/internal/artifacts.js:57:30)
+    at async getContractFactory (/Users/kimberleycheung/CiviXchain/civicxchain-platform/contracts/node_modules/@nomiclabs/hardhat-ethers/internal/helpers.js:59:26)
+    at async startLiveOracleUpdates (/Users/kimberleycheung/CiviXchain/civicxchain-platform/contracts/scripts/live-oracle-updates.js:9:26)

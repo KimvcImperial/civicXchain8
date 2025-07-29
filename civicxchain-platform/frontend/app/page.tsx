@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAccount, useConnect, useDisconnect, useChainId } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 import CyberpunkDashboard from './components/CyberpunkDashboard';
+import OracleDataDisplay from './components/OracleDataDisplay';
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -82,16 +83,7 @@ export default function Home() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
-                <div className="bg-black/30 backdrop-blur-xl rounded-xl border border-cyan-500/20 p-6">
-                  <div className="text-3xl mb-3">🌍</div>
-                  <h3 className="text-cyan-400 font-semibold mb-2">Live Environmental Data</h3>
-                  <p className="text-gray-300 text-sm">Real-time PM2.5, CO2, and forest cover data from Chainlink oracles</p>
-                  <div className="mt-3 text-xs text-cyan-300">
-                    <p>📊 PM2.5: 9.50 μg/m³ (Improved!)</p>
-                    <p>🌍 CO2: 395.8 ppm (Reduced!)</p>
-                    <p>🌳 Forest: 72.24% (Increased!)</p>
-                  </div>
-                </div>
+                <OracleDataDisplay />
 
                 <div className="bg-black/30 backdrop-blur-xl rounded-xl border border-purple-500/20 p-6">
                   <div className="text-3xl mb-3">💰</div>
@@ -156,7 +148,7 @@ export default function Home() {
 
             <div className="flex items-center space-x-4">
               <div className="text-xs text-cyan-400/70">
-                Chain: {chainId === 31337 ? 'Localhost ✅' : `${chainId} ❌`}
+                Chain: {chainId === 11155111 ? 'Sepolia ✅' : `${chainId} ❌`}
               </div>
               <div className="text-sm text-cyan-400">
                 <span className="font-medium">Connected:</span> {address?.slice(0, 6)}...{address?.slice(-4)}
@@ -167,8 +159,8 @@ export default function Home() {
                     chainId,
                     isConnected,
                     address,
-                    expectedChainId: 31337,
-                    isCorrectNetwork: chainId === 31337
+                    expectedChainId: 11155111,
+                    isCorrectNetwork: chainId === 11155111
                   });
                 }}
                 className="text-xs text-yellow-400 underline"

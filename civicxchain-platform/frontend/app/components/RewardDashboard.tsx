@@ -214,6 +214,7 @@ declare global {
 
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { CONTRACT_CONFIG } from '../../config/contracts';
 
 interface Reward {
   id: string;
@@ -267,10 +268,10 @@ interface EnvironmentalData {
 
 // Smart Contract ABI (simplified)
 const REWARD_CONTRACT_ABI = [
-  "function claimReward(uint256 rewardId) external",
-  "function getReward(uint256 rewardId) external view returns (tuple(address recipient, uint256 amount, bool claimed, string rewardType))",
-  "function isRewardClaimable(uint256 rewardId, address user) external view returns (bool)",
-  "event RewardClaimed(address indexed user, uint256 indexed rewardId, uint256 amount)"
+  "function claimEnvironmentalReward(uint256 _commitmentId) external returns (uint256 tokensRewarded)",
+  "function getCommitment(uint256 _commitmentId) external view returns (tuple(uint256 id, string title, string description, address officialAddress, string officialName, string officialRole, uint256 targetValue, uint256 deadline, string metricType, bool isActive, bool isFulfilled, bool rewardClaimed, uint256 stakeAmount, uint256 tokenReward, bytes32 oracleJobId))",
+  "function checkFulfillment(uint256 _commitmentId) external view returns (bool fulfilled, uint256 currentValue, string memory dataSource)",
+  "event CommitmentFulfilled(uint256 indexed commitmentId, uint256 currentValue, uint256 tokenReward)"
 ];
 
 const RewardDashboard: React.FC = () => {
@@ -282,9 +283,8 @@ const RewardDashboard: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
 
-  
-  const REWARD_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Your REAL local address
-  const RPC_URL = "http://localhost:8545"; // Local Hardhat network
+
+  const REWARD_CONTRACT_ADDRESS = CONTRACT_CONFIG.GOVERNANCE_CONTRACT; // Use the deployed Sepolia contract
 
   useEffect(() => {
     initializeWallet();
@@ -296,7 +296,13 @@ const RewardDashboard: React.FC = () => {
       if (typeof window.ethereum !== 'undefined') {
         const provider = new ethers.BrowserProvider(window.ethereum);
         setProvider(provider);
-        
+
+        // Check if we're on the correct network
+        const network = await provider.getNetwork();
+        if (network.chainId !== BigInt(CONTRACT_CONFIG.CHAIN_ID)) {
+          console.warn(`Wrong network. Expected ${CONTRACT_CONFIG.CHAIN_ID}, got ${network.chainId}`);
+        }
+
         const accounts = await provider.send("eth_requestAccounts", []);
         if (accounts.length > 0) {
           setWalletAddress(accounts[0]);
@@ -417,10 +423,10 @@ const RewardDashboard: React.FC = () => {
       );
 
       // Estimate gas first
-      const gasEstimate = await contract.claimReward.estimateGas(rewardId);
-      
+      const gasEstimate = await contract.claimEnvironmentalReward.estimateGas(rewardId);
+
       // Execute transaction
-      const tx = await contract.claimReward(rewardId, {
+      const tx = await contract.claimEnvironmentalReward(rewardId, {
         gasLimit: gasEstimate * BigInt(120) / BigInt(100), // Add 20% buffer
       });
 

@@ -1,2 +1,61 @@
-governance.interface.getFunction("createCommitment")
-const governance = await ethers.getContractAt("CivicXChainGovernance", "0x5FbDB2315678afecb367f032d93F642f64180aa3")
+const envDesc = await envOracle.description(); console.log("Environmental Oracle Description:", envDesc)
+const envData = await envOracle.latestRoundData(); console.log("Environmental Oracle Value:", envData.answer.toString())
+const envOracle = await ethers.getContractAt("AggregatorV3Interface", "0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD")
+// Test the environmental oracle from your .env file
+const aqiDesc = await aqiOracle.description(); console.log("AQI Description:", aqiDesc)
+const aqiData = await aqiOracle.latestRoundData(); console.log("AQI Value:", aqiData.answer.toString())
+const aqiOracle = await ethers.getContractAt("AggregatorV3Interface", "0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43")
+const pm25Desc = await pm25Oracle.description(); console.log("PM2.5 Description:", pm25Desc)
+const pm25Data = await pm25Oracle.latestRoundData(); console.log("PM2.5 Value:", pm25Data.answer.toString())
+const pm25Oracle = await ethers.getContractAt("AggregatorV3Interface", "0x694AA1769357215DE4FAC081bf1f309aDC325306")
+}
+  console.log("❌ PM2.5 Oracle Error:", e.message)
+} catch(e) {
+  console.log("✅ PM2.5 Description:", pm25Desc)
+  const pm25Desc = await pm25Oracle.description()
+  console.log("✅ PM2.5 Oracle Data:", pm25Data.answer.toString())
+  const pm25Data = await pm25Oracle.latestRoundData()
+try {
+console.log("Testing PM2.5 Oracle...")
+// Test PM2.5 Oracle
+const forestOracle = await ethers.getContractAt("AggregatorV3Interface", "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c")
+const aqiOracle = await ethers.getContractAt("AggregatorV3Interface", "0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43")
+const pm25Oracle = await ethers.getContractAt("AggregatorV3Interface", "0x694AA1769357215DE4FAC081bf1f309aDC325306")
+// Let's test the actual oracle addresses used in your contract
+console.log("Forest Oracle:", forestOracle)
+console.log("AQI Oracle:", aqiOracle)
+console.log("PM2.5 Oracle:", pm25Oracle)
+const forestOracle = await governance.forestCoverFeed()
+const aqiOracle = await governance.aqiFeed() 
+const pm25Oracle = await governance.pm25Feed()
+console.log("Checking oracle configuration...")
+// Check the oracle addresses configured in your contract
+const governance = await ethers.getContractAt("CivicXChainGovernance", "0xA050e836597880682B7a9775F0eEF5549589d16E")
+// Let's check what oracle your governance contract is using
+await governance.createCommitment("Test PM2.5", "Test desc", "Secret", "King", 2700, Math.floor(Date.now()/1000) + 86400, "pm25", {value: ethers.utils.parseEther("0.01")})
+const balance = await signer.getBalance(); console.log("Balance:", ethers.utils.formatEther(balance), "ETH")
+const [signer] = await ethers.getSigners(); console.log("Signer address:", signer.address)
+await governance.getCurrentEnvironmentalValue("pm25")
+const governance = await ethers.getContractAt("CivicXChainGovernance", "0xA050e836597880682B7a9775F0eEF5549589d16E")
+const balance = await ethers.provider.getBalance("0xE46f6d0f815497fb6b64aD75c5020FD93bc72e57"); console.log("Balance:", ethers.utils.formatEther(balance), "ETH")
+await governance.createCommitment("Test", "Test desc", "Test Official", "Mayor", 2700, Math.floor(Date.now()/1000) + 86400, "pm25", {value: ethers.utils.parseEther("0.01")})
+const governance = await ethers.getContractAt("CivicXChainGovernance", "0xA050e836597880682B7a9775F0eEF5549589d16E")
+.exit
+await governance.getCurrentEnvironmentalValue("pm25")
+await governance.nextCommitmentId()
+const governance = await ethers.getContractAt("CivicXChainGovernance", "0x5651E7F2E503dEB45E2D527bB383E2CDc68A1C78")
+await pm25Feed.description()
+await pm25Feed.latestRoundData()
+const pm25Feed = await ethers.getContractAt("AggregatorV3Interface", "0x694AA1769357215DE4FAC081bf1f309aDC325306")
+const tx2 = await governance.createCommitment("Test", "Test commitment", "Test Official", "Mayor", 2500, Math.floor(Date.now()/1000) + 86400, "pm25", {value: ethers.utils.parseEther("0.1")})
+const tx = await governance.createCommitment("Test", "Test commitment", "Test Official", "Mayor", 2500, Math.floor(Date.now()/1000) + 86400, "pm25", {value: ethers.utils.parseEther("0.1")})
+const tx = await governance.createCommitment("Test", "Test commitment", "Test Official", "Mayor", 2500, Math.floor(Date.now()/1000) + 86400, "pm25", {value: ethers.parseEther("0.1")})
+const [signer] = await ethers.getSigners()
+await governance.nextCommitmentId()
+const governance = await ethers.getContractAt("CivicXChainGovernance", "0x5651E7F2E503dEB45E2D527bB383E2CDc68A1C78")
+console.log("Balance:", ethers.utils.formatEther(await deployer.getBalance()), "ETH");
+const [deployer] = await ethers.getSigners(); console.log("Address:", deployer.address); console.log("Balance:", ethers.formatEther(await deployer.getBalance()), "ETH");
+const tx = await governance.createCommitment("Test", "Test commitment", "Test Official", "Mayor", 2500, Math.floor(Date.now()/1000) + 86400, "pm25", {value: ethers.utils.parseEther("0.1")})
+const [signer] = await ethers.getSigners()
+await governance.nextCommitmentId()
+const governance = await ethers.getContractAt("CivicXChainGovernance", "0xcFb35bB4c04b7E6E29541A6c22A69d1501a286D0")

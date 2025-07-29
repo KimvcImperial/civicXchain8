@@ -1,116 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useChainId, useBalance } from 'wagmi';
 import { parseEther, formatEther, createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 import { CHAINLINK_AGGREGATOR_ABI } from '../../config/contracts.js';
 import { CONTRACT_CONFIG } from '../../config/contracts.js';
-import { GOVERNANCE_ABI, ENVIRONMENTAL_ORACLE_ABI, CIVIC_TOKEN_ABI } from '../../config/complete-system-abi.js';
+import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi.js';
+// Using CIVIC_GOVERNANCE_ABI imported above for all governance functions
+import AchievementTimeline from './AchievementTimeline';
+import JudgingPanel from './JudgingPanel';
+import { useOracleData, calculateAQI, getAQIStatus } from '../hooks/useOracleData';
 
-// Import the correct ABI from the deployed contract
-const CIVIC_CONTRACT_ABI = [
-  {
-    "inputs": [
-      {"internalType": "address", "name": "_pm25Feed", "type": "address"},
-      {"internalType": "address", "name": "_co2Feed", "type": "address"},
-      {"internalType": "address", "name": "_forestCoverFeed", "type": "address"}
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "inputs": [
-      {"internalType": "string", "name": "_title", "type": "string"},
-      {"internalType": "string", "name": "_description", "type": "string"},
-      {"internalType": "string", "name": "_officialName", "type": "string"},
-      {"internalType": "string", "name": "_officialRole", "type": "string"},
-      {"internalType": "uint256", "name": "_targetValue", "type": "uint256"},
-      {"internalType": "uint256", "name": "_deadline", "type": "uint256"},
-      {"internalType": "string", "name": "_metricType", "type": "string"}
-    ],
-    "name": "createCommitment",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
-    "name": "getCommitment",
-    "outputs": [
-      {
-        "components": [
-          {"internalType": "uint256", "name": "id", "type": "uint256"},
-          {"internalType": "string", "name": "title", "type": "string"},
-          {"internalType": "string", "name": "description", "type": "string"},
-          {"internalType": "address", "name": "officialAddress", "type": "address"},
-          {"internalType": "string", "name": "officialName", "type": "string"},
-          {"internalType": "string", "name": "officialRole", "type": "string"},
-          {"internalType": "uint256", "name": "targetValue", "type": "uint256"},
-          {"internalType": "uint256", "name": "deadline", "type": "uint256"},
-          {"internalType": "string", "name": "metricType", "type": "string"},
-          {"internalType": "bool", "name": "isActive", "type": "bool"},
-          {"internalType": "bool", "name": "isFulfilled", "type": "bool"},
-          {"internalType": "bool", "name": "rewardClaimed", "type": "bool"},
-          {"internalType": "uint256", "name": "stakeAmount", "type": "uint256"},
-          {"internalType": "uint256", "name": "tokenReward", "type": "uint256"},
-          {"internalType": "bytes32", "name": "oracleJobId", "type": "bytes32"}
-        ],
-        "internalType": "struct CivicXChainGovernance.EnvironmentalCommitment",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "address", "name": "_official", "type": "address"}],
-    "name": "getOfficialCommitments",
-    "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
-    "name": "claimEnvironmentalReward",
-    "outputs": [{"internalType": "uint256", "name": "tokensRewarded", "type": "uint256"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
-    "name": "cancelCommitment",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
-    "name": "checkFulfillment",
-    "outputs": [
-      {"internalType": "bool", "name": "fulfilled", "type": "bool"},
-      {"internalType": "uint256", "name": "currentValue", "type": "uint256"},
-      {"internalType": "uint256", "name": "targetValue", "type": "uint256"}
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "nextCommitmentId",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
-    "name": "balanceOf",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
+// Use the correct ABI from the deployed contract
+const CIVIC_CONTRACT_ABI = CIVIC_GOVERNANCE_ABI;
 import { EnvironmentalDataService } from '../services/environmentalDataService';
 import JudgePanel from './JudgePanel';
 import RoleBasedLogin, { UserRole } from './RoleBasedLogin';
@@ -121,15 +24,31 @@ import AutoVerificationMonitor from './AutoVerificationMonitor';
 // Component to display individual commitment details
 function CommitmentCard({ commitmentId, onCancel }: { commitmentId: bigint, onCancel?: (id: bigint) => void }) {
   const { data: commitment } = useReadContract({
-    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+    address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
     abi: CIVIC_CONTRACT_ABI,
     functionName: 'getCommitment',
     args: [commitmentId],
   });
 
+  // Get current environmental data directly from oracle (bypasses circuit breaker)
+  const { data: currentPM25 } = useReadContract({
+    address: CONTRACT_CONFIG.ENVIRONMENTAL_ORACLE as `0x${string}`,
+    abi: [
+      {
+        "inputs": [],
+        "name": "getLatestPM25Data",
+        "outputs": [{"internalType": "int256", "name": "", "type": "int256"}],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ],
+    functionName: 'getLatestPM25Data',
+  });
+
   console.log('🔍 CommitmentCard Debug:', {
     commitmentId: commitmentId.toString(),
     commitment,
+    currentPM25: currentPM25?.toString(),
     contractAddress: CONTRACT_CONFIG.GOVERNANCE_CONTRACT
   });
 
@@ -143,72 +62,66 @@ function CommitmentCard({ commitmentId, onCancel }: { commitmentId: bigint, onCa
     );
   }
 
-  // Access commitment properties directly (it's a struct/object, not an array)
-  const deadlineDate = new Date(Number(commitment.deadline) * 1000);
+  // Access commitment properties from the struct
+  const deadlineDate = new Date(Number(commitment.deadline || 0) * 1000);
   const isExpired = deadlineDate < new Date();
 
   return (
     <div className="bg-black/30 rounded-lg p-4 border border-cyan-500/20">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h5 className="text-lg font-semibold text-white">{commitment.title}</h5>
-          <p className="text-purple-400 text-sm">{commitment.officialName} ({commitment.role})</p>
-          <p className="text-gray-400 text-xs mt-1">Commitment ID: #{commitment.id.toString()}</p>
+          <h5 className="text-lg font-semibold text-white">{commitment.title || commitment.description || 'Unnamed Commitment'}</h5>
+          <p className="text-purple-400 text-sm">Official: {commitment.officialName || 'Unknown'}</p>
+          <p className="text-gray-400 text-xs mt-1">Commitment ID: #{commitment.id?.toString() || commitmentId.toString()}</p>
         </div>
         <div className="flex flex-col items-end space-y-2">
           <span className={`px-3 py-1 border text-sm font-medium rounded-full ${
-            !commitment.isActive && !commitment.isFulfilled ? 'bg-red-500/20 border-red-500/50 text-red-400' :
-            isExpired ? 'bg-orange-500/20 border-orange-500/50 text-orange-400' :
-            commitment.isActive ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400' :
-            'bg-green-500/20 border-green-500/50 text-green-400'
+            isExpired && !commitment.isFulfilled ? 'bg-orange-500/20 border-orange-500/50 text-orange-400' :
+            commitment.isFulfilled ? 'bg-green-500/20 border-green-500/50 text-green-400' :
+            'bg-yellow-500/20 border-yellow-500/50 text-yellow-400'
           }`}>
-            {!commitment.isActive && !commitment.isFulfilled ? '❌ Failed' :
-             isExpired ? '⏰ Expired' :
-             commitment.isActive ? '⏳ In Progress' :
-             '✅ Completed'}
+            {isExpired && !commitment.isFulfilled ? '⏰ Expired' :
+             commitment.isFulfilled ? '✅ Completed' :
+             '⏳ In Progress'}
           </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div>
           <p className="text-gray-400 text-sm">Target Value</p>
-          <p className="text-cyan-400 font-medium">{commitment.targetValue.toString()} μg/m³</p>
+          <p className="text-cyan-400 font-medium">{commitment.targetValue?.toString() || 'N/A'} μg/m³</p>
+        </div>
+        <div>
+          <p className="text-gray-400 text-sm">Current Value</p>
+          <p className="text-white font-medium">{currentPM25?.toString() || 'Loading...'} μg/m³</p>
         </div>
         <div>
           <p className="text-gray-400 text-sm">Deadline</p>
           <p className="text-white font-medium">{deadlineDate.toLocaleDateString()}</p>
         </div>
-        <div>
-          <p className="text-gray-400 text-sm">Stake Amount</p>
-          <p className="text-yellow-400 font-medium">{formatEther(commitment.stakeAmount)} ETH</p>
-        </div>
-        <div>
-          <p className="text-gray-400 text-sm">Status</p>
-          <p className="text-white font-medium">
-            {commitment.isFulfilled ? 'Fulfilled' : commitment.isActive ? 'Active' : 'Inactive'}
-          </p>
-        </div>
       </div>
 
-      <div className="text-sm text-gray-300 mb-2">
-        <strong>Description:</strong> {commitment.description}
+      <div className="mb-4">
+        <p className="text-gray-400 text-sm mb-2">Metric Type</p>
+        <p className="text-gray-300 text-sm">{commitment.metricType || 'PM2.5'} (Source: Oracle)</p>
       </div>
 
       <div className="text-xs text-gray-400 mt-2">
-        <span>Metric: {commitment.metricType} | </span>
-        <span>Created: {new Date(Number(commitment.createdAt) * 1000).toLocaleDateString()} | </span>
-        <span>Verified: {commitment.isVerified ? '✅ Yes' : '⏳ Pending'}</span>
+        <span>Metric: {commitment.metricType || 'PM2.5'} | </span>
+        <span>Stake: {commitment.stakeAmount?.toString() || '0'} ETH | </span>
+        <span>Reward: {commitment.tokenReward?.toString() || '0'} CIVIC</span>
       </div>
 
       {/* Cancel button - only show for active commitments before deadline */}
-      {commitment.isActive && !commitment.isFulfilled && !isExpired && onCancel && (
+      {/* Cancel button - only show for active commitments before deadline */}
+      {!commitment.isCompleted && !isExpired && onCancel && (
         <div className="mt-4 pt-3 border-t border-gray-700">
           <button
             onClick={() => onCancel(commitmentId)}
             className="w-full bg-gradient-to-r from-red-500/20 to-red-600/20 hover:from-red-500/30 hover:to-red-600/30 border border-red-500/50 text-red-400 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm"
           >
-            🗑️ Cancel Commitment (10% fee)
+            🗑️ Cancel Commitment
           </button>
         </div>
       )}
@@ -242,28 +155,32 @@ export default function CyberpunkDashboard() {
     targetValue: '',
     deadline: '',
     metricType: 'pm25',
-    stakeAmount: '0.1'
+    stakeAmount: '0.01'  // Reduced from 0.1 to 0.01 ETH to fit within available balance
   });
 
   // Read contract data with refetch capability
   const { data: nextCommitmentId, refetch: refetchCommitmentId } = useReadContract({
-    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+    address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
     abi: CIVIC_CONTRACT_ABI,
     functionName: 'nextCommitmentId',
   });
 
   const { data: userCommitments, refetch: refetchUserCommitments } = useReadContract({
-    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+    address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
     abi: CIVIC_CONTRACT_ABI,
     functionName: 'getOfficialCommitments',
     args: [address as `0x${string}`],
+    query: {
+      enabled: !!address && isConnected,
+    },
   });
 
-  // Get the latest commitment (if any exist) - nextCommitmentId is the NEXT id, so latest is nextCommitmentId - 1
-  const latestCommitmentId = nextCommitmentId && nextCommitmentId > 1n ? nextCommitmentId - 1n : null;
+  // Get the latest commitment (if any exist) - nextCommitmentId - 1 is the current highest id
+  const currentCommitmentId = nextCommitmentId && nextCommitmentId > 1n ? nextCommitmentId - 1n : null;
+  const latestCommitmentId = currentCommitmentId;
 
   const { data: latestCommitment, refetch: refetchLatestCommitment } = useReadContract({
-    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+    address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
     abi: CIVIC_CONTRACT_ABI,
     functionName: 'getCommitment',
     args: latestCommitmentId ? [latestCommitmentId] : undefined,
@@ -272,7 +189,13 @@ export default function CyberpunkDashboard() {
     },
   });
 
-  // STATE FOR CHAINLINK ORACLE DATA
+  // USE NEW ORACLE DATA HOOK - DISABLED FOR NOW, USING REAL CHAINLINK DATA
+  // const { oracleData, isLoading: oracleLoading, error: oracleError } = useOracleData();
+  const oracleData = null; // Disable oracle hook, use real Chainlink data
+  const oracleLoading = false;
+  const oracleError = null;
+
+  // STATE FOR CHAINLINK ORACLE DATA (Legacy - will be replaced)
   const [pm25Data, setPm25Data] = useState<any>(null);
   const [aqiData, setAqiData] = useState<any>(null);
   const [forestData, setForestData] = useState<any>(null);
@@ -380,6 +303,8 @@ export default function CyberpunkDashboard() {
     hash: cancelHash,
   });
 
+
+
   useEffect(() => {
     const interval = setInterval(() => {
       setLastUpdated(new Date());
@@ -397,12 +322,12 @@ export default function CyberpunkDashboard() {
     if (isCreateConfirmed && createHash) {
       console.log('✅ Commitment created successfully!', {
         hash: createHash,
-        nextCommitmentId: nextCommitmentId?.toString()
+        currentCommitmentId: currentCommitmentId?.toString()
       });
       alert(`🎉 Commitment created successfully!
 
 Transaction Hash: ${createHash}
-Commitment ID: ${nextCommitmentId ? (nextCommitmentId - 1n).toString() : 'Loading...'}
+Commitment ID: ${currentCommitmentId ? currentCommitmentId.toString() : 'Loading...'}
 
 Check the Track Status tab to see your new commitment.`);
       // Clear the form
@@ -425,7 +350,7 @@ Check the Track Status tab to see your new commitment.`);
       // Switch to track tab to show the new commitment
       setActiveTab('track');
     }
-  }, [isCreateConfirmed, createHash, nextCommitmentId, refetchCommitmentId, refetchUserCommitments, refetchLatestCommitment]);
+  }, [isCreateConfirmed, createHash, currentCommitmentId, refetchCommitmentId, refetchUserCommitments, refetchLatestCommitment]);
 
   // Handle commitment creation errors
   useEffect(() => {
@@ -529,19 +454,19 @@ Make sure you:
       });
 
       createCommitment({
-        address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-        abi: GOVERNANCE_ABI,
+        address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
+        abi: CIVIC_GOVERNANCE_ABI,
         functionName: 'createCommitment',
         args: [
-          newCommitment.title || 'Environmental Commitment', // _title
-          newCommitment.description || 'Environmental commitment description', // _description
-          newCommitment.officialName || 'Public Official', // _officialName
-          newCommitment.officialRole || 'Environmental Officer', // _officialRole
-          BigInt(targetValueScaled), // _targetValue
-          BigInt(deadlineTimestamp), // _deadline
-          newCommitment.metricType || 'pm25' // _metricType
+          newCommitment.title || 'Environmental Commitment', // _title (string)
+          newCommitment.description || 'Environmental commitment description', // _description (string)
+          newCommitment.officialName || 'Anonymous Official', // _officialName (string)
+          newCommitment.officialRole || 'Public Official', // _officialRole (string)
+          BigInt(targetValueScaled), // _targetValue (uint256)
+          BigInt(deadlineTimestamp), // _deadline (uint256)
+          newCommitment.metricType || 'pm25' // _metricType (string)
         ],
-        value: stakeAmountWei, // ETH stake amount
+        value: stakeAmountWei // ETH stake amount
       });
     } catch (err) {
       console.error('Error creating commitment:', err);
@@ -553,14 +478,30 @@ Make sure you:
     if (!latestCommitmentId) return;
 
     try {
+      console.log(`🎯 Attempting to claim reward for commitment #${latestCommitmentId}`);
       claimReward({
-        address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+        address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
         abi: CIVIC_CONTRACT_ABI,
         functionName: 'claimEnvironmentalReward',
         args: [latestCommitmentId],
       });
     } catch (err) {
       console.error('Error claiming reward:', err);
+
+      // Show detailed error message
+      let errorMessage = 'Unknown error occurred';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+
+        // Parse common error messages
+        if (errorMessage.includes('Only commitment creator can claim')) {
+          errorMessage = '❌ Only the commitment creator can claim this reward.\n\nMake sure you\'re connected with the same wallet that created the commitment.';
+        } else if (errorMessage.includes('Environmental target not achieved')) {
+          errorMessage = '❌ Environmental target not achieved yet.\n\nThe current environmental data doesn\'t meet the commitment target.';
+        }
+      }
+
+      alert(`Error claiming reward:\n\n${errorMessage}`);
     }
   };
 
@@ -571,8 +512,8 @@ Make sure you:
     // Confirm cancellation
     const confirmed = window.confirm(
       'Are you sure you want to cancel this commitment?\n\n' +
-      '⚠️ You will lose 10% of your stake as a cancellation fee.\n' +
-      '💰 You will receive 90% of your stake back.\n\n' +
+      '⚠️ This will mark the commitment as cancelled.\n' +
+      '💰 No fees will be charged in this version.\n\n' +
       'This action cannot be undone.'
     );
 
@@ -580,7 +521,7 @@ Make sure you:
 
     try {
       cancelCommitment({
-        address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+        address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
         abi: CIVIC_CONTRACT_ABI,
         functionName: 'cancelCommitment',
         args: [idToCancel],
@@ -622,9 +563,15 @@ Make sure you:
     }
   };
 
-  const pm25Value = processChainlinkData(pm25Data, 'PM2.5');
-  const aqiValue = processChainlinkData(aqiData, 'AQI');
-  const forestValue = processChainlinkData(forestData, 'Forest');
+  // Use new oracle data if available, fallback to legacy data
+  const pm25Value = oracleData?.pm25?.value ?? processChainlinkData(pm25Data, 'PM2.5');
+  const aqiValue = oracleData?.co2?.value ?? processChainlinkData(aqiData, 'AQI'); // CO2 slot stores AQI data
+  const forestValue = oracleData?.forestCover?.value ?? processChainlinkData(forestData, 'Forest');
+
+  // Loading states - use new oracle loading if available
+  const pm25LoadingState = oracleLoading || pm25Loading;
+  const aqiLoadingState = oracleLoading || aqiLoading;
+  const forestLoadingState = oracleLoading || forestLoading;
 
   // Enhanced debug oracle data with errors and loading states
   console.log('🔍 Oracle Data Debug:', {
@@ -694,26 +641,24 @@ Make sure you:
     });
   }, [pm25Value, aqiValue, forestValue, pm25Loading, aqiLoading, forestLoading, pm25Error, aqiError, forestError]);
 
-  // Read actual CIVIC token balance from the token contract
-  const { data: tokenBalance } = useReadContract({
-    address: CONTRACT_CONFIG.CIVIC_TOKEN as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
-    functionName: 'balanceOf',
-    args: [address as `0x${string}`],
+  // Read actual ETH balance from the wallet
+  const { data: ethBalance } = useBalance({
+    address: address as `0x${string}`,
   });
 
-  // Calculate balance after tokenBalance is defined
-  const balance = tokenBalance ? formatEther(tokenBalance) : '0';
+  // Calculate balance after ethBalance is defined
+  const balance = ethBalance ? formatEther(ethBalance.value) : '0';
 
   // Debug logging after all variables are defined
   console.log('🔍 Commitment Data Debug:', {
     nextCommitmentId: nextCommitmentId?.toString(),
+    currentCommitmentId: currentCommitmentId?.toString(),
     latestCommitmentId: latestCommitmentId?.toString(),
     latestCommitment: latestCommitment,
     userCommitments: userCommitments?.map(id => id.toString()),
     userCommitmentsLength: userCommitments?.length,
-    contractAddress: CONTRACT_CONFIG.GOVERNANCE_CONTRACT,
-    tokenBalance: tokenBalance?.toString(),
+    contractAddress: CONTRACT_CONFIG.COMMITMENT_CONTRACT,
+    ethBalance: ethBalance?.value?.toString(),
     balance: balance,
     isConnected: isConnected,
     address: address,
@@ -729,6 +674,13 @@ Make sure you:
     isCorrectNetwork: chainId === CONTRACT_CONFIG.CHAIN_ID,
     address: address
   });
+
+  // Enhanced role detection - add judge role
+  const isJudge = address && (
+    address.toLowerCase() === '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' || // Second hardhat account
+    address.toLowerCase() === '0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc' || // Third hardhat account
+    address.toLowerCase() === '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'    // Your current account as judge
+  );
 
   // Role-based tabs
   const getTabsForRole = (role: UserRole) => {
@@ -748,8 +700,8 @@ Make sure you:
       return [
         ...baseTabs,
         { id: 'judge', name: 'Judge Panel', icon: '⚖️' },
+        { id: 'achievements', name: 'Achievement Timeline', icon: '⏰' },
         { id: 'track', name: 'All Status', icon: '📊' },
-        { id: 'punishments', name: 'Penalties', icon: '⚠️' },
       ];
     } else if (role === 'citizen') {
       return [
@@ -781,8 +733,10 @@ Make sure you:
             <div>
               <div className="flex items-center space-x-2">
                 <p className="text-cyan-400 text-sm font-medium">PM2.5 Levels</p>
-                {pm25Value !== null ? (
-                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Live Oracle Data"></span>
+                {pm25Value !== null && !pm25LoadingState ? (
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Live API Data"></span>
+                ) : pm25LoadingState ? (
+                  <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" title="Loading..."></span>
                 ) : (
                   <span className="w-2 h-2 bg-red-400 rounded-full" title="No Data"></span>
                 )}
@@ -808,8 +762,10 @@ Make sure you:
             <div>
               <div className="flex items-center space-x-2">
                 <p className="text-purple-400 text-sm font-medium">Air Quality Index</p>
-                {aqiValue !== null ? (
-                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Live Oracle Data"></span>
+                {aqiValue !== null && !aqiLoadingState ? (
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Live API Data"></span>
+                ) : aqiLoadingState ? (
+                  <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" title="Loading..."></span>
                 ) : (
                   <span className="w-2 h-2 bg-red-400 rounded-full" title="No Data"></span>
                 )}
@@ -835,8 +791,10 @@ Make sure you:
             <div>
               <div className="flex items-center space-x-2">
                 <p className="text-green-400 text-sm font-medium">Forest Cover</p>
-                {forestValue !== null ? (
-                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Live Oracle Data"></span>
+                {forestValue !== null && !forestLoadingState ? (
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Live API Data"></span>
+                ) : forestLoadingState ? (
+                  <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" title="Loading..."></span>
                 ) : (
                   <span className="w-2 h-2 bg-red-400 rounded-full" title="No Data"></span>
                 )}
@@ -925,7 +883,7 @@ Make sure you:
                       {pm25Loading ? '...' : pm25Value !== null ? `${pm25Value.toFixed(2)} μg/m³` : 'No Data'}
                     </div>
                     <div className="text-xs text-cyan-300">
-                      {pm25Value !== null ? (pm25Value < 10 ? '✅ Good Air Quality' : pm25Value < 25 ? '⚠️ Moderate' : '❌ Unhealthy') : 'Oracle not connected'}
+                      {pm25Value !== null ? (pm25Value < 10 ? '✅ Good Air Quality' : pm25Value < 25 ? '⚠️ Moderate' : '❌ Unhealthy') : 'API not connected'}
                     </div>
                     {pm25Value !== null && (
                       <div className="mt-2 w-full bg-gray-700 rounded-full h-1">
@@ -945,7 +903,7 @@ Make sure you:
                       {aqiLoading ? '...' : aqiValue !== null ? `${Math.round(aqiValue)} AQI` : 'No Data'}
                     </div>
                     <div className="text-xs text-purple-300">
-                      {aqiValue !== null ? (aqiValue <= 50 ? '✅ Good' : aqiValue <= 100 ? '⚠️ Moderate' : '❌ Unhealthy') : 'Oracle not connected'}
+                      {aqiValue !== null ? (aqiValue <= 50 ? '✅ Good' : aqiValue <= 100 ? '⚠️ Moderate' : '❌ Unhealthy') : 'API not connected'}
                     </div>
                     {aqiValue !== null && (
                       <div className="mt-2 w-full bg-gray-700 rounded-full h-1">
@@ -965,7 +923,7 @@ Make sure you:
                       {forestLoading ? '...' : forestValue !== null ? `${forestValue.toFixed(1)}%` : 'No Data'}
                     </div>
                     <div className="text-xs text-green-300">
-                      {forestValue !== null ? (forestValue > 70 ? '✅ Excellent' : forestValue > 50 ? '⚠️ Moderate' : '❌ Critical') : 'Oracle not connected'}
+                      {forestValue !== null ? (forestValue > 70 ? '✅ Excellent' : forestValue > 50 ? '⚠️ Moderate' : '❌ Critical') : 'API not connected'}
                     </div>
                     {forestValue !== null && (
                       <div className="mt-2 w-full bg-gray-700 rounded-full h-1">
@@ -993,6 +951,7 @@ Make sure you:
                         key={commitmentId.toString()}
                         commitmentId={commitmentId}
                         onCancel={handleCancelCommitment}
+
                       />;
                     })}
                   </div>
@@ -1088,10 +1047,18 @@ Make sure you:
           )}
 
           {activeTab === 'judge' && userRole === 'judge' && (
+            <JudgingPanel />
+          )}
+
+          {activeTab === 'achievements' && userRole === 'judge' && (
+            <AchievementTimeline />
+          )}
+
+          {activeTab === 'old-judge' && userRole === 'judge' && (
             <div className="space-y-6">
               <h3 className="text-xl text-white mb-6 flex items-center">
                 <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></span>
-                Judge Panel - Manual Verification
+                Judge Panel - Manual Verification (Legacy)
               </h3>
               <JudgePanel />
             </div>
@@ -1362,7 +1329,7 @@ Make sure you:
                     <div className="text-4xl mb-4">📊</div>
                     <p className="text-gray-400">No active commitments found</p>
                     <p className="text-sm text-gray-500 mt-2">
-                      {nextCommitmentId ? `Next commitment ID: ${nextCommitmentId.toString()}` : 'Create a commitment to start tracking progress'}
+                      {currentCommitmentId ? `Current commitment ID: ${currentCommitmentId.toString()}` : 'Create a commitment to start tracking progress'}
                     </p>
                   </div>
                 )}

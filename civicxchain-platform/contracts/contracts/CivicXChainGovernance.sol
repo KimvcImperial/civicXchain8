@@ -16,7 +16,7 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
     
     // Chainlink Oracle interfaces for environmental data
     AggregatorV3Interface internal pm25Feed;
-    AggregatorV3Interface internal co2Feed;
+    AggregatorV3Interface internal aqiFeed;  // Air Quality Index
     AggregatorV3Interface internal forestCoverFeed;
     
     struct EnvironmentalCommitment {
@@ -28,7 +28,7 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
         string officialRole;
         uint256 targetValue;
         uint256 deadline;
-        string metricType; // "pm25", "co2", "forest_cover", etc.
+        string metricType; // "pm25", "aqi", "forest_cover", etc.
         bool isActive;
         bool isFulfilled;
         bool rewardClaimed;
@@ -61,11 +61,11 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
 
     constructor(
         address _pm25Feed,
-        address _co2Feed,
+        address _aqiFeed,
         address _forestCoverFeed
     ) ERC20("CivicXChain Environmental Token", "CIVIC") {
         pm25Feed = AggregatorV3Interface(_pm25Feed);
-        co2Feed = AggregatorV3Interface(_co2Feed);
+        aqiFeed = AggregatorV3Interface(_aqiFeed);
         forestCoverFeed = AggregatorV3Interface(_forestCoverFeed);
 
         // Mint initial supply for rewards (100 million tokens)
@@ -245,12 +245,12 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
      * @dev Get current environmental value from Chainlink oracle
      * @param _metricType Type of environmental metric
      */
-    function getCurrentEnvironmentalValue(string memory _metricType) internal view returns (uint256) {
+    function getCurrentEnvironmentalValue(string memory _metricType) public view returns (uint256) {
         if (keccak256(bytes(_metricType)) == keccak256(bytes("pm25"))) {
             (, int256 price,,,) = pm25Feed.latestRoundData();
             return uint256(price);
-        } else if (keccak256(bytes(_metricType)) == keccak256(bytes("co2"))) {
-            (, int256 price,,,) = co2Feed.latestRoundData();
+        } else if (keccak256(bytes(_metricType)) == keccak256(bytes("aqi"))) {
+            (, int256 price,,,) = aqiFeed.latestRoundData();
             return uint256(price);
         } else if (keccak256(bytes(_metricType)) == keccak256(bytes("forest_cover"))) {
             (, int256 price,,,) = forestCoverFeed.latestRoundData();
@@ -286,8 +286,8 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
 
         if (keccak256(bytes(_metricType)) == keccak256(bytes("pm25"))) {
             multiplier = 150; // 1.5x for air quality (harder to achieve)
-        } else if (keccak256(bytes(_metricType)) == keccak256(bytes("co2"))) {
-            multiplier = 120; // 1.2x for CO2 reduction
+        } else if (keccak256(bytes(_metricType)) == keccak256(bytes("aqi"))) {
+            multiplier = 120; // 1.2x for AQI improvement
         } else if (keccak256(bytes(_metricType)) == keccak256(bytes("forest_cover"))) {
             multiplier = 130; // 1.3x for forest protection
         } else if (keccak256(bytes(_metricType)) == keccak256(bytes("water_quality"))) {

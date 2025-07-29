@@ -5,6 +5,7 @@ import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther } from 'viem';
 import { CONTRACT_CONFIG } from '../../config/contracts';
 
+// ETH Staking Governance Contract ABI
 const GOVERNANCE_ABI = [
   {
     "inputs": [
@@ -19,6 +20,13 @@ const GOVERNANCE_ABI = [
     "name": "createCommitment",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
+    "name": "claimEnvironmentalReward",
+    "outputs": [{"internalType": "uint256", "name": "tokensRewarded", "type": "uint256"}],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ] as const;
@@ -36,7 +44,7 @@ export default function CreateCommitmentForm({ onSuccess }: CreateCommitmentForm
     targetValue: '',
     deadline: '',
     metricType: 'pm25',
-    stakeAmount: '0.1'
+    stakeAmount: '0.1' // ETH amount to stake
   });
 
   const { writeContract, data: hash, error } = useWriteContract();
@@ -57,13 +65,15 @@ export default function CreateCommitmentForm({ onSuccess }: CreateCommitmentForm
         abi: GOVERNANCE_ABI,
         functionName: 'createCommitment',
         args: [
+          formData.title,
           formData.description,
-          BigInt(deadlineTimestamp),
+          formData.officialName,
+          formData.officialRole,
           BigInt(targetValueScaled),
-          formData.metricType,
-          'chainlink_oracle' // dataSource parameter
+          BigInt(deadlineTimestamp),
+          formData.metricType
         ],
-        value: parseEther(formData.stakeAmount),
+        value: parseEther(formData.stakeAmount), // ETH staking amount
       });
     } catch (err) {
       console.error('Error creating commitment:', err);

@@ -35,6 +35,17 @@ async function main() {
 
   console.log("\n=== Contract Addresses ===");
   console.log(JSON.stringify(addresses, null, 2));
+
+  // Auto-generate frontend ABI to prevent mismatches
+  console.log("\n🔄 Generating frontend ABI...");
+  try {
+    const { generateABI } = require('../../scripts/generate-abi.js');
+    generateABI();
+    console.log("✅ Frontend ABI generated successfully!");
+  } catch (error) {
+    console.log("⚠️ ABI generation failed:", error.message);
+    console.log("💡 Run manually: node scripts/generate-abi.js");
+  }
 }
 
 main()

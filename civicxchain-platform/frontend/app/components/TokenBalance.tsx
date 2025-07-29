@@ -216,7 +216,7 @@ export default function TokenBalance({ userBalance, commitment, fulfillmentStatu
         <h4 className="text-sm font-semibold text-gray-700 mb-2">💼 Wallet Information</h4>
         <div className="text-sm text-gray-600 space-y-1">
           <p><strong>Address:</strong> {address?.slice(0, 8)}...{address?.slice(-6)}</p>
-          <p><strong>Network:</strong> Localhost (Chain ID: 31337)</p>
+          <p><strong>Network:</strong> Sepolia (Chain ID: 11155111)</p>
           <p><strong>Contract:</strong> {CONTRACT_CONFIG.GOVERNANCE_CONTRACT.slice(0, 8)}...</p>
         </div>
       </div>

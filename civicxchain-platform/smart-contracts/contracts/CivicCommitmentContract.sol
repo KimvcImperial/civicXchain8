@@ -125,7 +125,23 @@ contract CivicCommitmentContract is ReentrancyGuard, Ownable {
         
         emit RewardClaimed(_commitmentId, msg.sender);
     }
-    
+
+    function cancelCommitment(uint256 _commitmentId) external nonReentrant {
+        require(_commitmentId <= _commitmentIdCounter, "Invalid commitment ID");
+        require(_commitmentId > 0, "Invalid commitment ID");
+
+        Commitment storage commitment = commitments[_commitmentId];
+        require(commitment.official == msg.sender, "Only commitment creator can cancel");
+        require(!commitment.isCompleted, "Cannot cancel completed commitment");
+        require(!commitment.rewardClaimed, "Cannot cancel commitment with claimed reward");
+        require(block.timestamp < commitment.deadline, "Cannot cancel expired commitment");
+
+        // Mark as completed (cancelled)
+        commitment.isCompleted = true;
+
+        emit CommitmentUpdated(_commitmentId, 0, true);
+    }
+
     function getCommitment(uint256 _commitmentId) external view returns (Commitment memory) {
         require(_commitmentId <= _commitmentIdCounter, "Invalid commitment ID");
         require(_commitmentId > 0, "Invalid commitment ID");

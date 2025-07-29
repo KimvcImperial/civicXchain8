@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useReadContract } from 'wagmi';
 import { CONTRACT_CONFIG } from '../../config/contracts';
-import { GOVERNANCE_ABI } from '../../config/complete-system-abi';
+import { CIVIC_GOVERNANCE_ABI as GOVERNANCE_ABI } from '../../config/governance-abi.js';
 
 interface Commitment {
   id: number;

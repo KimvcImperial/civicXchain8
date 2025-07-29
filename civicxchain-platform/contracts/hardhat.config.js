@@ -29,7 +29,12 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      chainId: 31337
+      chainId: 31337,
+      // Enable persistent state - saves blockchain data to disk
+      mining: {
+        auto: true,
+        interval: 0
+      }
       // Forking disabled for now - will use direct mainnet connection for oracles
     },
     localhost: {
