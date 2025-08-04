@@ -4,15 +4,18 @@ export const CONTRACT_CONFIG = {
     RPC_URL: 'https://eth-sepolia.public.blastapi.io',
     CHAIN_ID: 11155111,
 
-    // NEW GOVERNANCE CONTRACT WITH REAL ENVIRONMENTAL DATA
-    GOVERNANCE_CONTRACT: '0xC6aB674d9d251d6bB5f55287109aa44D3cfd74B2',
-    COMMITMENT_CONTRACT: '0xC6aB674d9d251d6bB5f55287109aa44D3cfd74B2',
-    CIVIC_TOKEN: '0xC6aB674d9d251d6bB5f55287109aa44D3cfd74B2',
-    CIVIC_CONTRACT: '0xC6aB674d9d251d6bB5f55287109aa44D3cfd74B2',
+    // UPDATED GOVERNANCE CONTRACT (from deployed-addresses.json) - NO OWNER RESTRICTIONS
+    GOVERNANCE_CONTRACT: '0x492b1FB9241d4d170E8df331E165aF8e2A30AED4',
+    COMMITMENT_CONTRACT: '0x492b1FB9241d4d170E8df331E165aF8e2A30AED4',
+    CIVIC_TOKEN: '0x492b1FB9241d4d170E8df331E165aF8e2A30AED4',
+    CIVIC_CONTRACT: '0x492b1FB9241d4d170E8df331E165aF8e2A30AED4',
 
     // REAL ENVIRONMENTAL ORACLE - Fetches from NASA, OpenAQ, NOAA APIs
     REAL_ENVIRONMENTAL_ORACLE: '0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD',
-    ENVIRONMENTAL_ORACLE: '0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD'
+    ENVIRONMENTAL_ORACLE: '0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD',
+
+    // ENVIRONMENTAL DATA HISTORY CONTRACT - For trend analysis
+    ENVIRONMENTAL_HISTORY: '0x0000000000000000000000000000000000000000' // Placeholder - will be deployed
 };
   
   // CHAINLINK ORACLE ABI - FOR ENVIRONMENTAL DATA
@@ -271,6 +274,95 @@ export const CONTRACT_CONFIG = {
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_commitmentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "applyPenalty",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
+
+  // CHAINLINK AGGREGATOR ABI - Standard Chainlink price feed interface
+  export const CHAINLINK_AGGREGATOR_ABI = [
+    {
+      "inputs": [],
+      "name": "latestRoundData",
+      "outputs": [
+        {
+          "internalType": "uint80",
+          "name": "roundId",
+          "type": "uint80"
+        },
+        {
+          "internalType": "int256",
+          "name": "answer",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "updatedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint80",
+          "name": "answeredInRound",
+          "type": "uint80"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "description",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_commitmentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "judgeApproveCommitment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ];

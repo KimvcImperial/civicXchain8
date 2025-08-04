@@ -12,8 +12,8 @@ async function main() {
   const balance = await deployer.getBalance();
   console.log("💰 Account balance:", ethers.utils.formatEther(balance), "ETH");
 
-  // Connect to the FIXED governance contract
-  const governanceAddress = "0xA050e836597880682B7a9775F0eEF5549589d16E";
+  // Connect to the newly deployed governance contract
+  const governanceAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
   console.log("🏛️ Governance contract:", governanceAddress);
 
   try {

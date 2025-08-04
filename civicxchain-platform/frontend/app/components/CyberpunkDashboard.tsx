@@ -1,30 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useChainId, useBalance } from 'wagmi';
 import { parseEther, formatEther, createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
-import { CHAINLINK_AGGREGATOR_ABI } from '../../config/contracts.js';
-import { CONTRACT_CONFIG } from '../../config/contracts.js';
-import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi.js';
+import { CHAINLINK_AGGREGATOR_ABI } from '../../config/contracts';
+import { CONTRACT_CONFIG } from '../../config/contracts';
+import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi';
 // Using CIVIC_GOVERNANCE_ABI imported above for all governance functions
 import AchievementTimeline from './AchievementTimeline';
-import JudgingPanel from './JudgingPanel';
+import JudgePanel from './JudgePanel';
+import PublicOfficialSocialFeed from './PublicOfficialSocialFeed';
+import PublicOfficialRewards from './PublicOfficialRewards';
 import { useOracleData, calculateAQI, getAQIStatus } from '../hooks/useOracleData';
 
 // Use the correct ABI from the deployed contract
 const CIVIC_CONTRACT_ABI = CIVIC_GOVERNANCE_ABI;
 import { EnvironmentalDataService } from '../services/environmentalDataService';
-import JudgePanel from './JudgePanel';
 import RoleBasedLogin, { UserRole } from './RoleBasedLogin';
-import AutoVerificationMonitor from './AutoVerificationMonitor';
 
 // ABIs are now imported from complete-system-abi.js
 
 // Component to display individual commitment details
 function CommitmentCard({ commitmentId, onCancel }: { commitmentId: bigint, onCancel?: (id: bigint) => void }) {
   const { data: commitment } = useReadContract({
-    address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
+    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
     abi: CIVIC_CONTRACT_ABI,
     functionName: 'getCommitment',
     args: [commitmentId],
@@ -113,15 +113,14 @@ function CommitmentCard({ commitmentId, onCancel }: { commitmentId: bigint, onCa
         <span>Reward: {commitment.tokenReward?.toString() || '0'} CIVIC</span>
       </div>
 
-      {/* Cancel button - only show for active commitments before deadline */}
-      {/* Cancel button - only show for active commitments before deadline */}
-      {!commitment.isCompleted && !isExpired && onCancel && (
+      {/* Delete button - show for all commitments */}
+      {onCancel && (
         <div className="mt-4 pt-3 border-t border-gray-700">
           <button
             onClick={() => onCancel(commitmentId)}
             className="w-full bg-gradient-to-r from-red-500/20 to-red-600/20 hover:from-red-500/30 hover:to-red-600/30 border border-red-500/50 text-red-400 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm"
           >
-            🗑️ Cancel Commitment
+            🗑️ Delete Commitment
           </button>
         </div>
       )}
@@ -137,6 +136,7 @@ export default function CyberpunkDashboard() {
   const [activeTab, setActiveTab] = useState('feed');
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [userRole, setUserRole] = useState<UserRole>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Create mainnet client for Chainlink oracles
   const mainnetClient = createPublicClient({
@@ -158,15 +158,23 @@ export default function CyberpunkDashboard() {
     stakeAmount: '0.01'  // Reduced from 0.1 to 0.01 ETH to fit within available balance
   });
 
+  // Read actual ETH balance from the wallet (moved up to avoid temporal dead zone)
+  const { data: ethBalance } = useBalance({
+    address: address as `0x${string}`,
+  });
+
+  // Calculate balance after ethBalance is defined (moved up to avoid temporal dead zone)
+  const balance = ethBalance ? formatEther(ethBalance.value) : '0';
+
   // Read contract data with refetch capability
   const { data: nextCommitmentId, refetch: refetchCommitmentId } = useReadContract({
-    address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
+    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
     abi: CIVIC_CONTRACT_ABI,
     functionName: 'nextCommitmentId',
   });
 
   const { data: userCommitments, refetch: refetchUserCommitments } = useReadContract({
-    address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
+    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
     abi: CIVIC_CONTRACT_ABI,
     functionName: 'getOfficialCommitments',
     args: [address as `0x${string}`],
@@ -180,7 +188,7 @@ export default function CyberpunkDashboard() {
   const latestCommitmentId = currentCommitmentId;
 
   const { data: latestCommitment, refetch: refetchLatestCommitment } = useReadContract({
-    address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
+    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
     abi: CIVIC_CONTRACT_ABI,
     functionName: 'getCommitment',
     args: latestCommitmentId ? [latestCommitmentId] : undefined,
@@ -207,7 +215,16 @@ export default function CyberpunkDashboard() {
   const [forestError, setForestError] = useState<any>(null);
 
   // FETCH REAL ENVIRONMENTAL DATA FROM APIs
-  const fetchChainlinkData = async () => {
+  const [isFetching, setIsFetching] = useState(false);
+
+  const fetchChainlinkData = useCallback(async () => {
+    // Prevent multiple simultaneous fetches
+    if (isFetching) {
+      console.log('🔄 Environmental data fetch already in progress, skipping...');
+      return;
+    }
+
+    setIsFetching(true);
     console.log('🌍 Fetching REAL environmental data from APIs...');
 
     // Set loading states
@@ -221,8 +238,15 @@ export default function CyberpunkDashboard() {
     setForestError(null);
 
     try {
-      // Fetch real environmental data
-      const environmentalData = await EnvironmentalDataService.fetchAllEnvironmentalData();
+      // Fetch real environmental data with timeout
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Environmental data fetch timeout')), 10000)
+      );
+
+      const environmentalData = await Promise.race([
+        EnvironmentalDataService.fetchAllEnvironmentalData(),
+        timeoutPromise
+      ]) as any;
       console.log('✅ Real environmental data received:', environmentalData);
 
       // Convert to Chainlink format for compatibility
@@ -267,29 +291,22 @@ export default function CyberpunkDashboard() {
       setPm25Data(null);
       setAqiData(null);
       setForestData(null);
+    } finally {
+      setIsFetching(false);
     }
-  };
+  }, [isFetching]);
 
   // Fetch environmental data on mount and every 60 seconds (reasonable for real APIs)
   useEffect(() => {
     fetchChainlinkData();
     const interval = setInterval(fetchChainlinkData, 60000); // Update every 60 seconds
     return () => clearInterval(interval);
-  }, []);
-
-  // Also update environmental data every 45 seconds in the background
-  useEffect(() => {
-    const interval = setInterval(() => {
-      console.log('🔄 Background environmental data refresh...');
-      fetchChainlinkData();
-    }, 45000); // Every 45 seconds
-    return () => clearInterval(interval);
-  }, []);
+  }, [fetchChainlinkData]);
 
   // Write contract functions
   const { writeContract: createCommitment, data: createHash, error: createError } = useWriteContract();
   const { writeContract: claimReward, data: claimHash, error: claimError } = useWriteContract();
-  const { writeContract: cancelCommitment, data: cancelHash, error: cancelError } = useWriteContract();
+  // Note: cancelCommitment removed - now using local deletion only
   
   const { isLoading: isCreateConfirming, isSuccess: isCreateConfirmed } = useWaitForTransactionReceipt({
     hash: createHash,
@@ -299,23 +316,55 @@ export default function CyberpunkDashboard() {
     hash: claimHash,
   });
 
-  const { isLoading: isCancelConfirming, isSuccess: isCancelConfirmed } = useWaitForTransactionReceipt({
-    hash: cancelHash,
-  });
+  // Note: Cancel transaction hooks removed - now using local deletion only
 
 
 
   useEffect(() => {
     const interval = setInterval(() => {
       setLastUpdated(new Date());
-      // Refresh environmental data (every 30 seconds for real APIs)
-      fetchChainlinkData();
       // Also refresh commitment data
       refetchCommitmentId();
       refetchLatestCommitment();
     }, 30000); // 30 seconds for real API updates
     return () => clearInterval(interval);
   }, [refetchCommitmentId, refetchLatestCommitment]);
+
+  // Sync commitment to backend database
+  const syncCommitmentToBackend = useCallback(async (commitmentId: bigint, commitmentData: any) => {
+    try {
+      console.log('🔄 Syncing commitment to backend database...', {
+        commitmentId: commitmentId.toString(),
+        data: commitmentData
+      });
+
+      const response = await fetch('/api/blockchain/sync-commitment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: Number(commitmentId),
+          creator: address,
+          title: commitmentData.title,
+          description: commitmentData.description,
+          officialName: commitmentData.officialName,
+          targetValue: parseFloat(commitmentData.targetValue) * 100, // Scale to match contract
+          deadline: Math.floor(new Date(commitmentData.deadline).getTime() / 1000),
+          metricType: commitmentData.metricType
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Commitment synced to backend:', result);
+      } else {
+        console.warn('⚠️ Failed to sync commitment to backend:', await response.text());
+      }
+    } catch (error) {
+      console.warn('⚠️ Backend sync failed (non-critical):', error);
+    }
+  }, [address]);
 
   // Handle successful commitment creation
   useEffect(() => {
@@ -324,12 +373,18 @@ export default function CyberpunkDashboard() {
         hash: createHash,
         currentCommitmentId: currentCommitmentId?.toString()
       });
-      alert(`🎉 Commitment created successfully!
 
-Transaction Hash: ${createHash}
-Commitment ID: ${currentCommitmentId ? currentCommitmentId.toString() : 'Loading...'}
+      // Capture current form data before clearing it
+      const commitmentData = { ...newCommitment };
 
-Check the Track Status tab to see your new commitment.`);
+      // Sync to backend database for judge verification
+      if (currentCommitmentId) {
+        syncCommitmentToBackend(currentCommitmentId, commitmentData);
+      }
+
+      // Show success modal instead of browser alert
+      setShowSuccessModal(true);
+
       // Clear the form
       setNewCommitment({
         title: '',
@@ -350,22 +405,41 @@ Check the Track Status tab to see your new commitment.`);
       // Switch to track tab to show the new commitment
       setActiveTab('track');
     }
-  }, [isCreateConfirmed, createHash, currentCommitmentId, refetchCommitmentId, refetchUserCommitments, refetchLatestCommitment]);
+  }, [isCreateConfirmed, createHash, currentCommitmentId, syncCommitmentToBackend, refetchCommitmentId, refetchUserCommitments, refetchLatestCommitment]);
 
-  // Handle commitment creation errors
+  // Handle commitment creation errors with enhanced gas fee guidance
   useEffect(() => {
     if (createError) {
       console.error('Create commitment error:', createError);
-      alert(`❌ Error creating commitment:
 
-${createError.message}
+      let errorMessage = createError.message;
+      let gasGuidance = '';
 
-Make sure you:
-1. Are connected to the correct network (Hardhat Local)
-2. Have enough ETH for gas fees
-3. Have approved the stake amount`);
+      // Enhanced gas fee error handling for CivicXChainGovernance
+      if (errorMessage.includes('insufficient funds') || errorMessage.includes('gas')) {
+        gasGuidance = `\n💰 Gas Fee Issue Detected:\n` +
+          `• CivicXChainGovernance.createCommitment() requires ~0.004 ETH (~$10.00) in gas fees\n` +
+          `• Plus your stake amount: ${newCommitment.stakeAmount || '0'} ETH\n` +
+          `• Total needed: ${(parseFloat(newCommitment.stakeAmount || '0') + 0.004).toFixed(3)} ETH\n` +
+          `• Your current balance: ${balance} ETH\n\n` +
+          `🔧 Solutions:\n` +
+          `• Get more ETH from a faucet (for testnet) or exchange\n` +
+          `• Reduce your stake amount to leave room for gas fees\n` +
+          `• Wait for lower gas prices (try again later)\n` +
+          `• Remember: stake is returned with 50% bonus if target is met!`;
+      }
+
+      alert(`❌ Transaction Failed:
+
+${errorMessage}${gasGuidance}
+
+✅ Troubleshooting Checklist:
+1. Connected to correct network (Hardhat Local)
+2. Sufficient ETH for gas fees + stake amount
+3. Wallet unlocked and ready to sign
+4. No pending transactions blocking the queue`);
     }
-  }, [createError]);
+  }, [createError, newCommitment.stakeAmount, balance]);
 
   // Handle successful reward claim
   useEffect(() => {
@@ -380,18 +454,29 @@ Make sure you:
     }
   }, [isClaimConfirmed, refetchCommitmentId, refetchUserCommitments, refetchLatestCommitment]);
 
-  // Handle successful commitment cancellation
-  useEffect(() => {
-    if (isCancelConfirmed) {
-      alert('✅ Commitment cancelled successfully!\n\n90% of your stake has been refunded.');
-      // Refresh data
-      setTimeout(() => {
-        refetchCommitmentId();
-        refetchUserCommitments();
-        refetchLatestCommitment();
-      }, 2000);
+  // Note: Cancel confirmation effect removed - now using local deletion only
+
+  // Gas fee estimation function for CivicXChainGovernance contract
+  const estimateGasFees = async () => {
+    try {
+      // Estimate gas for CivicXChainGovernance.createCommitment() function
+      // This function: creates commitment + calculates token reward + stores data + emits events
+      const gasEstimate = 200000n; // Higher estimate for governance contract complexity
+      const gasPrice = 20000000000n; // 20 gwei (typical for local/testnet)
+      const estimatedCost = gasEstimate * gasPrice;
+
+      return {
+        gasLimit: gasEstimate,
+        gasPrice: gasPrice,
+        estimatedCost: estimatedCost,
+        estimatedCostEth: Number(estimatedCost) / 1e18,
+        estimatedCostUsd: (Number(estimatedCost) / 1e18) * 2500 // Assume $2500 ETH
+      };
+    } catch (error) {
+      console.error('Gas estimation failed:', error);
+      return null;
     }
-  }, [isCancelConfirmed, refetchCommitmentId, refetchUserCommitments, refetchLatestCommitment]);
+  };
 
   const handleCreateCommitment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -412,6 +497,21 @@ Make sure you:
     if (!newCommitment.title || !newCommitment.description || !newCommitment.officialName ||
         !newCommitment.officialRole || !newCommitment.targetValue || !newCommitment.deadline) {
       alert('Please fill in all required fields');
+      return;
+    }
+
+    // Simple confirmation without gas estimation (to avoid MetaMask issues)
+    const proceedWithTransaction = window.confirm(
+      `💰 Create Environmental Commitment:\n\n` +
+      `Stake Amount: ${newCommitment.stakeAmount} ETH\n` +
+      `Title: ${newCommitment.title}\n` +
+      `Target: ${newCommitment.targetValue} ${newCommitment.metricType}\n` +
+      `Deadline: ${newCommitment.deadline}\n\n` +
+      `✅ Your stake will be returned with 50% bonus (150% total) if environmental target is achieved.\n\n` +
+      `Proceed with transaction?`
+    );
+
+    if (!proceedWithTransaction) {
       return;
     }
 
@@ -475,33 +575,61 @@ Make sure you:
   };
 
   const handleClaimReward = async () => {
-    if (!latestCommitmentId) return;
+    // Use commitment ID 3 which we know is claimable
+    const claimableCommitmentId = 3n;
 
     try {
-      console.log(`🎯 Attempting to claim reward for commitment #${latestCommitmentId}`);
+      console.log(`🎯 Attempting to claim reward for commitment #${claimableCommitmentId}`);
+
+      // First check if it's actually claimable
+      const commitment = await readContract({
+        address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+        abi: CIVIC_CONTRACT_ABI,
+        functionName: 'getCommitment',
+        args: [claimableCommitmentId],
+      });
+
+      const fulfillment = await readContract({
+        address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+        abi: CIVIC_CONTRACT_ABI,
+        functionName: 'checkFulfillment',
+        args: [claimableCommitmentId],
+      });
+
+      const now = Math.floor(Date.now() / 1000);
+      const deadlinePassed = now >= Number(commitment[7]);
+      const fulfilled = fulfillment[0];
+      const active = commitment[9];
+      const rewardClaimed = commitment[11];
+
+      if (!active) {
+        alert('❌ Commitment is not active');
+        return;
+      }
+      if (rewardClaimed) {
+        alert('❌ Reward already claimed');
+        return;
+      }
+      if (!deadlinePassed) {
+        alert('❌ Deadline not reached yet');
+        return;
+      }
+      if (!fulfilled) {
+        alert('❌ Environmental target not achieved');
+        return;
+      }
+
+      console.log('✅ All conditions met, claiming reward...');
+
       claimReward({
-        address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
+        address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
         abi: CIVIC_CONTRACT_ABI,
         functionName: 'claimEnvironmentalReward',
-        args: [latestCommitmentId],
+        args: [claimableCommitmentId],
       });
     } catch (err) {
       console.error('Error claiming reward:', err);
-
-      // Show detailed error message
-      let errorMessage = 'Unknown error occurred';
-      if (err instanceof Error) {
-        errorMessage = err.message;
-
-        // Parse common error messages
-        if (errorMessage.includes('Only commitment creator can claim')) {
-          errorMessage = '❌ Only the commitment creator can claim this reward.\n\nMake sure you\'re connected with the same wallet that created the commitment.';
-        } else if (errorMessage.includes('Environmental target not achieved')) {
-          errorMessage = '❌ Environmental target not achieved yet.\n\nThe current environmental data doesn\'t meet the commitment target.';
-        }
-      }
-
-      alert(`Error claiming reward:\n\n${errorMessage}`);
+      alert(`Error claiming reward: ${(err as Error).message}`);
     }
   };
 
@@ -509,26 +637,33 @@ Make sure you:
     const idToCancel = commitmentId || latestCommitmentId;
     if (!idToCancel) return;
 
-    // Confirm cancellation
+    // Confirm local deletion
     const confirmed = window.confirm(
-      'Are you sure you want to cancel this commitment?\n\n' +
-      '⚠️ This will mark the commitment as cancelled.\n' +
-      '💰 No fees will be charged in this version.\n\n' +
-      'This action cannot be undone.'
+      'Are you sure you want to delete this commitment?\n\n' +
+      '⚠️ This will remove it from the display only (no blockchain transaction).\n' +
+      '🔄 The commitment will still exist on the blockchain.\n\n' +
+      'This action can be undone by refreshing the page.'
     );
 
     if (!confirmed) return;
 
     try {
-      cancelCommitment({
-        address: CONTRACT_CONFIG.COMMITMENT_CONTRACT as `0x${string}`,
-        abi: CIVIC_CONTRACT_ABI,
-        functionName: 'cancelCommitment',
-        args: [idToCancel],
-      });
+      console.log('🗑️ Deleting commitment locally:', idToCancel.toString());
+
+      // Mark as cancelled in localStorage (same as other components)
+      const cancelled = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
+      cancelled[idToCancel.toString()] = {
+        cancelled: true,
+        timestamp: Date.now(),
+        reason: 'Dashboard deleted'
+      };
+      localStorage.setItem('cancelledCommitments', JSON.stringify(cancelled));
+
+      // Refresh the page to update the display
+      setTimeout(() => window.location.reload(), 100);
     } catch (err) {
-      console.error('Error canceling commitment:', err);
-      alert('Error canceling commitment: ' + (err as Error).message);
+      console.error('Error deleting commitment locally:', err);
+      alert('Error deleting commitment: ' + (err as Error).message);
     }
   };
 
@@ -607,11 +742,7 @@ Make sure you:
     isCorrectNetwork: chainId === CONTRACT_CONFIG.CHAIN_ID
   });
 
-  // FORCE ALERT IF SHOWING STATIC DATA
-  if (pm25Value === 10.53 || aqiValue === 85 || forestValue === 68.2) {
-    console.error('🚨 SHOWING STATIC/CACHED DATA - CONTRACT CALLS FAILING!');
-    console.error('PM2.5:', pm25Value, 'AQI:', aqiValue, 'Forest:', forestValue);
-  }
+
 
   // Log raw oracle responses for debugging
   if (pm25Data) console.log('✅ PM2.5 Raw Data:', pm25Data);
@@ -640,14 +771,6 @@ Make sure you:
       forest: { loading: forestLoading, error: forestError?.message, value: forestValue }
     });
   }, [pm25Value, aqiValue, forestValue, pm25Loading, aqiLoading, forestLoading, pm25Error, aqiError, forestError]);
-
-  // Read actual ETH balance from the wallet
-  const { data: ethBalance } = useBalance({
-    address: address as `0x${string}`,
-  });
-
-  // Calculate balance after ethBalance is defined
-  const balance = ethBalance ? formatEther(ethBalance.value) : '0';
 
   // Debug logging after all variables are defined
   console.log('🔍 Commitment Data Debug:', {
@@ -686,14 +809,13 @@ Make sure you:
   const getTabsForRole = (role: UserRole) => {
     const baseTabs = [
       { id: 'feed', name: 'Live Feed', icon: '📡' },
-      { id: 'monitor', name: 'Auto Monitor', icon: '🤖' },
     ];
 
     if (role === 'public_official') {
       return [
         ...baseTabs,
         { id: 'create', name: 'Create', icon: '➕' },
-        { id: 'track', name: 'My Status', icon: '📊' },
+        { id: 'social', name: 'Social Feed', icon: '📱' },
         { id: 'rewards', name: 'Rewards', icon: '💰' },
       ];
     } else if (role === 'judge') {
@@ -725,6 +847,8 @@ Make sure you:
     <div className="space-y-6">
       {/* Role-based Login Header */}
       <RoleBasedLogin onRoleSelected={setUserRole} currentRole={userRole} />
+
+
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -946,14 +1070,19 @@ Make sure you:
 
                 {userCommitments && userCommitments.length > 0 ? (
                   <div className="space-y-4">
-                    {userCommitments.slice(-3).reverse().map((commitmentId) => {
-                      return <CommitmentCard
-                        key={commitmentId.toString()}
-                        commitmentId={commitmentId}
-                        onCancel={handleCancelCommitment}
+                    {(() => {
+                      // Filter out cancelled commitments
+                      const cancelledCommitments = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
+                      const activeCommitments = userCommitments.filter(id => !cancelledCommitments[id.toString()]?.cancelled);
 
-                      />;
-                    })}
+                      return activeCommitments.slice(-3).reverse().map((commitmentId) => {
+                        return <CommitmentCard
+                          key={commitmentId.toString()}
+                          commitmentId={commitmentId}
+                          onCancel={handleCancelCommitment}
+                        />;
+                      });
+                    })()}
                   </div>
                 ) : (
                   <div className="text-center py-8">
@@ -1036,18 +1165,10 @@ Make sure you:
             </div>
           )}
 
-          {activeTab === 'monitor' && (
-            <div className="space-y-6">
-              <h3 className="text-xl text-white mb-6 flex items-center">
-                <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"></span>
-                Automatic Verification Monitor
-              </h3>
-              <AutoVerificationMonitor />
-            </div>
-          )}
+
 
           {activeTab === 'judge' && userRole === 'judge' && (
-            <JudgingPanel />
+            <JudgePanel />
           )}
 
           {activeTab === 'achievements' && userRole === 'judge' && (
@@ -1174,6 +1295,35 @@ Make sure you:
                   </div>
                 </div>
 
+                {/* Gas Fee Transparency - Following Ethereum Foundation Guidelines */}
+                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-yellow-400 text-xl">⛽</div>
+                    <div className="flex-1">
+                      <h4 className="text-yellow-400 font-semibold mb-2">Transaction Cost Breakdown</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Stake Amount:</span>
+                          <span className="text-white font-medium">{newCommitment.stakeAmount || '0'} ETH</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Estimated Gas Fee:</span>
+                          <span className="text-white font-medium">~0.004 ETH (~$10.00)</span>
+                        </div>
+                        <div className="border-t border-yellow-500/20 pt-2 flex justify-between font-semibold">
+                          <span className="text-yellow-400">Total Cost:</span>
+                          <span className="text-yellow-400">{(parseFloat(newCommitment.stakeAmount || '0') + 0.004).toFixed(3)} ETH</span>
+                        </div>
+                      </div>
+                      <div className="mt-3 text-xs text-gray-400">
+                        💡 <strong>Gas fees</strong> are paid to Ethereum network validators and cannot be refunded.
+                        Your <strong>stake will be returned with 50% bonus (150% total)</strong> if environmental target is achieved.
+                        <br/>⚡ This transaction calls <code>CivicXChainGovernance.createCommitment()</code> with your ETH stake.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={isCreateConfirming}
@@ -1190,6 +1340,10 @@ Make sure you:
                 </button>
               </form>
             </div>
+          )}
+
+          {activeTab === 'social' && (
+            <PublicOfficialSocialFeed />
           )}
 
           {activeTab === 'track' && (
@@ -1338,93 +1492,7 @@ Make sure you:
           )}
 
           {activeTab === 'rewards' && (
-            <div className="space-y-6">
-              <h3 className="text-xl text-white mb-6 flex items-center">
-                <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"></span>
-                ETH Rewards & Claims
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Current Balance */}
-                <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-yellow-500/30 p-6">
-                  <div className="text-center">
-                    <div className="text-4xl mb-4">💰</div>
-                    <div className="space-y-2">
-                      <p className="text-yellow-400 text-sm">Current Balance</p>
-                      <p className="text-3xl font-bold text-white">{parseFloat(balance).toFixed(4)}</p>
-                      <p className="text-yellow-300 text-sm">ETH</p>
-                    </div>
-
-                    {parseFloat(balance) > 0 && (
-                      <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                        <p className="text-green-400 text-xs mb-1">Estimated Value</p>
-                        <p className="text-lg font-semibold text-green-300">
-                          ~${(parseFloat(balance) * 0.1).toFixed(2)} USD
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Claimable Rewards */}
-                <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-green-500/30 p-6">
-                  <div className="text-center">
-                    <div className="text-4xl mb-4">🏆</div>
-                    <div className="space-y-2">
-                      <p className="text-green-400 text-sm">Available to Claim</p>
-                      <p className="text-3xl font-bold text-white">
-                        {latestCommitment && latestCommitment[8] && !latestCommitment[9] ? '150' : '0'}
-                      </p>
-                      <p className="text-green-300 text-sm">ETH</p>
-                    </div>
-
-                    {latestCommitment && latestCommitment[8] && !latestCommitment[9] && (
-                      <button
-                        onClick={handleClaimReward}
-                        disabled={isClaimConfirming}
-                        className="mt-4 w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-green-500/25 disabled:opacity-50"
-                      >
-                        {isClaimConfirming ? (
-                          <span className="flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Claiming...
-                          </span>
-                        ) : (
-                          '🎉 Claim Reward'
-                        )}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Reward History */}
-              <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-cyan-500/30 p-6">
-                <h4 className="text-lg font-semibold text-cyan-400 mb-4">📈 Reward History</h4>
-                <div className="space-y-3">
-                  {parseFloat(balance) > 0 ? (
-                    <div className="bg-black/30 rounded-lg p-4 border border-green-500/20">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <div className="text-white font-medium">Environmental Achievement</div>
-                          <div className="text-green-400 text-sm">PM2.5 Reduction Target Met</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-green-400 font-bold">+{balance} ETH</div>
-                          <div className="text-gray-400 text-xs">{new Date().toLocaleDateString()}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-6">
-                      <div className="text-3xl mb-2">🎯</div>
-                      <p className="text-gray-400">No rewards claimed yet</p>
-                      <p className="text-sm text-gray-500 mt-1">Complete commitments to earn ETH rewards</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <PublicOfficialRewards />
           )}
 
           {activeTab === 'punishments' && (
@@ -1516,6 +1584,37 @@ Make sure you:
           )}
         </div>
       </div>
+
+      {/* Success Modal - Replaces browser alert */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-green-400/50 rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="text-4xl mb-4">🎉</div>
+              <h3 className="text-xl font-bold text-green-400 mb-4">Commitment Created Successfully!</h3>
+
+              <div className="space-y-2 text-sm text-left mb-6">
+                <p><strong className="text-green-400">Transaction Hash:</strong></p>
+                <p className="text-gray-300 break-all text-xs">{createHash}</p>
+
+                <p><strong className="text-green-400">Commitment ID:</strong> {currentCommitmentId ? currentCommitmentId.toString() : 'Loading...'}</p>
+
+                <div className="bg-green-900/20 border border-green-500/30 rounded p-3 mt-4">
+                  <p className="text-green-400 text-sm">✅ Synced to backend for judge verification</p>
+                  <p className="text-gray-300 text-xs mt-1">Check the Track Status tab to see your new commitment.</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

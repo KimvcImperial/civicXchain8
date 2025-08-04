@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { AchievementMonitorService, AchievementDetection } from '../services/achievementMonitorService';
 
 interface VerificationLog {
   timestamp: string;
@@ -38,6 +39,72 @@ export default function AutoVerificationMonitor() {
     nextCheck: 'Unknown'
   });
   const [isExpanded, setIsExpanded] = useState(false);
+  const [achievements, setAchievements] = useState<AchievementDetection[]>([]);
+  const [monitorService] = useState(() => AchievementMonitorService.getInstance());
+
+  // Initialize achievement monitoring
+  useEffect(() => {
+    console.log('🚀 Auto Monitor: useEffect triggered - initializing monitoring');
+    const initializeMonitoring = async () => {
+      try {
+        console.log('🔗 Auto Monitor: Fetching commitments from /api/blockchain/commitments');
+        // Fetch commitments directly from blockchain (same as Judge Panel)
+        const response = await fetch('/api/blockchain/commitments');
+        console.log('📡 Auto Monitor: Response status:', response.status);
+        if (response.ok) {
+          const commitments = await response.json();
+          console.log('🤖 Auto Monitor: Fetched', commitments.length, 'commitments from blockchain');
+
+          // Start monitoring
+          monitorService.startMonitoring(commitments);
+
+          // Set up achievement callback
+          monitorService.onAchievementUpdate((achievementsList) => {
+            setAchievements(achievementsList);
+
+            // Update stats based on achievements
+            const monitorStats = monitorService.getStats();
+            setStats(prev => ({
+              ...prev,
+              isRunning: true,
+              totalVerifications: monitorStats.total,
+              successfulVerifications: monitorStats.successful,
+              failedVerifications: monitorStats.failed,
+              uptime: monitorStats.uptime,
+              lastUpdate: new Date().toLocaleTimeString(),
+              nextCheck: 'Next check in 10s'
+            }));
+
+            // Add achievement logs
+            achievementsList.forEach(achievement => {
+              if (achievement.isAchieved) {
+                const newLog: VerificationLog = {
+                  timestamp: new Date().toLocaleTimeString(),
+                  commitmentId: parseInt(achievement.commitmentId),
+                  status: 'success',
+                  message: `Target achieved! PM2.5 (${achievement.currentValue.toFixed(2)}) ≤ ${achievement.targetValue}`,
+                  oracleData: {
+                    pm25: achievement.currentValue,
+                    co2: 0,
+                    forest: 0
+                  }
+                };
+                setLogs(prev => [newLog, ...prev.slice(0, 19)]); // Keep last 20 logs
+              }
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing achievement monitoring:', error);
+      }
+    };
+
+    initializeMonitoring();
+
+    return () => {
+      monitorService.stopMonitoring();
+    };
+  }, [monitorService]);
 
   // Real-time monitoring connected to verification system API
   useEffect(() => {
@@ -46,25 +113,15 @@ export default function AutoVerificationMonitor() {
         const response = await fetch('http://localhost:3001/api/status');
         if (response.ok) {
           const data = await response.json();
-          setStats({
-            isRunning: data.isRunning,
-            lastUpdate: data.lastUpdateFormatted,
-            totalVerifications: data.totalVerifications,
-            successfulVerifications: data.successfulVerifications,
-            failedVerifications: data.failedVerifications,
-            uptime: data.uptimeString,
-            nextCheck: data.nextCheck
-          });
+          setStats(prev => ({
+            ...prev,
+            // Keep our achievement monitoring stats but update external system info
+            lastUpdate: data.lastUpdateFormatted || prev.lastUpdate,
+            nextCheck: data.nextCheck || prev.nextCheck
+          }));
         }
       } catch (error) {
-        console.log('Verification system API not available, using fallback data');
-        // Fallback to mock data if API is not available
-        setStats(prev => ({
-          ...prev,
-          isRunning: false,
-          lastUpdate: 'API Unavailable',
-          nextCheck: 'Start verification system'
-        }));
+        console.log('External verification system API not available');
       }
     };
 
@@ -184,8 +241,13 @@ export default function AutoVerificationMonitor() {
             <div className="bg-black rounded-lg p-4 max-h-64 overflow-y-auto">
               {logs.length === 0 ? (
                 <div className="text-center text-gray-500 py-4">
-                  <div className="text-2xl mb-2">⏳</div>
-                  <div>Waiting for verification events...</div>
+                  <div className="text-2xl mb-2">🔍</div>
+                  <div>Monitoring {achievements.length} commitments for achievements...</div>
+                  {achievements.length > 0 && (
+                    <div className="text-xs text-gray-400 mt-2">
+                      Environmental Data: {achievements[0]?.currentValue ? 'Connected' : 'Loading...'}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">

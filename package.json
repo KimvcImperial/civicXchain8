@@ -27,5 +27,8 @@
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^9.1.0"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0"
   }
 }

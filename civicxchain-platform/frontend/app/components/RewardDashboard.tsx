@@ -13,41 +13,19 @@ export default function RewardDashboard({ officialId }: RewardDashboardProps) {
   }, [officialId]);
 
   const fetchRewardsData = async () => {
-    // In production, this would call your backend API
-    // For now, use mock data
+    // TODO: Fetch real rewards data from blockchain
+    // For now, show empty state to avoid displaying fake data
     setRewards({
-      nft_badges: [
-        { 
-          type: "Forest Guardian", 
-          earned_date: "2024-01-15", 
-          rarity: "Rare",
-          description: "Protected 1000+ acres of forest",
-          image: "🌲"
-        },
-        { 
-          type: "Air Quality Champion", 
-          earned_date: "2024-02-20", 
-          rarity: "Epic",
-          description: "Reduced PM2.5 levels by 25%",
-          image: "🌬️"
-        },
-        { 
-          type: "Water Protector", 
-          earned_date: "2024-03-10", 
-          rarity: "Legendary",
-          description: "Achieved 95% water quality score",
-          image: "💧"
-        }
-      ],
-      reputation_tokens: 2500,
-      current_rank: "Environmental Guardian",
-      total_commitments: 12,
-      completed_commitments: 9,
-      success_rate: 75,
+      nft_badges: [],
+      reputation_tokens: 0,
+      current_rank: "New Member",
+      total_commitments: 0,
+      completed_commitments: 0,
+      success_rate: 0,
       next_milestone: {
-        title: "Climate Hero",
-        tokens_needed: 500,
-        progress: 80
+        title: "Environmental Advocate",
+        tokens_needed: 100,
+        progress: 0
       }
     });
   };

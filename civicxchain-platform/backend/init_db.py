@@ -37,6 +37,8 @@ def init_database():
                 longitude REAL,
                 deadline TEXT,
                 status TEXT DEFAULT 'active',
+                judge_verified INTEGER DEFAULT 0,
+                reward_claimed INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
@@ -55,78 +57,28 @@ def init_database():
                 FOREIGN KEY (commitment_id) REFERENCES commitments (id)
             )
         """)
-        
-        # Insert sample commitments (Public Officials' Environmental Commitments)
-        sample_commitments = [
-            (
-                "Mayor Sarah Johnson (Mayor)",
-                "Reduce PM2.5 Air Pollution Below WHO Standards",
-                "Commit to reducing PM2.5 levels to below 15 μg/m³ through enhanced public transport, industrial regulations, and green energy initiatives",
-                "air_quality",
-                15.0,
-                22.5,
-                "μg/m³",
-                40.7128,
-                -74.0060,
-                "2024-12-31",
-                "active"
-            ),
-            (
-                "Governor Michael Chen (Governor)",
-                "Achieve 80% Forest Cover in State Parks",
-                "Increase forest coverage in state parks to 80% through reforestation programs and protection of existing forests",
-                "forest_protection",
-                80.0,
-                65.0,
-                "percentage",
-                34.0522,
-                -118.2437,
-                "2025-06-30",
-                "active"
-            ),
-            (
-                "Dr. Elena Rodriguez (Environment Minister)",
-                "Improve Water Quality Index to 90+",
-                "Enhance water treatment facilities and reduce industrial pollution to achieve water quality index above 90",
-                "water_management",
-                90.0,
-                75.0,
-                "quality_index",
-                41.8781,
-                -87.6298,
-                "2025-03-15",
-                "active"
+
+        # Create achievements table for tracking when targets are met
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS achievements (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                commitment_id INTEGER,
+                first_achieved_at TIMESTAMP,
+                last_achieved_at TIMESTAMP,
+                achievement_count INTEGER DEFAULT 0,
+                max_value_reached REAL,
+                days_to_achievement REAL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (commitment_id) REFERENCES commitments (id)
             )
-        ]
+        """)
         
-        cursor.executemany("""
-            INSERT INTO commitments (
-                creator, title, description, category, target_value, 
-                actual_value, metric_type, latitude, longitude, deadline, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, sample_commitments)
-        
-        # Insert sample satellite data (Environmental monitoring for official commitments)
-        sample_satellite_data = [
-            (1, "pm25_levels", 22.5, "μg/m³", "Sentinel-5P", 1),
-            (1, "air_quality_index", 65, "AQI", "Ground Stations", 1),
-            (2, "forest_cover", 65.0, "percentage", "Landsat-8", 1),
-            (2, "deforestation_rate", -2.1, "percentage/year", "Sentinel-2", 1),
-            (3, "water_quality_index", 75.0, "WQI", "Water Monitoring", 1),
-            (3, "pollution_levels", 25.0, "mg/L", "Lab Analysis", 1)
-        ]
-        
-        cursor.executemany("""
-            INSERT INTO satellite_data (
-                commitment_id, data_type, value, unit, source, verified
-            ) VALUES (?, ?, ?, ?, ?, ?)
-        """, sample_satellite_data)
+        # Database tables created - ready for real commitment data
         
         # Commit changes
         conn.commit()
         print(f"Database initialized successfully at {db_path}")
-        print(f"Created {len(sample_commitments)} sample commitments")
-        print(f"Created {len(sample_satellite_data)} sample satellite data entries")
+        print("Database ready for real commitment data")
         
     except Exception as e:
         print(f"Error initializing database: {e}")

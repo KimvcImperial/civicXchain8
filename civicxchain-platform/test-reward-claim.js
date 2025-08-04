@@ -2,7 +2,7 @@ const { ethers } = require('ethers');
 
 // Configuration
 const RPC_URL = 'https://eth-sepolia.public.blastapi.io';
-const CONTRACT_ADDRESS = '0xC6aB674d9d251d6bB5f55287109aa44D3cfd74B2';
+const CONTRACT_ADDRESS = '0xf20473e6990d39343D43a6Db4379b4DA860B9d1f';
 
 // Contract ABI (minimal for testing)
 const CONTRACT_ABI = [
@@ -52,11 +52,11 @@ async function testRewardClaim() {
                 console.log(`      - Target Value: ${targetVal}`);
                 console.log(`      - Logic: ${commitment.metricType === 'pm25' ? 'current <= target' : 'current >= target'}`);
                 
-                // Check if claimable
+                // Check if claimable (FIXED: now >= deadline)
                 const now = Math.floor(Date.now() / 1000);
-                const isClaimable = commitment.isActive && 
-                                  !commitment.rewardClaimed && 
-                                  now <= commitment.deadline && 
+                const isClaimable = commitment.isActive &&
+                                  !commitment.rewardClaimed &&
+                                  now >= commitment.deadline &&
                                   fulfilled;
                 
                 console.log(`   🎁 Claimable: ${isClaimable}`);
@@ -65,7 +65,7 @@ async function testRewardClaim() {
                     console.log(`   ❌ Cannot claim because:`);
                     if (!commitment.isActive) console.log(`      - Commitment not active`);
                     if (commitment.rewardClaimed) console.log(`      - Reward already claimed`);
-                    if (now > commitment.deadline) console.log(`      - Deadline passed`);
+                    if (now < commitment.deadline) console.log(`      - Deadline not reached yet`);
                     if (!fulfilled) console.log(`      - Environmental target not achieved`);
                 }
                 

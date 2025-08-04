@@ -4,32 +4,8 @@ import { useState } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther } from 'viem';
 import { CONTRACT_CONFIG } from '../../config/contracts';
+import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi';
 
-// ETH Staking Governance Contract ABI
-const GOVERNANCE_ABI = [
-  {
-    "inputs": [
-      {"internalType": "string", "name": "_title", "type": "string"},
-      {"internalType": "string", "name": "_description", "type": "string"},
-      {"internalType": "string", "name": "_officialName", "type": "string"},
-      {"internalType": "string", "name": "_officialRole", "type": "string"},
-      {"internalType": "uint256", "name": "_targetValue", "type": "uint256"},
-      {"internalType": "uint256", "name": "_deadline", "type": "uint256"},
-      {"internalType": "string", "name": "_metricType", "type": "string"}
-    ],
-    "name": "createCommitment",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "_commitmentId", "type": "uint256"}],
-    "name": "claimEnvironmentalReward",
-    "outputs": [{"internalType": "uint256", "name": "tokensRewarded", "type": "uint256"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-] as const;
 
 interface CreateCommitmentFormProps {
   onSuccess: () => void;
@@ -55,14 +31,53 @@ export default function CreateCommitmentForm({ onSuccess }: CreateCommitmentForm
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
-      const deadlineTimestamp = Math.floor(new Date(formData.deadline).getTime() / 1000);
-      const targetValueScaled = Math.floor(parseFloat(formData.targetValue) * 100); // Scale to match contract format
-      
+      // Validate form data
+      if (!formData.title || !formData.description || !formData.officialName ||
+          !formData.officialRole || !formData.targetValue || !formData.deadline || !formData.stakeAmount) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      // Validate deadline is in the future
+      const deadlineDate = new Date(formData.deadline);
+      if (deadlineDate <= new Date()) {
+        alert('Deadline must be in the future');
+        return;
+      }
+
+      // Validate target value is positive
+      const targetValue = parseFloat(formData.targetValue);
+      if (isNaN(targetValue) || targetValue <= 0) {
+        alert('Target value must be a positive number');
+        return;
+      }
+
+      // Validate stake amount is positive
+      const stakeAmount = parseFloat(formData.stakeAmount);
+      if (isNaN(stakeAmount) || stakeAmount <= 0) {
+        alert('Stake amount must be a positive number');
+        return;
+      }
+
+      const deadlineTimestamp = Math.floor(deadlineDate.getTime() / 1000);
+      const targetValueScaled = Math.floor(targetValue * 100); // Scale to match contract format
+
+      console.log('Creating commitment with parameters:', {
+        title: formData.title,
+        description: formData.description,
+        officialName: formData.officialName,
+        officialRole: formData.officialRole,
+        targetValueScaled,
+        deadlineTimestamp,
+        metricType: formData.metricType,
+        stakeAmount: formData.stakeAmount
+      });
+
       writeContract({
         address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-        abi: GOVERNANCE_ABI,
+        abi: CIVIC_GOVERNANCE_ABI,
         functionName: 'createCommitment',
         args: [
           formData.title,
@@ -77,6 +92,7 @@ export default function CreateCommitmentForm({ onSuccess }: CreateCommitmentForm
       });
     } catch (err) {
       console.error('Error creating commitment:', err);
+      alert('Error creating commitment: ' + (err as Error).message);
     }
   };
 

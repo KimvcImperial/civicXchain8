@@ -2546,6 +2546,7 @@ class ActiveCommitment(BaseModel):
     creator_address: str
     official_name: str
     official_role: str
+    title: str
     description: str
     deadline: datetime
     target_value: int
@@ -2561,6 +2562,15 @@ class ActiveCommitment(BaseModel):
     last_validation: Optional[datetime]
     transaction_hash: str
     created_at: datetime
+    # Achievement tracking fields
+    first_achieved_at: Optional[datetime] = None
+    last_achieved_at: Optional[datetime] = None
+    achievement_count: int = 0
+    max_value_reached: int = 0
+    judge_verified: bool = False
+    judge_verified_at: Optional[datetime] = None
+    judge_address: Optional[str] = None
+    eligible_for_reward: bool = False
 
 # Real Database Manager
 class DatabaseManager:
@@ -2583,6 +2593,7 @@ class DatabaseManager:
                     creator_address VARCHAR(42) NOT NULL,
                     official_name VARCHAR(255) NOT NULL,
                     official_role VARCHAR(255) NOT NULL,
+                    title VARCHAR(255) NOT NULL,
                     description TEXT NOT NULL,
                     deadline TIMESTAMP NOT NULL,
                     target_value INTEGER NOT NULL,
@@ -2597,7 +2608,16 @@ class DatabaseManager:
                     validation_score DECIMAL(3, 2),
                     last_validation TIMESTAMP,
                     created_at TIMESTAMP DEFAULT NOW(),
-                    updated_at TIMESTAMP DEFAULT NOW()
+                    updated_at TIMESTAMP DEFAULT NOW(),
+                    -- Achievement tracking fields
+                    first_achieved_at TIMESTAMP,
+                    last_achieved_at TIMESTAMP,
+                    achievement_count INTEGER DEFAULT 0,
+                    max_value_reached INTEGER DEFAULT 0,
+                    judge_verified BOOLEAN DEFAULT FALSE,
+                    judge_verified_at TIMESTAMP,
+                    judge_address VARCHAR(42),
+                    eligible_for_reward BOOLEAN DEFAULT FALSE
                 );
                 
                 CREATE TABLE IF NOT EXISTS environmental_data_cache (
@@ -2616,6 +2636,23 @@ class DatabaseManager:
                 CREATE INDEX IF NOT EXISTS idx_commitments_region ON commitments(region);
                 CREATE INDEX IF NOT EXISTS idx_env_data_region ON environmental_data_cache(region);
                 CREATE INDEX IF NOT EXISTS idx_env_data_expires ON environmental_data_cache(expires_at);
+                CREATE INDEX IF NOT EXISTS idx_commitments_achievement ON commitments(first_achieved_at);
+                CREATE INDEX IF NOT EXISTS idx_commitments_judge_verified ON commitments(judge_verified);
+
+                -- Achievement tracking table
+                CREATE TABLE IF NOT EXISTS achievement_history (
+                    id SERIAL PRIMARY KEY,
+                    commitment_id INTEGER REFERENCES commitments(id),
+                    achieved_value INTEGER NOT NULL,
+                    target_value INTEGER NOT NULL,
+                    achieved_at TIMESTAMP DEFAULT NOW(),
+                    data_source VARCHAR(255),
+                    confidence_score DECIMAL(3, 2),
+                    verified_by_oracle BOOLEAN DEFAULT FALSE
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_achievement_commitment ON achievement_history(commitment_id);
+                CREATE INDEX IF NOT EXISTS idx_achievement_date ON achievement_history(achieved_at);
             ''')
 
 # Real Blockchain Manager
@@ -3125,14 +3162,14 @@ async def create_commitment(request: CommitmentRequest) -> CommitmentResponse:
         # Store in database
         async with db_manager.pool.acquire() as conn:
             commitment_id = await conn.fetchval('''
-                INSERT INTO commitments 
-                (creator_address, official_name, official_role, description, deadline, 
+                INSERT INTO commitments
+                (creator_address, official_name, official_role, title, description, deadline,
                  target_value, metric_type, data_source, stake_amount, region, transaction_hash)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
                 RETURNING id
             ''', request.creator_address, request.official_name, request.official_role,
-                request.description, deadline_dt, request.target_value, 
-                request.metric_type.value, request.data_source, 
+                request.description, request.description, deadline_dt, request.target_value,
+                request.metric_type.value, request.data_source,
                 request.stake_amount, request.region, blockchain_result['transaction_hash'])
         
         return CommitmentResponse(
@@ -3316,12 +3353,22 @@ async def update_commitment_progress(commitment_id: int, actual_value: int) -> D
             
             # Update status if completed
             new_status = commitment_row['status']
-            if progress_percentage >= 100:
+            target_achieved = actual_value >= commitment_row['target_value']
+
+            if target_achieved:
                 new_status = CommitmentStatus.SUCCESSFUL.value
-            
+                # Track achievement
+                await track_achievement(
+                    commitment_id=commitment_id,
+                    achieved_value=actual_value,
+                    target_value=commitment_row['target_value'],
+                    data_source=commitment_row['data_source'],
+                    confidence_score=0.85  # Default confidence for oracle updates
+                )
+
             # Update in database
             await conn.execute('''
-                UPDATE commitments 
+                UPDATE commitments
                 SET actual_value = $1, status = $2, updated_at = NOW()
                 WHERE id = $3
             ''', actual_value, new_status, commitment_id)
@@ -3487,3 +3534,158 @@ async def get_contract_info() -> Dict[str, Any]:
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get contract info: {str(e)}")
+
+# Achievement Tracking Functions
+async def track_achievement(commitment_id: int, achieved_value: int, target_value: int, data_source: str, confidence_score: float):
+    """Track when a commitment achieves its target"""
+    async with db_manager.pool.acquire() as conn:
+        # Record the achievement
+        await conn.execute('''
+            INSERT INTO achievement_history
+            (commitment_id, achieved_value, target_value, achieved_at, data_source, confidence_score, verified_by_oracle)
+            VALUES ($1, $2, $3, NOW(), $4, $5, $6)
+        ''', commitment_id, achieved_value, target_value, data_source, confidence_score, True)
+
+        # Update commitment achievement tracking
+        current_commitment = await conn.fetchrow('SELECT * FROM commitments WHERE id = $1', commitment_id)
+
+        if current_commitment:
+            # Update commitment with achievement data
+            await conn.execute('''
+                UPDATE commitments
+                SET first_achieved_at = COALESCE(first_achieved_at, NOW()),
+                    last_achieved_at = NOW(),
+                    achievement_count = achievement_count + 1,
+                    max_value_reached = GREATEST(max_value_reached, $2),
+                    eligible_for_reward = CASE
+                        WHEN deadline > NOW() OR first_achieved_at <= deadline THEN TRUE
+                        ELSE FALSE
+                    END,
+                    updated_at = NOW()
+                WHERE id = $1
+            ''', commitment_id, achieved_value)
+
+            logger.info(f"🎯 Achievement tracked for commitment {commitment_id}: {achieved_value}/{target_value}")
+
+async def get_achievement_summary(commitment_id: int):
+    """Get achievement summary for a commitment"""
+    async with db_manager.pool.acquire() as conn:
+        commitment = await conn.fetchrow('SELECT * FROM commitments WHERE id = $1', commitment_id)
+        achievements = await conn.fetch('''
+            SELECT * FROM achievement_history
+            WHERE commitment_id = $1
+            ORDER BY achieved_at DESC
+        ''', commitment_id)
+
+        if not commitment:
+            return None
+
+        return {
+            "commitment_id": commitment_id,
+            "first_achieved_at": commitment['first_achieved_at'],
+            "last_achieved_at": commitment['last_achieved_at'],
+            "achievement_count": commitment['achievement_count'],
+            "max_value_reached": commitment['max_value_reached'],
+            "eligible_for_reward": commitment['eligible_for_reward'],
+            "judge_verified": commitment['judge_verified'],
+            "deadline": commitment['deadline'],
+            "target_value": commitment['target_value'],
+            "achievements": [dict(a) for a in achievements]
+        }
+
+@router.post("/judge/verify-reward/{commitment_id}")
+async def judge_verify_reward(commitment_id: int, judge_address: str) -> Dict[str, Any]:
+    """Judge verifies that a commitment is eligible for reward"""
+    try:
+        async with db_manager.pool.acquire() as conn:
+            # Get commitment details
+            commitment = await conn.fetchrow('SELECT * FROM commitments WHERE id = $1', commitment_id)
+
+            if not commitment:
+                raise HTTPException(status_code=404, detail="Commitment not found")
+
+            # Check if commitment is eligible for reward
+            if not commitment['eligible_for_reward']:
+                raise HTTPException(status_code=400, detail="Commitment is not eligible for reward")
+
+            # Update judge verification
+            await conn.execute('''
+                UPDATE commitments
+                SET judge_verified = TRUE,
+                    judge_verified_at = NOW(),
+                    judge_address = $2,
+                    updated_at = NOW()
+                WHERE id = $1
+            ''', commitment_id, judge_address)
+
+            logger.info(f"🏛️ Judge {judge_address} verified reward for commitment {commitment_id}")
+
+            return {
+                "commitment_id": commitment_id,
+                "judge_verified": True,
+                "judge_address": judge_address,
+                "verified_at": datetime.now().isoformat(),
+                "message": "Reward verified by judge - user can now claim"
+            }
+
+    except Exception as e:
+        logger.error(f"Judge verification failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Judge verification failed: {str(e)}")
+
+@router.get("/achievement-summary/{commitment_id}")
+async def get_commitment_achievement_summary(commitment_id: int) -> Dict[str, Any]:
+    """Get detailed achievement summary for a commitment"""
+    try:
+        summary = await get_achievement_summary(commitment_id)
+
+        if not summary:
+            raise HTTPException(status_code=404, detail="Commitment not found")
+
+        return summary
+
+    except Exception as e:
+        logger.error(f"Failed to get achievement summary: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get achievement summary: {str(e)}")
+
+@router.get("/commitments-for-judging")
+async def get_commitments_for_judging() -> List[Dict[str, Any]]:
+    """Get commitments that need judge verification"""
+    try:
+        async with db_manager.pool.acquire() as conn:
+            commitments = await conn.fetch('''
+                SELECT c.*,
+                       CASE WHEN c.first_achieved_at IS NOT NULL THEN
+                           EXTRACT(EPOCH FROM (c.first_achieved_at - c.created_at)) / 86400
+                       ELSE NULL END as days_to_achievement,
+                       ah.achievement_count as total_achievements
+                FROM commitments c
+                LEFT JOIN (
+                    SELECT commitment_id, COUNT(*) as achievement_count
+                    FROM achievement_history
+                    GROUP BY commitment_id
+                ) ah ON c.id = ah.commitment_id
+                WHERE c.eligible_for_reward = TRUE
+                AND c.status = 'active'
+                ORDER BY c.first_achieved_at ASC
+            ''')
+
+            result = []
+            for commitment in commitments:
+                # Get achievement history
+                achievements = await conn.fetch('''
+                    SELECT * FROM achievement_history
+                    WHERE commitment_id = $1
+                    ORDER BY achieved_at DESC
+                    LIMIT 5
+                ''', commitment['id'])
+
+                result.append({
+                    **dict(commitment),
+                    "recent_achievements": [dict(a) for a in achievements]
+                })
+
+            return result
+
+    except Exception as e:
+        logger.error(f"Failed to get commitments for judging: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get commitments for judging: {str(e)}")

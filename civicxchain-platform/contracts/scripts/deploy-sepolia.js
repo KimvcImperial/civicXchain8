@@ -27,8 +27,9 @@ async function main() {
   console.log("");
 
   try {
-    // Deploy Governance Contract with REAL Environmental Oracle
-    console.log("🏛️ Deploying CivicXChain Governance with Real Environmental Data...");
+    // Deploy UPDATED Governance Contract (NO DEADLINE REQUIREMENTS)
+    console.log("🏛️ Deploying UPDATED CivicXChain Governance (No Deadline Requirements)...");
+    console.log("🎯 This version allows reward claiming without deadline restrictions!");
     const GovernanceContract = await ethers.getContractFactory("CivicXChainGovernance");
 
     // REAL ENVIRONMENTAL ORACLE - Fetches data from NASA, OpenAQ, NOAA APIs

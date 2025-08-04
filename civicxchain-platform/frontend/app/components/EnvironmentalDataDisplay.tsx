@@ -28,27 +28,31 @@ const ENVIRONMENTAL_ORACLE_ABI = [
   }
 ] as const;
 
-// Real deployed oracle contract address - RESTORED ORIGINAL
-const ORACLE_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+// Real deployed oracle contract addresses from your live deployment
+const ORACLE_ADDRESSES = {
+  pm25: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
+  co2: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+  forest: '0x0165878A594ca255338adfa4d48449f69242Eb8F'
+};
 
 export default function EnvironmentalDataDisplay() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
-  // Read REAL oracle data from deployed contract - RESTORED ORIGINAL
+  // Read REAL oracle data from deployed contracts using correct addresses
   const { data: pm25Data, refetch: refetchPM25 } = useReadContract({
-    address: ORACLE_ADDRESS as `0x${string}`,
+    address: ORACLE_ADDRESSES.pm25 as `0x${string}`,
     abi: ENVIRONMENTAL_ORACLE_ABI,
     functionName: 'getLatestPM25Data',
   });
 
-  const { data: aqiData, refetch: refetchAQI } = useReadContract({
-    address: ORACLE_ADDRESS as `0x${string}`,
+  const { data: co2Data, refetch: refetchCO2 } = useReadContract({
+    address: ORACLE_ADDRESSES.co2 as `0x${string}`,
     abi: ENVIRONMENTAL_ORACLE_ABI,
-    functionName: 'getLatestCO2Data', // Keep same function for now, will update later
+    functionName: 'getLatestCO2Data',
   });
 
   const { data: forestData, refetch: refetchForest } = useReadContract({
-    address: ORACLE_ADDRESS as `0x${string}`,
+    address: ORACLE_ADDRESSES.forest as `0x${string}`,
     abi: ENVIRONMENTAL_ORACLE_ABI,
     functionName: 'getLatestForestCoverData',
   });
@@ -58,28 +62,28 @@ export default function EnvironmentalDataDisplay() {
       setLastUpdated(new Date());
       // Refetch real oracle data every 30 seconds
       refetchPM25();
-      refetchAQI();
+      refetchCO2();
       refetchForest();
     }, 30000); // Update every 30 seconds
 
     return () => clearInterval(interval);
-  }, [refetchPM25, refetchAQI, refetchForest]);
+  }, [refetchPM25, refetchCO2, refetchForest]);
 
   const formatValue = (value: bigint | undefined, decimals: number = 2) => {
     if (!value) return '0.00';
     return (Number(value) / 100).toFixed(decimals);
   };
 
-  const getStatusColor = (value: number, type: 'pm25' | 'aqi' | 'forest') => {
+  const getStatusColor = (value: number, type: 'pm25' | 'co2' | 'forest') => {
     switch (type) {
       case 'pm25':
         if (value <= 12) return 'text-green-600';
         if (value <= 35) return 'text-yellow-600';
         return 'text-red-600';
-      case 'aqi':
-        if (value <= 50) return 'text-green-600';
-        if (value <= 100) return 'text-yellow-600';
-        if (value <= 150) return 'text-orange-600';
+      case 'co2':
+        if (value <= 400) return 'text-green-600';
+        if (value <= 450) return 'text-yellow-600';
+        if (value <= 500) return 'text-orange-600';
         return 'text-red-600';
       case 'forest':
         if (value >= 70) return 'text-green-600';
@@ -90,16 +94,16 @@ export default function EnvironmentalDataDisplay() {
     }
   };
 
-  const getStatusIcon = (value: number, type: 'pm25' | 'aqi' | 'forest') => {
+  const getStatusIcon = (value: number, type: 'pm25' | 'co2' | 'forest') => {
     switch (type) {
       case 'pm25':
         if (value <= 12) return '🟢';
         if (value <= 35) return '🟡';
         return '🔴';
-      case 'aqi':
-        if (value <= 50) return '🟢';
-        if (value <= 100) return '🟡';
-        if (value <= 150) return '🟠';
+      case 'co2':
+        if (value <= 400) return '🟢';
+        if (value <= 450) return '🟡';
+        if (value <= 500) return '🟠';
         return '🔴';
       case 'forest':
         if (value >= 70) return '🟢';
@@ -112,7 +116,7 @@ export default function EnvironmentalDataDisplay() {
 
   // Convert real oracle data (stored as integers with 2 decimal places)
   const pm25Value = pm25Data ? Number(pm25Data) / 100 : 0;
-  const aqiValue = aqiData ? Number(aqiData) / 100 : 0;
+  const co2Value = co2Data ? Number(co2Data) / 100 : 0;
   const forestValue = forestData ? Number(forestData) / 100 : 0;
 
   return (
@@ -147,7 +151,7 @@ export default function EnvironmentalDataDisplay() {
             <div className="text-sm text-gray-600">
               <p>WHO Guideline: ≤ 15 μg/m³</p>
               <p className="text-xs mt-1">
-                Oracle: {ORACLE_ADDRESS.slice(0, 8)}...
+                Oracle: {ORACLE_ADDRESSES.pm25.slice(0, 8)}...
               </p>
             </div>
 
@@ -169,45 +173,45 @@ export default function EnvironmentalDataDisplay() {
           </div>
         </div>
 
-        {/* AQI Data */}
+        {/* CO2 Data */}
         <div className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-orange-500">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center">
-              <span className="text-2xl mr-3">🌬️</span>
-              <h3 className="text-lg font-semibold text-gray-900">Air Quality Index</h3>
+              <span className="text-2xl mr-3">🏭</span>
+              <h3 className="text-lg font-semibold text-gray-900">CO2 Levels</h3>
             </div>
-            <span className="text-xl">{getStatusIcon(aqiValue, 'aqi')}</span>
+            <span className="text-xl">{getStatusIcon(co2Value, 'co2')}</span>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-baseline">
-              <span className={`text-3xl font-bold ${getStatusColor(aqiValue, 'aqi')}`}>
-                {Math.round(aqiValue)}
+              <span className={`text-3xl font-bold ${getStatusColor(co2Value, 'co2')}`}>
+                {co2Value.toFixed(2)}
               </span>
-              <span className="text-gray-500 ml-2">AQI</span>
+              <span className="text-gray-500 ml-2">ppm</span>
             </div>
-            
+
             <div className="text-sm text-gray-600">
-              <p>EPA Air Quality Index</p>
+              <p>Atmospheric CO2 Concentration</p>
               <p className="text-xs mt-1">
-                Oracle: {ORACLE_ADDRESS.slice(0, 8)}...
+                Oracle: {ORACLE_ADDRESSES.co2.slice(0, 8)}...
               </p>
             </div>
 
             <div className="mt-4">
               <div className="flex justify-between text-xs text-gray-500 mb-1">
-                <span>Good (0-50)</span>
-                <span>Moderate (51-100)</span>
-                <span>Unhealthy (101+)</span>
+                <span>Good (≤400)</span>
+                <span>Moderate (401-450)</span>
+                <span>High (451+)</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${
-                    aqiValue <= 50 ? 'bg-green-500' :
-                    aqiValue <= 100 ? 'bg-yellow-500' :
-                    aqiValue <= 150 ? 'bg-orange-500' : 'bg-red-500'
+                    co2Value <= 400 ? 'bg-green-500' :
+                    co2Value <= 450 ? 'bg-yellow-500' :
+                    co2Value <= 500 ? 'bg-orange-500' : 'bg-red-500'
                   }`}
-                  style={{ width: `${Math.min((aqiValue / 200) * 100, 100)}%` }}
+                  style={{ width: `${Math.min((co2Value / 600) * 100, 100)}%` }}
                 ></div>
               </div>
             </div>
@@ -235,7 +239,7 @@ export default function EnvironmentalDataDisplay() {
             <div className="text-sm text-gray-600">
               <p>Global Average: ~31%</p>
               <p className="text-xs mt-1">
-                Oracle: {ORACLE_ADDRESS.slice(0, 8)}...
+                Oracle: {ORACLE_ADDRESSES.forest.slice(0, 8)}...
               </p>
             </div>
 
@@ -263,13 +267,13 @@ export default function EnvironmentalDataDisplay() {
         <h4 className="text-sm font-semibold text-gray-700 mb-2">📡 Data Sources</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-gray-600">
           <div>
-            <p><strong>PM2.5:</strong> Live EPA AirNow API data updated every 30 seconds</p>
+            <p><strong>PM2.5:</strong> NASA Earth Data + OpenAQ API updated every 30 seconds</p>
           </div>
           <div>
-            <p><strong>AQI:</strong> Real air quality data from OpenAQ API updated every 30 seconds</p>
+            <p><strong>CO2:</strong> NASA POWER API + NOAA data updated every 30 seconds</p>
           </div>
           <div>
-            <p><strong>Forest Cover:</strong> Live satellite data (MODIS simulation) updated every 30 seconds</p>
+            <p><strong>Forest Cover:</strong> NASA MODIS + Global Forest Watch updated every 30 seconds</p>
           </div>
         </div>
       </div>

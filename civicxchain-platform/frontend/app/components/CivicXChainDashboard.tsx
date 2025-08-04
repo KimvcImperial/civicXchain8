@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import { CONTRACT_CONFIG, CIVIC_CONTRACT_ABI } from '../../config/contracts';
 import EnvironmentalDataDisplay from './EnvironmentalDataDisplay';

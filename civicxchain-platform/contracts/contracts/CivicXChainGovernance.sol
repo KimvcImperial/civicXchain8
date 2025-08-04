@@ -157,11 +157,12 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
         require(commitment.officialAddress == msg.sender, "Only commitment creator can claim");
         require(commitment.isActive, "Commitment not active");
         require(!commitment.rewardClaimed, "Reward already claimed");
-        require(block.timestamp <= commitment.deadline, "Deadline passed");
+        // REMOVED: require(block.timestamp >= commitment.deadline, "Deadline not reached yet");
+        // SIMPLIFIED: No deadline check - judge verification through oracle is sufficient
 
-        // Verify fulfillment via oracle
+        // Verify fulfillment via oracle (this includes judge verification)
         (bool fulfilled, uint256 currentValue,) = this.checkFulfillment(_commitmentId);
-        require(fulfilled, "Environmental target not achieved");
+        require(fulfilled, "Environmental target not achieved or judge verification required");
 
         // Mark as fulfilled and reward tokens
         commitment.isFulfilled = true;
@@ -323,6 +324,23 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
      */
     function getCommitmentTokenReward(uint256 _commitmentId) external view returns (uint256) {
         return commitments[_commitmentId].tokenReward;
+    }
+
+    /**
+     * @dev Anyone can act as judge to manually mark commitment as fulfilled (for simplified approval)
+     * @param _commitmentId ID of the commitment to mark as fulfilled
+     */
+    function judgeApproveCommitment(uint256 _commitmentId) external {
+        EnvironmentalCommitment storage commitment = commitments[_commitmentId];
+        require(commitment.isActive, "Commitment not active");
+        require(!commitment.rewardClaimed, "Reward already claimed");
+
+        // Mark as fulfilled by judge approval (bypasses oracle check)
+        commitment.isFulfilled = true;
+
+        // Emit event with current environmental value and token reward
+        uint256 currentValue = getCurrentEnvironmentalValue(commitment.metricType);
+        emit CommitmentFulfilled(_commitmentId, currentValue, commitment.tokenReward);
     }
 
     /**

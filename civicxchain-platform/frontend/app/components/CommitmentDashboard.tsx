@@ -1,6 +1,6 @@
 /*'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 // Types (you can import these from your main file or create a shared types file)
 interface Commitment {
@@ -370,6 +370,27 @@ export default function CommitmentDashboard({
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [autoRefresh, setAutoRefresh] = useState(true);
 
+  // Function to fetch fresh commitment data
+  const fetchCommitments = useCallback(async () => {
+    try {
+      setIsRefreshing(true);
+      console.log('Refreshing commitment data...');
+
+      // Call the refresh function passed from parent component
+      if (onRefreshData) {
+        await onRefreshData();
+      }
+
+      // Update last refresh time
+      setLastUpdated(new Date());
+
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [onRefreshData]);
+
   // Auto-refresh data every 30 seconds
   useEffect(() => {
     if (!autoRefresh) return;
@@ -379,28 +400,9 @@ export default function CommitmentDashboard({
     }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
-  }, [autoRefresh]);
+  }, [autoRefresh, fetchCommitments]);
 
-  // Function to fetch fresh commitment data
-  const fetchCommitments = async () => {
-    try {
-      setIsRefreshing(true);
-      console.log('Refreshing commitment data...');
-      
-      // Call the refresh function passed from parent component
-      if (onRefreshData) {
-        await onRefreshData();
-      }
-      
-      // Update last refresh time
-      setLastUpdated(new Date());
-      
-    } catch (error) {
-      console.error('Error refreshing data:', error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+
 
   // Manual refresh function
   const handleManualRefresh = () => {
