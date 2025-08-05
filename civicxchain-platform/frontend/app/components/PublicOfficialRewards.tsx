@@ -150,24 +150,21 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
     hasCommitmentData: !!commitment
   });
 
-  // TEMPORARILY DISABLE ALL FILTERING FOR DEBUGGING
-  console.log(`🔧 DEBUG: Showing commitment ${commitmentId.toString()} regardless of filters`);
-
-  // Check if commitment is cancelled (SAME as Live Feed and Judge Panel)
+  // SAME FILTERING AS LIVE FEED - Check if commitment is cancelled
   const cancelledCommitments = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
   if (cancelledCommitments[commitmentId.toString()]?.cancelled) {
-    console.log(`⚠️ Would filter cancelled commitment: ${commitmentId.toString()}, but showing anyway for debug`);
-    // return null; // DISABLED FOR DEBUG
+    console.log(`⚠️ Filtering out cancelled commitment: ${commitmentId.toString()}`);
+    return null; // Filter out cancelled commitments
   }
 
-  // Filter out test commitments
-  const testKeywords = ['test', 'testing', 'sepolia', 'pm2.5'];
+  // Filter out test commitments (same as Live Feed)
+  const testKeywords = ['test', 'testing', 'sepolia'];
   const description = commitment.description?.toLowerCase() || '';
   const isTestCommitment = testKeywords.some(keyword => description.includes(keyword));
 
   if (isTestCommitment) {
-    console.log(`⚠️ Would filter test commitment: ${commitment.description}, but showing anyway for debug`);
-    // return null; // DISABLED FOR DEBUG
+    console.log(`⚠️ Filtering out test commitment: ${commitment.description}`);
+    return null; // Filter out test commitments
   }
 
   console.log(`✅ RewardCommitmentCard ${commitmentId.toString()} - Passed all filters, rendering...`);
@@ -588,44 +585,41 @@ export default function PublicOfficialRewards() {
                 Total commitments on blockchain: {totalCommitmentId ? Number(totalCommitmentId) - 1 : 0}
               </p>
 
-              {/* TEMPORARY: Show all commitments for testing */}
-              {totalCommitmentId && Number(totalCommitmentId) > 1 && (
-                <div className="mt-6">
-                  <p className="text-yellow-400 text-sm mb-4">
-                    🔧 DEBUG MODE: Showing all commitments for testing (normally only shows your wallet's commitments)
-                  </p>
-                  <div className="space-y-4">
-                    {Array.from({ length: Number(totalCommitmentId) - 1 }, (_, i) => (
-                      <RewardCommitmentCard
-                        key={i + 1}
-                        commitmentId={BigInt(i + 1)}
-                        currentPM25FromOracle={currentPM25FromOracle}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+
             </div>
           ) : (
             <>
-              <p className="text-sm text-gray-400 mb-4">
-                Showing {userCommitmentIds.length} commitments created by your wallet
-              </p>
-              {userCommitmentIds
-                .filter((commitmentId: bigint) => {
-                  console.log(`🔍 Filtering commitment ${commitmentId.toString()}`);
-                  return true; // For now, show all and let RewardCommitmentCard handle filtering
-                })
-                .map((commitmentId: bigint, index: number) => {
-                  console.log(`🔍 Mapping commitment ${commitmentId.toString()} to RewardCommitmentCard`);
-                  return (
-                    <RewardCommitmentCard
-                      key={commitmentId.toString()}
-                      commitmentId={commitmentId}
-                      currentPM25FromOracle={currentPM25FromOracle}
-                    />
-                  );
-                })}
+              {(() => {
+                // EXACT SAME FILTERING LOGIC AS LIVE FEED
+                // Filter out cancelled commitments
+                const cancelledCommitments = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
+                const activeCommitments = userCommitmentIds.filter(id => !cancelledCommitments[id.toString()]?.cancelled);
+
+                // Show only the last 3 commitments (same as Live Feed)
+                const displayCommitments = activeCommitments.slice(-3).reverse();
+
+                console.log('🔍 PublicOfficialRewards Filtering (SAME AS LIVE FEED):', {
+                  userCommitmentIds: userCommitmentIds.map(id => id.toString()),
+                  cancelledCommitments,
+                  activeCommitments: activeCommitments.map(id => id.toString()),
+                  displayCommitments: displayCommitments.map(id => id.toString())
+                });
+
+                return (
+                  <>
+                    <p className="text-sm text-gray-400 mb-4">
+                      Showing {displayCommitments.length} active commitments (same as Live Feed)
+                    </p>
+                    {displayCommitments.map((commitmentId: bigint) => (
+                      <RewardCommitmentCard
+                        key={commitmentId.toString()}
+                        commitmentId={commitmentId}
+                        currentPM25FromOracle={currentPM25FromOracle}
+                      />
+                    ))}
+                  </>
+                );
+              })()}
             </>
           )}
         </div>

@@ -314,15 +314,7 @@ export default function JudgePanel() {
 
 
 
-      <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 mb-6">
-        <h4 className="text-purple-300 text-lg font-medium mb-2">🔗 Oracle Verification Panel</h4>
-        <p className="text-gray-300 text-sm mb-2">
-          Check environmental commitments against real Chainlink oracle data. No manual approval needed.
-        </p>
-        <p className="text-gray-400 text-xs">
-          Click "Check Oracle" to verify if environmental targets are achieved via blockchain oracles.
-        </p>
-      </div>
+
 
       <div className="space-y-4">
         {commitmentIds.length === 0 ? (

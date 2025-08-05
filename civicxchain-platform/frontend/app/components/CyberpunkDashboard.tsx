@@ -10,6 +10,7 @@ import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi';
 // Using CIVIC_GOVERNANCE_ABI imported above for all governance functions
 import AchievementTimeline from './AchievementTimeline';
 import JudgePanel from './JudgePanel';
+import JudgeSocialFeed from './JudgeSocialFeed';
 import PublicOfficialSocialFeed from './PublicOfficialSocialFeed';
 import PublicOfficialRewards from './PublicOfficialRewards';
 import { useOracleData, calculateAQI, getAQIStatus } from '../hooks/useOracleData';
@@ -92,10 +93,7 @@ function CommitmentCard({ commitmentId, onCancel }: { commitmentId: bigint, onCa
           <p className="text-gray-400 text-sm">Target Value</p>
           <p className="text-cyan-400 font-medium">{commitment.targetValue?.toString() || 'N/A'} μg/m³</p>
         </div>
-        <div>
-          <p className="text-gray-400 text-sm">Current Value</p>
-          <p className="text-white font-medium">{currentPM25?.toString() || 'Loading...'} μg/m³</p>
-        </div>
+
         <div>
           <p className="text-gray-400 text-sm">Deadline</p>
           <p className="text-white font-medium">{deadlineDate.toLocaleDateString()}</p>
@@ -107,11 +105,7 @@ function CommitmentCard({ commitmentId, onCancel }: { commitmentId: bigint, onCa
         <p className="text-gray-300 text-sm">{commitment.metricType || 'PM2.5'} (Source: Oracle)</p>
       </div>
 
-      <div className="text-xs text-gray-400 mt-2">
-        <span>Metric: {commitment.metricType || 'PM2.5'} | </span>
-        <span>Stake: {commitment.stakeAmount?.toString() || '0'} ETH | </span>
-        <span>Reward: {commitment.tokenReward?.toString() || '0'} CIVIC</span>
-      </div>
+
 
       {/* Delete button - show for all commitments */}
       {onCancel && (
@@ -823,13 +817,15 @@ ${errorMessage}${gasGuidance}
         ...baseTabs,
         { id: 'judge', name: 'Judge Panel', icon: '⚖️' },
         { id: 'achievements', name: 'Achievement Timeline', icon: '⏰' },
-        { id: 'track', name: 'All Status', icon: '📊' },
+        { id: 'track', name: 'Social Feed', icon: '📱' },
       ];
     } else if (role === 'citizen') {
       return [
         ...baseTabs,
-        { id: 'track', name: 'Track All', icon: '📊' },
-        { id: 'punishments', name: 'Penalties', icon: '⚠️' },
+        { id: 'track', name: 'Citizen Social Feed', icon: '📊' },
+        { id: 'projects', name: 'Environmental Projects', icon: '🌱' },
+        { id: 'submit', name: 'Submit Proof', icon: '📸' },
+        { id: 'rewards', name: 'Rewards', icon: '🏆' },
       ];
     }
 
@@ -1058,7 +1054,7 @@ ${errorMessage}${gasGuidance}
                 </div>
 
                 <div className="text-xs text-gray-400 text-center">
-                  Data sourced from OpenAQ + NOAA + Environmental APIs • Updates every 30 seconds
+                  Data sourced from OpenAQ + NASA + Environmental APIs • Updates every 30 seconds
                 </div>
               </div>
 
@@ -1350,144 +1346,12 @@ ${errorMessage}${gasGuidance}
             <div className="space-y-6">
               <h3 className="text-xl text-white mb-6 flex items-center">
                 <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"></span>
-                Commitment Status Tracker
+                Citizen Social Feed
               </h3>
 
-              {/* Real-time Oracle Data Display */}
-              <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-cyan-500/30 p-6">
-                <h4 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center">
-                  🌐 Live Oracle Data Feed
-                  <span className="ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                </h4>
+              {/* Judge Social Feed Component */}
+              <JudgeSocialFeed />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-black/30 rounded-lg p-4 border border-cyan-500/20">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-cyan-300 text-sm">PM2.5 Air Quality</span>
-                      <span className="text-xs text-gray-400">Updated: {lastUpdated.toLocaleTimeString()}</span>
-                    </div>
-                    <div className="text-2xl font-bold text-white">{pm25Value !== null ? pm25Value.toFixed(2) : '--'} μg/m³</div>
-                    <div className="text-xs text-cyan-300 mt-1">
-                      {pm25Value !== null ? (pm25Value < 10 ? '✅ Good' : pm25Value < 25 ? '⚠️ Moderate' : '❌ Unhealthy') : 'No Data'}
-                    </div>
-                  </div>
-
-                  <div className="bg-black/30 rounded-lg p-4 border border-purple-500/20">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-purple-300 text-sm">Air Quality Index</span>
-                      <span className="text-xs text-gray-400">Updated: {lastUpdated.toLocaleTimeString()}</span>
-                    </div>
-                    <div className="text-2xl font-bold text-white">{aqiValue !== null ? Math.round(aqiValue) : '--'} AQI</div>
-                    <div className="text-xs text-purple-300 mt-1">
-                      {aqiValue !== null ? (aqiValue <= 50 ? '✅ Good' : aqiValue <= 100 ? '⚠️ Moderate' : '❌ Unhealthy') : 'No Data'}
-                    </div>
-                  </div>
-
-                  <div className="bg-black/30 rounded-lg p-4 border border-green-500/20">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-green-300 text-sm">Forest Coverage</span>
-                      <span className="text-xs text-gray-400">Updated: {lastUpdated.toLocaleTimeString()}</span>
-                    </div>
-                    <div className="text-2xl font-bold text-white">{forestValue !== null ? forestValue.toFixed(1) : '--'}%</div>
-                    <div className="text-xs text-green-300 mt-1">
-                      {forestValue !== null ? (forestValue > 70 ? '✅ Excellent' : forestValue > 50 ? '⚠️ Moderate' : '❌ Critical') : 'No Data'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Commitment Progress Tracking */}
-              <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-purple-500/30 p-6">
-                <h4 className="text-lg font-semibold text-purple-400 mb-4">📊 Active Commitments Progress</h4>
-
-                {latestCommitment && latestCommitment[2] && latestCommitment[4] ? (
-                  <div className="space-y-4">
-                    <div className="bg-black/30 rounded-lg p-4 border border-cyan-500/20">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h5 className="text-white font-medium">{latestCommitment[2]}</h5>
-                          <p className="text-gray-400 text-sm">{latestCommitment[7] || 'Official'}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-400">Deadline</div>
-                          <div className="text-white text-sm">
-                            {latestCommitment[3] ? new Date(Number(latestCommitment[3]) * 1000).toLocaleDateString() : 'No deadline set'}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <div className="text-xs text-gray-400">Target Value</div>
-                          <div className="text-cyan-400 font-medium">
-                            {Number(latestCommitment[4]).toFixed(2)}
-                            {latestCommitment[6] === 'pm25' ? ' μg/m³' : latestCommitment[6] === 'aqi' ? ' AQI' : '%'}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-400">Current Value</div>
-                          <div className="text-white font-medium">
-                            {latestCommitment[6] === 'pm25' ? (pm25Value !== null ? pm25Value.toFixed(2) + ' μg/m³' : 'No Data') :
-                             latestCommitment[6] === 'aqi' ? (aqiValue !== null ? Math.round(aqiValue) + ' AQI' : 'No Data') :
-                             (forestValue !== null ? forestValue.toFixed(1) + '%' : 'No Data')}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mb-3">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-400">Progress to Target</span>
-                          <span className="text-cyan-400">
-                            {latestCommitment[8] ? '100%' : '75%'}
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-700 rounded-full h-3">
-                          <div
-                            className={`h-3 rounded-full transition-all duration-500 ${
-                              latestCommitment[8] ? 'bg-gradient-to-r from-green-400 to-emerald-500' : 'bg-gradient-to-r from-cyan-400 to-purple-500'
-                            }`}
-                            style={{
-                              width: latestCommitment[8] ? '100%' : '75%'
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-center">
-                        <div className="text-sm">
-                          <span className="text-gray-400">Status: </span>
-                          {latestCommitment[8] ? (
-                            <span className="text-green-400 font-medium">✅ Target Achieved</span>
-                          ) : (
-                            <span className="text-yellow-400 font-medium">⏳ In Progress</span>
-                          )}
-                        </div>
-                        <div className="text-sm">
-                          <span className="text-gray-400">Reward: </span>
-                          <span className="text-yellow-400 font-medium">
-                            {latestCommitment[13] ? formatEther(latestCommitment[13]) : '0'} ETH
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Debug info */}
-                      <div className="mt-4 p-2 bg-gray-800/50 rounded text-xs text-gray-400">
-                        <div>Commitment ID: {latestCommitment[0]?.toString()}</div>
-                        <div>Created: {latestCommitment[10] ? new Date(Number(latestCommitment[10]) * 1000).toLocaleString() : 'Unknown'}</div>
-                        <div>Metric Type: {latestCommitment[6]}</div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-4">📊</div>
-                    <p className="text-gray-400">No active commitments found</p>
-                    <p className="text-sm text-gray-500 mt-2">
-                      {currentCommitmentId ? `Current commitment ID: ${currentCommitmentId.toString()}` : 'Create a commitment to start tracking progress'}
-                    </p>
-                  </div>
-                )}
-              </div>
             </div>
           )}
 
@@ -1495,89 +1359,185 @@ ${errorMessage}${gasGuidance}
             <PublicOfficialRewards />
           )}
 
-          {activeTab === 'punishments' && (
+          {activeTab === 'rewards' && userRole === 'citizen' && (
+            <PublicOfficialRewards />
+          )}
+
+          {activeTab === 'projects' && (
             <div className="space-y-6">
               <h3 className="text-xl text-white mb-6 flex items-center">
-                <span className="w-2 h-2 bg-red-400 rounded-full mr-3 animate-pulse"></span>
-                Penalty System & Enforcement
+                <span className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></span>
+                Environmental Projects
               </h3>
 
-              {/* Penalty Overview */}
-              <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-red-500/30 p-6">
-                <h4 className="text-lg font-semibold text-red-400 mb-4 flex items-center">
-                  ⚠️ Smart Contract Enforcement
+              {/* Available Projects */}
+              <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-green-500/30 p-6">
+                <h4 className="text-lg font-semibold text-green-400 mb-4 flex items-center">
+                  🌱 Available Environmental Projects
                 </h4>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-                      <h5 className="text-red-400 font-medium mb-2">Automatic Penalties</h5>
-                      <ul className="text-sm text-gray-300 space-y-1">
-                        <li>• Stake forfeiture for missed deadlines</li>
-                        <li>• Progressive penalties for repeated failures</li>
-                        <li>• Public accountability records</li>
-                        <li>• Reduced future staking power</li>
-                      </ul>
+                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                    <h5 className="text-green-400 font-medium mb-2">🌳 Tree Planting Initiative</h5>
+                    <p className="text-sm text-gray-300 mb-3">Plant trees in designated urban areas to improve air quality</p>
+                    <div className="space-y-2 text-xs text-gray-400">
+                      <div className="flex justify-between">
+                        <span>Reward:</span>
+                        <span className="text-green-400">0.05 ETH per tree</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Verification:</span>
+                        <span>Photo + GPS location</span>
+                      </div>
                     </div>
-
-                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                      <h5 className="text-yellow-400 font-medium mb-2">Warning System</h5>
-                      <ul className="text-sm text-gray-300 space-y-1">
-                        <li>• 30-day deadline reminders</li>
-                        <li>• Progress milestone alerts</li>
-                        <li>• Oracle data threshold warnings</li>
-                        <li>• Community notification system</li>
-                      </ul>
-                    </div>
+                    <button className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">
+                      Select Project
+                    </button>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="bg-black/30 rounded-lg p-4 border border-gray-500/20">
-                      <h5 className="text-gray-300 font-medium mb-3">Current Status</h5>
-                      {latestCommitment ? (
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-400 text-sm">Days Remaining:</span>
-                            <span className="text-white text-sm">
-                              {latestCommitment[3] ? Math.max(0, Math.ceil((Number(latestCommitment[3]) * 1000 - Date.now()) / (1000 * 60 * 60 * 24))) : 45} days
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400 text-sm">Commitment ID:</span>
-                            <span className="text-yellow-400 text-sm">#{latestCommitment[0]?.toString()}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400 text-sm">Penalty Status:</span>
-                            <span className="text-green-400 text-sm">
-                              {latestCommitment[8] ? '✅ No Penalty' : '⏳ Monitoring'}
-                            </span>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-gray-400 text-sm">No active commitments</p>
-                      )}
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                    <h5 className="text-blue-400 font-medium mb-2">♻️ Waste Cleanup</h5>
+                    <p className="text-sm text-gray-300 mb-3">Clean up plastic waste from rivers and beaches</p>
+                    <div className="space-y-2 text-xs text-gray-400">
+                      <div className="flex justify-between">
+                        <span>Reward:</span>
+                        <span className="text-blue-400">0.03 ETH per kg</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Verification:</span>
+                        <span>Photo + weight proof</span>
+                      </div>
                     </div>
+                    <button className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">
+                      Select Project
+                    </button>
+                  </div>
 
-                    <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                      <h5 className="text-purple-400 font-medium mb-2">Governance Features</h5>
-                      <ul className="text-sm text-gray-300 space-y-1">
-                        <li>• Community voting on penalties</li>
-                        <li>• Appeal process for disputes</li>
-                        <li>• Transparent enforcement logs</li>
-                        <li>• Decentralized arbitration</li>
-                      </ul>
+                  <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                    <h5 className="text-purple-400 font-medium mb-2">🔋 Energy Conservation</h5>
+                    <p className="text-sm text-gray-300 mb-3">Reduce household energy consumption by 20%</p>
+                    <div className="space-y-2 text-xs text-gray-400">
+                      <div className="flex justify-between">
+                        <span>Reward:</span>
+                        <span className="text-purple-400">0.1 ETH monthly</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Verification:</span>
+                        <span>Utility bill comparison</span>
+                      </div>
                     </div>
+                    <button className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">
+                      Select Project
+                    </button>
+                  </div>
+
+                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                    <h5 className="text-yellow-400 font-medium mb-2">🚲 Sustainable Transport</h5>
+                    <p className="text-sm text-gray-300 mb-3">Use bike or public transport instead of car</p>
+                    <div className="space-y-2 text-xs text-gray-400">
+                      <div className="flex justify-between">
+                        <span>Reward:</span>
+                        <span className="text-yellow-400">0.02 ETH per day</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Verification:</span>
+                        <span>GPS tracking app</span>
+                      </div>
+                    </div>
+                    <button className="w-full mt-3 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">
+                      Select Project
+                    </button>
                   </div>
                 </div>
               </div>
 
-              {/* Penalty History */}
-              <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-orange-500/30 p-6">
-                <h4 className="text-lg font-semibold text-orange-400 mb-4">📋 Enforcement History</h4>
+              {/* My Selected Projects */}
+              <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-cyan-500/30 p-6">
+                <h4 className="text-lg font-semibold text-cyan-400 mb-4">📋 My Selected Projects</h4>
                 <div className="text-center py-6">
-                  <div className="text-3xl mb-2">🛡️</div>
-                  <p className="text-gray-400">No penalties recorded</p>
-                  <p className="text-sm text-gray-500 mt-1">All commitments are being met on schedule</p>
+                  <div className="text-3xl mb-2">🎯</div>
+                  <p className="text-gray-400">No projects selected yet</p>
+                  <p className="text-sm text-gray-500 mt-1">Choose a project above to get started</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'submit' && (
+            <div className="space-y-6">
+              <h3 className="text-xl text-white mb-6 flex items-center">
+                <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 animate-pulse"></span>
+                Submit Proof for Verification
+              </h3>
+
+              {/* Submit Proof Form */}
+              <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-blue-500/30 p-6">
+                <h4 className="text-lg font-semibold text-blue-400 mb-4 flex items-center">
+                  📸 Submit Evidence for Judge Approval
+                </h4>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Select Project
+                    </label>
+                    <select className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white">
+                      <option value="">Choose your project...</option>
+                      <option value="tree-planting">🌳 Tree Planting Initiative</option>
+                      <option value="waste-cleanup">♻️ Waste Cleanup</option>
+                      <option value="energy-conservation">🔋 Energy Conservation</option>
+                      <option value="sustainable-transport">🚲 Sustainable Transport</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Upload Evidence Photos
+                    </label>
+                    <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center">
+                      <div className="text-4xl mb-2">📷</div>
+                      <p className="text-gray-400 mb-2">Drag and drop photos here, or click to browse</p>
+                      <input type="file" multiple accept="image/*" className="hidden" />
+                      <button className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">
+                        Choose Files
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white h-24"
+                      placeholder="Describe your environmental action and provide any additional details..."
+                    ></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Location (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                      placeholder="Enter location or GPS coordinates"
+                    />
+                  </div>
+
+                  <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300">
+                    Submit for Judge Verification
+                  </button>
+                </div>
+              </div>
+
+              {/* Pending Submissions */}
+              <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-orange-500/30 p-6">
+                <h4 className="text-lg font-semibold text-orange-400 mb-4">⏳ Pending Verifications</h4>
+                <div className="text-center py-6">
+                  <div className="text-3xl mb-2">📋</div>
+                  <p className="text-gray-400">No pending submissions</p>
+                  <p className="text-sm text-gray-500 mt-1">Submit proof above to get started</p>
                 </div>
               </div>
             </div>
