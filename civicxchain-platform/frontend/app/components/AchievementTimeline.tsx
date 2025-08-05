@@ -236,6 +236,7 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }: {
   currentPM25FromOracle: bigint | undefined
 }) {
   const [trendAnalysis, setTrendAnalysis] = useState<TrendAnalysis | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const { data: commitment } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
@@ -255,6 +256,24 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }: {
         .catch(console.error);
     }
   }, [commitment]);
+
+  // Delete function - same as Judge Panel
+  const deleteCommitment = () => {
+    console.log('🗑️ Deleting commitment locally:', commitmentId.toString());
+
+    // Mark as cancelled in localStorage
+    const cancelled = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
+    cancelled[commitmentId.toString()] = {
+      cancelled: true,
+      timestamp: Date.now(),
+      reason: 'Judge deleted from Achievement Timeline'
+    };
+    localStorage.setItem('cancelledCommitments', JSON.stringify(cancelled));
+
+    // Close modal and refresh
+    setShowCancelConfirm(false);
+    setTimeout(() => window.location.reload(), 100);
+  };
 
   if (!commitment) {
     return (
@@ -350,11 +369,54 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }: {
       )}
 
       {/* Actions - Role-based access control */}
-      {isAchieved && (
-        <div className="flex gap-2">
+      <div className="flex gap-2 justify-between items-center">
+        {isAchieved && (
           <button className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded border border-blue-500/30 text-sm">
             📊 View Details
           </button>
+        )}
+
+        {/* Delete Button - Same as Judge Panel */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowCancelConfirm(true);
+          }}
+          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-all"
+          title="Delete this commitment"
+        >
+          🗑️ Delete
+        </button>
+      </div>
+
+      {/* Delete Confirmation - Same as Judge Panel */}
+      {showCancelConfirm && (
+        <div className="mt-4 bg-red-900/20 border border-red-500/30 rounded-lg p-3">
+          <p className="text-red-400 text-sm mb-3">
+            ⚠️ Are you sure you want to delete this commitment? This will remove it from the display only (no blockchain transaction).
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={deleteCommitment}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium"
+            >
+              Yes, Delete
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowCancelConfirm(false);
+              }}
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm font-medium"
+            >
+              No, Keep
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -520,16 +582,33 @@ export default function AchievementTimeline() {
             </div>
           ) : (
             <>
-              <p className="text-sm text-gray-400 mb-4">
-                Showing {Number(allCommitmentIds) - 1} commitments from blockchain (EXACT same as Live Feed)
-              </p>
-              {Array.from({ length: Number(allCommitmentIds) - 1 }, (_, i) => (
-                <AchievementCommitmentCard
-                  key={i + 1}
-                  commitmentId={BigInt(i + 1)}
-                  currentPM25FromOracle={currentPM25FromOracle}
-                />
-              ))}
+              {(() => {
+                // Filter out cancelled commitments (same as Live Feed and Judge Panel)
+                const cancelledCommitments = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
+                const allCommitmentArray = Array.from({ length: Number(allCommitmentIds) - 1 }, (_, i) => i + 1);
+                const activeCommitments = allCommitmentArray.filter(id => !cancelledCommitments[id.toString()]?.cancelled);
+
+                console.log('🔍 Achievement Timeline Filtering:', {
+                  totalCommitments: allCommitmentArray.length,
+                  cancelledCommitments,
+                  activeCommitments: activeCommitments.length
+                });
+
+                return (
+                  <>
+                    <p className="text-sm text-gray-400 mb-4">
+                      Showing {activeCommitments.length} active commitments from blockchain (filtered like Live Feed)
+                    </p>
+                    {activeCommitments.map((commitmentId) => (
+                      <AchievementCommitmentCard
+                        key={commitmentId}
+                        commitmentId={BigInt(commitmentId)}
+                        currentPM25FromOracle={currentPM25FromOracle}
+                      />
+                    ))}
+                  </>
+                );
+              })()}
             </>
           )}
         </div>

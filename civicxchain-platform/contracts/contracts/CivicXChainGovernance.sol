@@ -149,10 +149,10 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
     }
     
     /**
-     * @dev Claim token reward for fulfilled commitment
+     * @dev Claim ETH reward for fulfilled commitment
      * @param _commitmentId ID of the commitment
      */
-    function claimEnvironmentalReward(uint256 _commitmentId) external nonReentrant returns (uint256 tokensRewarded) {
+    function claimEnvironmentalReward(uint256 _commitmentId) external nonReentrant returns (uint256 ethRewarded) {
         EnvironmentalCommitment storage commitment = commitments[_commitmentId];
         require(commitment.officialAddress == msg.sender, "Only commitment creator can claim");
         require(commitment.isActive, "Commitment not active");
@@ -164,24 +164,18 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
         (bool fulfilled, uint256 currentValue,) = this.checkFulfillment(_commitmentId);
         require(fulfilled, "Environmental target not achieved or judge verification required");
 
-        // Mark as fulfilled and reward tokens
+        // Mark as fulfilled and claimed
         commitment.isFulfilled = true;
         commitment.rewardClaimed = true;
 
-        // Transfer CIVIC tokens as reward
-        uint256 tokenReward = commitment.tokenReward;
-        require(balanceOf(address(this)) >= tokenReward, "Insufficient token reserves");
-        _transfer(address(this), msg.sender, tokenReward);
-
-        // Return ETH stake + bonus (150% return)
+        // Return ETH stake + bonus (150% return) - NO TOKEN REQUIREMENT
         uint256 ethReward = commitment.stakeAmount + (commitment.stakeAmount / 2);
         totalStaked -= commitment.stakeAmount;
         payable(msg.sender).transfer(ethReward);
 
-        emit CommitmentFulfilled(_commitmentId, currentValue, tokenReward);
-        emit TokensRewarded(_commitmentId, msg.sender, tokenReward);
+        emit CommitmentFulfilled(_commitmentId, currentValue, 0);
 
-        return tokenReward;
+        return ethReward;
     }
 
     /**

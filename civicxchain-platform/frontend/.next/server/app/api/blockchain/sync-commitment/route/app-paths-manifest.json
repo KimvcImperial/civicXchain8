@@ -1,0 +1,3 @@
+{
+  "/api/blockchain/sync-commitment/route": "app/api/blockchain/sync-commitment/route.js"
+}

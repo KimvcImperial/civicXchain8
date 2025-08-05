@@ -18,6 +18,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
   currentPM25FromOracle: bigint | undefined
 }) {
   const [isClaiming, setIsClaiming] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>({
     status: 'idle'
   });
@@ -75,6 +76,25 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
       });
     }
   }, [writeError, hash, commitmentId]);
+
+  // Add timeout to reset claiming state if transaction gets stuck
+  useEffect(() => {
+    if (isClaiming) {
+      const timeout = setTimeout(() => {
+        if (isClaiming && !hash) {
+          console.log('⏰ Transaction timeout - resetting claiming state');
+          setIsClaiming(false);
+          setTransactionStatus({
+            status: 'error',
+            error: 'Transaction timed out. Please try again.',
+            commitmentId: Number(commitmentId)
+          });
+        }
+      }, 30000); // 30 second timeout
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isClaiming, hash, commitmentId]);
 
   // Check fulfillment status directly from blockchain (oracle-based verification)
   const { data: fulfillmentData } = useReadContract({
@@ -236,12 +256,14 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
     if (!commitmentData) {
       alert('❌ Commitment data not loaded');
       setIsClaiming(false);
+      setTransactionStatus({ status: 'idle' });
       return;
     }
 
     if (commitmentData.rewardClaimed) {
       alert('❌ Reward already claimed for this commitment');
       setIsClaiming(false);
+      setTransactionStatus({ status: 'idle' });
       return;
     }
 
@@ -249,6 +271,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
     if (!isJudgeVerified) {
       alert('❌ Judge approval required. Please ask a judge to approve this commitment first.');
       setIsClaiming(false);
+      setTransactionStatus({ status: 'idle' });
       return;
     }
 
@@ -256,6 +279,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
     if (!isManuallyVerifiedByJudge && !isAchieved) {
       alert('❌ Environmental target not achieved yet and no judge approval');
       setIsClaiming(false);
+      setTransactionStatus({ status: 'idle' });
       return;
     }
 
@@ -265,7 +289,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
       // REAL BLOCKCHAIN TRANSACTION: Try to claim the reward
       console.log('🎯 ATTEMPTING REAL REWARD CLAIM');
 
-      writeContract({
+      await writeContract({
         address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
         abi: CIVIC_CONTRACT_ABI,
         functionName: 'claimEnvironmentalReward',
@@ -283,7 +307,20 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
     }
   };
 
+  // Delete commitment function (same as Live Feed and Judge Panel)
+  const handleDeleteCommitment = () => {
+    const cancelledCommitments = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
+    cancelledCommitments[commitmentId.toString()] = {
+      cancelled: true,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('cancelledCommitments', JSON.stringify(cancelledCommitments));
 
+    console.log(`🗑️ Commitment ${commitmentId.toString()} marked as cancelled in Rewards`);
+
+    // Refresh the page to update the display
+    window.location.reload();
+  };
 
   const getCommitmentStatus = () => {
     if (isRewardClaimed) {
@@ -393,14 +430,10 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4">
         <div>
           <span className="text-gray-400">Target:</span>
           <span className="text-white ml-2">{targetValue} μg/m³</span>
-        </div>
-        <div>
-          <span className="text-gray-400">Current:</span>
-          <span className="text-white ml-2">{currentValue.toFixed(2)} μg/m³</span>
         </div>
         <div>
           <span className="text-gray-400">Reward:</span>
@@ -444,7 +477,14 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
            canClaim ? '💰 Claim ETH Reward' : '🔒 Cannot Claim Yet'}
         </button>
 
-
+        {/* Delete Button (same as Live Feed and Judge Panel) */}
+        <button
+          onClick={() => setShowCancelConfirm(true)}
+          className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
+          title="Delete this commitment"
+        >
+          🗑️ Delete
+        </button>
 
         {!isAchieved && (
           <div className="bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-lg text-sm">
@@ -458,6 +498,32 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog (same as Live Feed and Judge Panel) */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 border border-red-500/30 rounded-lg p-6 max-w-md mx-4">
+            <h3 className="text-lg font-bold text-white mb-4">⚠️ Delete Commitment</h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete this commitment? This will remove it from all views.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDeleteCommitment}
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
+              >
+                No, Keep
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -549,13 +615,7 @@ export default function PublicOfficialRewards() {
       </div>
 
       {/* Simple Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
-          <h3 className="text-sm text-blue-300 mb-1">Your Commitments</h3>
-          <p className="text-2xl text-white font-mono">{userCommitmentCount}</p>
-          <p className="text-xs text-gray-400">Created by your wallet</p>
-        </div>
-
+      <div className="grid grid-cols-1 gap-4">
         <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
           <h3 className="text-sm text-purple-300 mb-1">Reward Status</h3>
           <p className="text-lg text-white font-mono">Ready to Claim</p>
@@ -585,7 +645,21 @@ export default function PublicOfficialRewards() {
                 Total commitments on blockchain: {totalCommitmentId ? Number(totalCommitmentId) - 1 : 0}
               </p>
 
-
+              {/* Debug Button */}
+              <button
+                onClick={() => {
+                  console.log('🔍 REWARDS DEBUG INFO:', {
+                    address,
+                    userCommitmentIds: userCommitmentIds?.map(id => id.toString()),
+                    totalCommitmentId: totalCommitmentId?.toString(),
+                    cancelledCommitments: JSON.parse(localStorage.getItem('cancelledCommitments') || '{}'),
+                    allCommitmentIds: Array.from({length: totalCommitmentId ? Number(totalCommitmentId) - 1 : 0}, (_, i) => (i + 1).toString())
+                  });
+                }}
+                className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
+              >
+                🔍 Debug Info
+              </button>
             </div>
           ) : (
             <>
@@ -604,6 +678,49 @@ export default function PublicOfficialRewards() {
                   activeCommitments: activeCommitments.map(id => id.toString()),
                   displayCommitments: displayCommitments.map(id => id.toString())
                 });
+
+                if (displayCommitments.length === 0) {
+                  return (
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-4">🌱</div>
+                      <p className="text-gray-400 mb-2">No active commitments</p>
+                      <p className="text-sm text-gray-500">Your commitments may be filtered out or cancelled</p>
+                      <p className="text-sm text-gray-400 mt-2">
+                        Showing {displayCommitments.length} active commitments (same as Live Feed)
+                      </p>
+
+                      {/* Debug button to match Live Feed behavior */}
+                      <div className="mt-4">
+                        <button
+                          onClick={() => {
+                            console.log('🔍 PublicOfficialRewards Debug Info:', {
+                              walletAddress: address,
+                              isWalletConnected: isConnected,
+                              contractAddress: CONTRACT_CONFIG.GOVERNANCE_CONTRACT,
+                              totalCommitmentId: totalCommitmentId?.toString(),
+                              userCommitmentIds: userCommitmentIds?.map(id => id.toString()),
+                              cancelledCommitments: JSON.parse(localStorage.getItem('cancelledCommitments') || '{}'),
+                              activeCommitments: activeCommitments.map(id => id.toString()),
+                              displayCommitments: displayCommitments.map(id => id.toString())
+                            });
+
+                            // Check if there are ANY commitments on this contract
+                            if (totalCommitmentId && Number(totalCommitmentId) > 1) {
+                              console.log('✅ Contract HAS commitments, but none for your wallet or all filtered out');
+                              console.log('This means commitments were created with a different wallet address or cancelled');
+                            } else {
+                              console.log('❌ Contract has NO commitments at all');
+                              console.log('You need to create commitments first');
+                            }
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                        >
+                          🔍 Debug Info
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
 
                 return (
                   <>
@@ -630,9 +747,9 @@ export default function PublicOfficialRewards() {
         <h3 className="text-lg font-bold text-white mb-3">ℹ️ How Rewards Work</h3>
         <div className="space-y-2 text-sm text-gray-300">
           <p><strong>1. Achieve Target:</strong> Meet your environmental commitment target (e.g., reduce PM2.5 below threshold)</p>
-          <p><strong>2. Oracle Verification:</strong> Chainlink oracles automatically verify your achievement using real environmental data</p>
-          <p><strong>3. Claim Reward:</strong> Once Oracle confirms target achievement, claim your ETH reward using the button above</p>
-          <p><strong>4. Automatic Distribution:</strong> Rewards are distributed instantly to your wallet</p>
+          <p><strong>2. Verification Process:</strong> Your achievement will be verified using environmental data and judge review</p>
+          <p><strong>3. Claim Reward:</strong> Once verification is complete, claim your ETH reward using the button above</p>
+          <p><strong>4. Reward Distribution:</strong> Rewards are processed and sent to your wallet</p>
         </div>
       </div>
     </div>

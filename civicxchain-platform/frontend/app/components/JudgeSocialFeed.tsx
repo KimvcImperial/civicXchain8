@@ -96,7 +96,7 @@ export default function JudgeSocialFeed() {
       {/* Post Creation Form */}
       <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-cyan-500/30 p-6">
         <h4 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center">
-          📱 Share Citizen Update
+          📱 Share Update
           <span className="ml-2 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
         </h4>
         
@@ -160,7 +160,7 @@ export default function JudgeSocialFeed() {
       {/* Posts Feed */}
       <div className="bg-black/50 backdrop-blur-xl rounded-xl border border-purple-500/30 p-6">
         <h4 className="text-lg font-semibold text-purple-400 mb-4 flex items-center">
-          📰 Citizen Social Feed
+          📰 Social Feed
           <span className="ml-2 text-sm text-gray-400">({posts.length} posts)</span>
         </h4>
         

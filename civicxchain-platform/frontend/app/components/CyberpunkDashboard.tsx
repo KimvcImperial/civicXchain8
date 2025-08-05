@@ -167,7 +167,7 @@ export default function CyberpunkDashboard() {
     functionName: 'nextCommitmentId',
   });
 
-  const { data: userCommitments, refetch: refetchUserCommitments } = useReadContract({
+  const { data: userCommitments, refetch: refetchUserCommitments, error: userCommitmentsError, isLoading: userCommitmentsLoading } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
     abi: CIVIC_CONTRACT_ABI,
     functionName: 'getOfficialCommitments',
@@ -176,6 +176,32 @@ export default function CyberpunkDashboard() {
       enabled: !!address && isConnected,
     },
   });
+
+  // Debug log for userCommitments call
+  useEffect(() => {
+    console.log('🔍 UserCommitments Call Debug:', {
+      address: address,
+      isConnected: isConnected,
+      contractAddress: CONTRACT_CONFIG.GOVERNANCE_CONTRACT,
+      enabled: !!address && isConnected,
+      userCommitments: userCommitments,
+      userCommitmentsError: userCommitmentsError,
+      userCommitmentsLoading: userCommitmentsLoading,
+      // Additional debugging
+      userCommitmentsRaw: userCommitments,
+      userCommitmentsType: typeof userCommitments,
+      userCommitmentsIsArray: Array.isArray(userCommitments)
+    });
+
+    // If there's an error, log it in detail
+    if (userCommitmentsError) {
+      console.error('❌ UserCommitments Error Details:', {
+        message: userCommitmentsError.message,
+        cause: userCommitmentsError.cause,
+        stack: userCommitmentsError.stack
+      });
+    }
+  }, [address, isConnected, userCommitments, userCommitmentsError, userCommitmentsLoading]);
 
   // Get the latest commitment (if any exist) - nextCommitmentId - 1 is the current highest id
   const currentCommitmentId = nextCommitmentId && nextCommitmentId > 1n ? nextCommitmentId - 1n : null;
@@ -188,6 +214,17 @@ export default function CyberpunkDashboard() {
     args: latestCommitmentId ? [latestCommitmentId] : undefined,
     query: {
       enabled: !!latestCommitmentId,
+    },
+  });
+
+  // Test fetching commitment ID 1 if it exists
+  const { data: testCommitment1 } = useReadContract({
+    address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+    abi: CIVIC_CONTRACT_ABI,
+    functionName: 'getCommitment',
+    args: [1n],
+    query: {
+      enabled: !!nextCommitmentId && nextCommitmentId > 1n,
     },
   });
 
@@ -378,6 +415,13 @@ export default function CyberpunkDashboard() {
 
       // Show success modal instead of browser alert
       setShowSuccessModal(true);
+
+      // Refresh user commitments to show the new commitment in Live Feed
+      // Add a small delay to ensure blockchain state is updated
+      console.log('🔄 Refreshing user commitments after successful creation...');
+      setTimeout(() => {
+        refetchUserCommitments();
+      }, 1000); // 1 second delay
 
       // Clear the form
       setNewCommitment({
@@ -774,7 +818,10 @@ ${errorMessage}${gasGuidance}
     latestCommitment: latestCommitment,
     userCommitments: userCommitments?.map(id => id.toString()),
     userCommitmentsLength: userCommitments?.length,
+    userCommitmentsError: userCommitmentsError?.message,
+    userCommitmentsLoading: userCommitmentsLoading,
     contractAddress: CONTRACT_CONFIG.COMMITMENT_CONTRACT,
+    governanceContract: CONTRACT_CONFIG.GOVERNANCE_CONTRACT,
     ethBalance: ethBalance?.value?.toString(),
     balance: balance,
     isConnected: isConnected,
@@ -782,7 +829,11 @@ ${errorMessage}${gasGuidance}
     createHash: createHash,
     isCreateConfirming: isCreateConfirming,
     isCreateConfirmed: isCreateConfirmed,
-    createError: createError?.message
+    createError: createError?.message,
+    // Additional debugging
+    hasCommitments: nextCommitmentId && nextCommitmentId > 1n,
+    shouldHaveUserCommitments: !!address && isConnected && nextCommitmentId && nextCommitmentId > 1n,
+    testCommitment1: testCommitment1
   });
 
   console.log('🔍 Network Debug:', {
@@ -1064,7 +1115,18 @@ ${errorMessage}${gasGuidance}
                   📋 Active Environmental Commitments
                 </h4>
 
-                {userCommitments && userCommitments.length > 0 ? (
+                {userCommitmentsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="text-purple-400 mb-2">⏳</div>
+                    <p className="text-gray-400">Loading commitments...</p>
+                  </div>
+                ) : userCommitmentsError ? (
+                  <div className="text-center py-8">
+                    <div className="text-red-400 mb-2">❌</div>
+                    <p className="text-red-400">Error loading commitments</p>
+                    <p className="text-sm text-gray-500 mt-1">{userCommitmentsError.message}</p>
+                  </div>
+                ) : userCommitments && userCommitments.length > 0 ? (
                   <div className="space-y-4">
                     {(() => {
                       // Filter out cancelled commitments
@@ -1085,6 +1147,60 @@ ${errorMessage}${gasGuidance}
                     <div className="text-4xl mb-4">🌱</div>
                     <p className="text-gray-400 mb-2">No active commitments</p>
                     <p className="text-sm text-gray-500">Create your first environmental commitment to get started</p>
+
+                    {/* Debug buttons to manually test contract calls */}
+                    <div className="mt-4 space-x-2">
+                      <button
+                        onClick={() => {
+                          console.log('🔄 Manual refetch of userCommitments...');
+                          refetchUserCommitments();
+                        }}
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700"
+                      >
+                        🔄 Refresh Commitments
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          console.log('🔍 Debug Contract Info:');
+                          console.log('Contract Address:', CONTRACT_CONFIG.GOVERNANCE_CONTRACT);
+                          console.log('Current Wallet:', address);
+                          console.log('Network:', CONTRACT_CONFIG.NETWORK);
+                          console.log('Chain ID:', CONTRACT_CONFIG.CHAIN_ID);
+                          console.log('User Commitments:', userCommitments);
+                          console.log('Total Commitments:', nextCommitmentId ? Number(nextCommitmentId) - 1 : 0);
+
+                          // Check if there are ANY commitments on this contract
+                          if (nextCommitmentId && Number(nextCommitmentId) > 1) {
+                            console.log('✅ Contract HAS commitments, but none for your wallet');
+                            console.log('This means commitments were created with a different wallet address');
+                          } else {
+                            console.log('❌ Contract has NO commitments at all');
+                            console.log('You need to create commitments first');
+                          }
+                        }}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                      >
+                        🔍 Debug Info
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          console.log('🔍 Full Diagnostic Info:', {
+                            walletAddress: address,
+                            isWalletConnected: isConnected,
+                            contractAddress: CONTRACT_CONFIG.GOVERNANCE_CONTRACT,
+                            nextCommitmentId: nextCommitmentId?.toString(),
+                            userCommitments: userCommitments,
+                            userCommitmentsError: userCommitmentsError?.message,
+                            testCommitment1: testCommitment1
+                          });
+                        }}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                      >
+                        🔍 Debug Info
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1346,7 +1462,7 @@ ${errorMessage}${gasGuidance}
             <div className="space-y-6">
               <h3 className="text-xl text-white mb-6 flex items-center">
                 <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"></span>
-                Citizen Social Feed
+                Social Feed
               </h3>
 
               {/* Judge Social Feed Component */}
@@ -1356,10 +1472,6 @@ ${errorMessage}${gasGuidance}
           )}
 
           {activeTab === 'rewards' && (
-            <PublicOfficialRewards />
-          )}
-
-          {activeTab === 'rewards' && userRole === 'citizen' && (
             <PublicOfficialRewards />
           )}
 
@@ -1566,7 +1678,12 @@ ${errorMessage}${gasGuidance}
               </div>
 
               <button
-                onClick={() => setShowSuccessModal(false)}
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  // Refresh commitments one more time when user closes modal
+                  console.log('🔄 Final refresh when closing success modal...');
+                  refetchUserCommitments();
+                }}
                 className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all"
               >
                 OK

@@ -116,21 +116,7 @@ export default function OracleDataDisplay({ className = '' }: OracleDataDisplayP
           </div>
         </div>
 
-        {/* CO2 Data */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-lg">🏭</span>
-            <span className="text-sm text-gray-300">CO2 Levels</span>
-          </div>
-          <div className="text-right">
-            <div className="text-orange-400 font-mono text-sm">
-              {oracleData.co2.value !== null ? oracleData.co2.value.toFixed(1) : '--'} ppm
-            </div>
-            <div className="text-xs text-gray-400">
-              {oracleData.co2.status === 'live' ? '✅ Live' : '❌ Error'}
-            </div>
-          </div>
-        </div>
+
 
         {/* Forest Cover Data */}
         <div className="flex items-center justify-between">

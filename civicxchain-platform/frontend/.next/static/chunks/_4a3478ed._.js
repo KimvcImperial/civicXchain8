@@ -16,11 +16,11 @@ const CONTRACT_CONFIG = {
     NETWORK: 'sepolia',
     RPC_URL: 'https://eth-sepolia.public.blastapi.io',
     CHAIN_ID: 11155111,
-    // UPDATED GOVERNANCE CONTRACT (from deployed-addresses.json) - NO OWNER RESTRICTIONS
-    GOVERNANCE_CONTRACT: '0x492b1FB9241d4d170E8df331E165aF8e2A30AED4',
-    COMMITMENT_CONTRACT: '0x492b1FB9241d4d170E8df331E165aF8e2A30AED4',
-    CIVIC_TOKEN: '0x492b1FB9241d4d170E8df331E165aF8e2A30AED4',
-    CIVIC_CONTRACT: '0x492b1FB9241d4d170E8df331E165aF8e2A30AED4',
+    // UPDATED GOVERNANCE CONTRACT (NO TOKEN REQUIREMENT) - DEPLOYED 2025-01-08
+    GOVERNANCE_CONTRACT: '0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4',
+    COMMITMENT_CONTRACT: '0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4',
+    CIVIC_TOKEN: '0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4',
+    CIVIC_CONTRACT: '0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4',
     // REAL ENVIRONMENTAL ORACLE - Fetches from NASA, OpenAQ, NOAA APIs
     REAL_ENVIRONMENTAL_ORACLE: '0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD',
     ENVIRONMENTAL_ORACLE: '0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD',
@@ -246,7 +246,7 @@ const CIVIC_CONTRACT_ABI = [
         "outputs": [
             {
                 "internalType": "uint256",
-                "name": "tokensRewarded",
+                "name": "ethRewarded",
                 "type": "uint256"
             }
         ],
@@ -2312,6 +2312,7 @@ _c = EnvironmentalTrendChart;
 function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
     _s1();
     const [trendAnalysis, setTrendAnalysis] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [showCancelConfirm, setShowCancelConfirm] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const { data: commitment } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useReadContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useReadContract"])({
         address: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].GOVERNANCE_CONTRACT,
         abi: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$governance$2d$abi$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CIVIC_GOVERNANCE_ABI"],
@@ -2332,6 +2333,21 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
     }["AchievementCommitmentCard.useEffect"], [
         commitment
     ]);
+    // Delete function - same as Judge Panel
+    const deleteCommitment = ()=>{
+        console.log('🗑️ Deleting commitment locally:', commitmentId.toString());
+        // Mark as cancelled in localStorage
+        const cancelled = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
+        cancelled[commitmentId.toString()] = {
+            cancelled: true,
+            timestamp: Date.now(),
+            reason: 'Judge deleted from Achievement Timeline'
+        };
+        localStorage.setItem('cancelledCommitments', JSON.stringify(cancelled));
+        // Close modal and refresh
+        setShowCancelConfirm(false);
+        setTimeout(()=>window.location.reload(), 100);
+    };
     if (!commitment) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "bg-gray-800/50 rounded-lg p-4 border border-gray-700 animate-pulse",
@@ -2340,20 +2356,20 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                     className: "h-4 bg-gray-700 rounded mb-2"
                 }, void 0, false, {
                     fileName: "[project]/app/components/AchievementTimeline.tsx",
-                    lineNumber: 262,
+                    lineNumber: 281,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "h-3 bg-gray-700 rounded w-3/4"
                 }, void 0, false, {
                     fileName: "[project]/app/components/AchievementTimeline.tsx",
-                    lineNumber: 263,
+                    lineNumber: 282,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/components/AchievementTimeline.tsx",
-            lineNumber: 261,
+            lineNumber: 280,
             columnNumber: 7
         }, this);
     }
@@ -2379,7 +2395,7 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: commitmentData.description || `Commitment #${commitmentId}`
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 283,
+                                lineNumber: 302,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2390,13 +2406,13 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 286,
+                                lineNumber: 305,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 282,
+                        lineNumber: 301,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2404,13 +2420,13 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                         children: isAchieved ? '✅ Achieved' : isExpired ? '❌ Expired' : '⏳ Pending'
                     }, void 0, false, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 290,
+                        lineNumber: 309,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                lineNumber: 281,
+                lineNumber: 300,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2423,7 +2439,7 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "Target:"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 301,
+                                lineNumber: 320,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2434,13 +2450,13 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 302,
+                                lineNumber: 321,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 300,
+                        lineNumber: 319,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2450,7 +2466,7 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "7-Day Average:"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 305,
+                                lineNumber: 324,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2461,13 +2477,13 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 306,
+                                lineNumber: 325,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 304,
+                        lineNumber: 323,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2477,7 +2493,7 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "Current:"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 309,
+                                lineNumber: 328,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2488,13 +2504,13 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 310,
+                                lineNumber: 329,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 308,
+                        lineNumber: 327,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2504,7 +2520,7 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "Trend:"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 313,
+                                lineNumber: 332,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2512,13 +2528,13 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: trendAnalysis?.currentTrend.direction === 'improving' ? '📈 Improving' : trendAnalysis?.currentTrend.direction === 'worsening' ? '📉 Worsening' : '➡️ Stable'
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 314,
+                                lineNumber: 333,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 312,
+                        lineNumber: 331,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2528,7 +2544,7 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "Deadline:"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 323,
+                                lineNumber: 342,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2536,13 +2552,13 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: deadlineDate.toLocaleDateString()
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 324,
+                                lineNumber: 343,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 322,
+                        lineNumber: 341,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2552,7 +2568,7 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "Status:"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 327,
+                                lineNumber: 346,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2560,19 +2576,19 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: isAchieved ? 'Target Met (7-day avg)' : 'Above Target'
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 328,
+                                lineNumber: 347,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 326,
+                        lineNumber: 345,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                lineNumber: 299,
+                lineNumber: 318,
                 columnNumber: 7
             }, this),
             trendAnalysis && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2585,7 +2601,7 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                             children: "Evaluation based on 7-day average vs instantaneous reading"
                         }, void 0, false, {
                             fileName: "[project]/app/components/AchievementTimeline.tsx",
-                            lineNumber: 338,
+                            lineNumber: 357,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2596,43 +2612,110 @@ function AchievementCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/AchievementTimeline.tsx",
-                            lineNumber: 341,
+                            lineNumber: 360,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/AchievementTimeline.tsx",
-                    lineNumber: 337,
+                    lineNumber: 356,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                lineNumber: 336,
+                lineNumber: 355,
                 columnNumber: 9
             }, this),
-            isAchieved && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "flex gap-2",
-                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                    className: "bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded border border-blue-500/30 text-sm",
-                    children: "📊 View Details"
-                }, void 0, false, {
-                    fileName: "[project]/app/components/AchievementTimeline.tsx",
-                    lineNumber: 355,
-                    columnNumber: 11
-                }, this)
-            }, void 0, false, {
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex gap-2 justify-between items-center",
+                children: [
+                    isAchieved && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        className: "bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded border border-blue-500/30 text-sm",
+                        children: "📊 View Details"
+                    }, void 0, false, {
+                        fileName: "[project]/app/components/AchievementTimeline.tsx",
+                        lineNumber: 374,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: (e)=>{
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowCancelConfirm(true);
+                        },
+                        className: "px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-all",
+                        title: "Delete this commitment",
+                        children: "🗑️ Delete"
+                    }, void 0, false, {
+                        fileName: "[project]/app/components/AchievementTimeline.tsx",
+                        lineNumber: 380,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                lineNumber: 354,
+                lineNumber: 372,
+                columnNumber: 7
+            }, this),
+            showCancelConfirm && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "mt-4 bg-red-900/20 border border-red-500/30 rounded-lg p-3",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-red-400 text-sm mb-3",
+                        children: "⚠️ Are you sure you want to delete this commitment? This will remove it from the display only (no blockchain transaction)."
+                    }, void 0, false, {
+                        fileName: "[project]/app/components/AchievementTimeline.tsx",
+                        lineNumber: 397,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex gap-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                type: "button",
+                                onClick: deleteCommitment,
+                                className: "px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium",
+                                children: "Yes, Delete"
+                            }, void 0, false, {
+                                fileName: "[project]/app/components/AchievementTimeline.tsx",
+                                lineNumber: 401,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                type: "button",
+                                onClick: (e)=>{
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setShowCancelConfirm(false);
+                                },
+                                className: "px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm font-medium",
+                                children: "No, Keep"
+                            }, void 0, false, {
+                                fileName: "[project]/app/components/AchievementTimeline.tsx",
+                                lineNumber: 408,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/components/AchievementTimeline.tsx",
+                        lineNumber: 400,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/app/components/AchievementTimeline.tsx",
+                lineNumber: 396,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/AchievementTimeline.tsx",
-        lineNumber: 280,
+        lineNumber: 299,
         columnNumber: 5
     }, this);
 }
-_s1(AchievementCommitmentCard, "r4TAqfzZEcAItc8M3EmCBzXbwB0=", false, function() {
+_s1(AchievementCommitmentCard, "kJDsnclXwYvNP3YNLyL0K6CSlZQ=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useReadContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useReadContract"]
     ];
@@ -2723,7 +2806,7 @@ function AchievementTimeline() {
                     className: "animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"
                 }, void 0, false, {
                     fileName: "[project]/app/components/AchievementTimeline.tsx",
-                    lineNumber: 459,
+                    lineNumber: 521,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2731,13 +2814,13 @@ function AchievementTimeline() {
                     children: "Loading achievements..."
                 }, void 0, false, {
                     fileName: "[project]/app/components/AchievementTimeline.tsx",
-                    lineNumber: 460,
+                    lineNumber: 522,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/components/AchievementTimeline.tsx",
-            lineNumber: 458,
+            lineNumber: 520,
             columnNumber: 7
         }, this);
     }
@@ -2752,7 +2835,7 @@ function AchievementTimeline() {
                         children: "🏆 Achievement Timeline"
                     }, void 0, false, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 469,
+                        lineNumber: 531,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2760,7 +2843,7 @@ function AchievementTimeline() {
                         children: "Track environmental commitment achievements using time-averaged Chainlink oracle data"
                     }, void 0, false, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 470,
+                        lineNumber: 532,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2771,13 +2854,13 @@ function AchievementTimeline() {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 473,
+                        lineNumber: 535,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                lineNumber: 468,
+                lineNumber: 530,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2788,7 +2871,7 @@ function AchievementTimeline() {
                         children: "📊 Environmental Data Trends"
                     }, void 0, false, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 480,
+                        lineNumber: 542,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2796,7 +2879,7 @@ function AchievementTimeline() {
                         children: "Real-time trend analysis showing hourly/daily/weekly/monthly averages to determine if commitments are being met consistently"
                     }, void 0, false, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 481,
+                        lineNumber: 543,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2808,7 +2891,7 @@ function AchievementTimeline() {
                                 period: "daily"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 487,
+                                lineNumber: 549,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(EnvironmentalTrendChart, {
@@ -2817,7 +2900,7 @@ function AchievementTimeline() {
                                 period: "daily"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 494,
+                                lineNumber: 556,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(EnvironmentalTrendChart, {
@@ -2826,19 +2909,19 @@ function AchievementTimeline() {
                                 period: "weekly"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                lineNumber: 501,
+                                lineNumber: 563,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 485,
+                        lineNumber: 547,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                lineNumber: 479,
+                lineNumber: 541,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2849,7 +2932,7 @@ function AchievementTimeline() {
                         children: "📈 Environmental Achievements"
                     }, void 0, false, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 511,
+                        lineNumber: 573,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2862,7 +2945,7 @@ function AchievementTimeline() {
                                     children: "No commitments found on blockchain"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                    lineNumber: 516,
+                                    lineNumber: 578,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2873,55 +2956,68 @@ function AchievementTimeline() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                    lineNumber: 517,
+                                    lineNumber: 579,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/AchievementTimeline.tsx",
-                            lineNumber: 515,
+                            lineNumber: 577,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    className: "text-sm text-gray-400 mb-4",
-                                    children: [
-                                        "Showing ",
-                                        Number(allCommitmentIds) - 1,
-                                        " commitments from blockchain (EXACT same as Live Feed)"
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                    lineNumber: 523,
-                                    columnNumber: 15
-                                }, this),
-                                Array.from({
+                            children: (()=>{
+                                // Filter out cancelled commitments (same as Live Feed and Judge Panel)
+                                const cancelledCommitments = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
+                                const allCommitmentArray = Array.from({
                                     length: Number(allCommitmentIds) - 1
-                                }, (_, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(AchievementCommitmentCard, {
-                                        commitmentId: BigInt(i + 1),
-                                        currentPM25FromOracle: currentPM25FromOracle
-                                    }, i + 1, false, {
-                                        fileName: "[project]/app/components/AchievementTimeline.tsx",
-                                        lineNumber: 527,
-                                        columnNumber: 17
-                                    }, this))
-                            ]
-                        }, void 0, true)
+                                }, (_, i)=>i + 1);
+                                const activeCommitments = allCommitmentArray.filter((id)=>!cancelledCommitments[id.toString()]?.cancelled);
+                                console.log('🔍 Achievement Timeline Filtering:', {
+                                    totalCommitments: allCommitmentArray.length,
+                                    cancelledCommitments,
+                                    activeCommitments: activeCommitments.length
+                                });
+                                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-sm text-gray-400 mb-4",
+                                            children: [
+                                                "Showing ",
+                                                activeCommitments.length,
+                                                " active commitments from blockchain (filtered like Live Feed)"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/components/AchievementTimeline.tsx",
+                                            lineNumber: 599,
+                                            columnNumber: 21
+                                        }, this),
+                                        activeCommitments.map((commitmentId)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(AchievementCommitmentCard, {
+                                                commitmentId: BigInt(commitmentId),
+                                                currentPM25FromOracle: currentPM25FromOracle
+                                            }, commitmentId, false, {
+                                                fileName: "[project]/app/components/AchievementTimeline.tsx",
+                                                lineNumber: 603,
+                                                columnNumber: 23
+                                            }, this))
+                                    ]
+                                }, void 0, true);
+                            })()
+                        }, void 0, false)
                     }, void 0, false, {
                         fileName: "[project]/app/components/AchievementTimeline.tsx",
-                        lineNumber: 513,
+                        lineNumber: 575,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/AchievementTimeline.tsx",
-                lineNumber: 510,
+                lineNumber: 572,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/AchievementTimeline.tsx",
-        lineNumber: 466,
+        lineNumber: 528,
         columnNumber: 5
     }, this);
 }
@@ -3655,7 +3751,7 @@ function JudgeSocialFeed() {
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
                         className: "text-lg font-semibold text-cyan-400 mb-4 flex items-center",
                         children: [
-                            "📱 Share Citizen Update",
+                            "📱 Share Update",
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                 className: "ml-2 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"
                             }, void 0, false, {
@@ -3813,7 +3909,7 @@ function JudgeSocialFeed() {
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
                         className: "text-lg font-semibold text-purple-400 mb-4 flex items-center",
                         children: [
-                            "📰 Citizen Social Feed",
+                            "📰 Social Feed",
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                 className: "ml-2 text-sm text-gray-400",
                                 children: [
@@ -4533,6 +4629,7 @@ var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.sign
 function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
     _s();
     const [isClaiming, setIsClaiming] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [showCancelConfirm, setShowCancelConfirm] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [transactionStatus, setTransactionStatus] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         status: 'idle'
     });
@@ -4602,6 +4699,33 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
         }
     }["RewardCommitmentCard.useEffect"], [
         writeError,
+        hash,
+        commitmentId
+    ]);
+    // Add timeout to reset claiming state if transaction gets stuck
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "RewardCommitmentCard.useEffect": ()=>{
+            if (isClaiming) {
+                const timeout = setTimeout({
+                    "RewardCommitmentCard.useEffect.timeout": ()=>{
+                        if (isClaiming && !hash) {
+                            console.log('⏰ Transaction timeout - resetting claiming state');
+                            setIsClaiming(false);
+                            setTransactionStatus({
+                                status: 'error',
+                                error: 'Transaction timed out. Please try again.',
+                                commitmentId: Number(commitmentId)
+                            });
+                        }
+                    }
+                }["RewardCommitmentCard.useEffect.timeout"], 30000); // 30 second timeout
+                return ({
+                    "RewardCommitmentCard.useEffect": ()=>clearTimeout(timeout)
+                })["RewardCommitmentCard.useEffect"];
+            }
+        }
+    }["RewardCommitmentCard.useEffect"], [
+        isClaiming,
         hash,
         commitmentId
     ]);
@@ -4677,20 +4801,20 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                     className: "h-4 bg-gray-700 rounded mb-2"
                 }, void 0, false, {
                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                    lineNumber: 140,
+                    lineNumber: 160,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "h-3 bg-gray-700 rounded w-3/4"
                 }, void 0, false, {
                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                    lineNumber: 141,
+                    lineNumber: 161,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-            lineNumber: 139,
+            lineNumber: 159,
             columnNumber: 7
         }, this);
     }
@@ -4775,30 +4899,42 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
         if (!commitmentData) {
             alert('❌ Commitment data not loaded');
             setIsClaiming(false);
+            setTransactionStatus({
+                status: 'idle'
+            });
             return;
         }
         if (commitmentData.rewardClaimed) {
             alert('❌ Reward already claimed for this commitment');
             setIsClaiming(false);
+            setTransactionStatus({
+                status: 'idle'
+            });
             return;
         }
         // SIMPLIFIED LOGIC: If judge verified, skip oracle check
         if (!isJudgeVerified) {
             alert('❌ Judge approval required. Please ask a judge to approve this commitment first.');
             setIsClaiming(false);
+            setTransactionStatus({
+                status: 'idle'
+            });
             return;
         }
         // Only check oracle achievement if judge hasn't approved
         if (!isManuallyVerifiedByJudge && !isAchieved) {
             alert('❌ Environmental target not achieved yet and no judge approval');
             setIsClaiming(false);
+            setTransactionStatus({
+                status: 'idle'
+            });
             return;
         }
         // SIMPLIFIED LOGIC: No deadline check - judge verification is enough!
         try {
             // REAL BLOCKCHAIN TRANSACTION: Try to claim the reward
             console.log('🎯 ATTEMPTING REAL REWARD CLAIM');
-            writeContract({
+            await writeContract({
                 address: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].GOVERNANCE_CONTRACT,
                 abi: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CIVIC_CONTRACT_ABI"],
                 functionName: 'claimEnvironmentalReward',
@@ -4815,6 +4951,18 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                 commitmentId: Number(commitmentId)
             });
         }
+    };
+    // Delete commitment function (same as Live Feed and Judge Panel)
+    const handleDeleteCommitment = ()=>{
+        const cancelledCommitments = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
+        cancelledCommitments[commitmentId.toString()] = {
+            cancelled: true,
+            timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('cancelledCommitments', JSON.stringify(cancelledCommitments));
+        console.log(`🗑️ Commitment ${commitmentId.toString()} marked as cancelled in Rewards`);
+        // Refresh the page to update the display
+        window.location.reload();
     };
     const getCommitmentStatus = ()=>{
         if (isRewardClaimed) {
@@ -4877,7 +5025,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: commitmentData.description || `Commitment #${commitmentId}`
                             }, void 0, false, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 327,
+                                lineNumber: 364,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4888,13 +5036,13 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 330,
+                                lineNumber: 367,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 326,
+                        lineNumber: 363,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4902,13 +5050,13 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                         children: status.text
                     }, void 0, false, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 334,
+                        lineNumber: 371,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                lineNumber: 325,
+                lineNumber: 362,
                 columnNumber: 7
             }, this),
             transactionStatus.status !== 'idle' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4926,7 +5074,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                                 className: "w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                lineNumber: 346,
+                                                lineNumber: 383,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4934,7 +5082,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                                 children: "Transaction Pending..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                lineNumber: 347,
+                                                lineNumber: 384,
                                                 columnNumber: 19
                                             }, this)
                                         ]
@@ -4945,7 +5093,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                                 className: "w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                lineNumber: 352,
+                                                lineNumber: 389,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4953,7 +5101,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                                 children: "Confirming Transaction..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                lineNumber: 353,
+                                                lineNumber: 390,
                                                 columnNumber: 19
                                             }, this)
                                         ]
@@ -4967,12 +5115,12 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                                     children: "✓"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                    lineNumber: 359,
+                                                    lineNumber: 396,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                lineNumber: 358,
+                                                lineNumber: 395,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4980,7 +5128,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                                 children: "Reward Claimed Successfully!"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                lineNumber: 361,
+                                                lineNumber: 398,
                                                 columnNumber: 19
                                             }, this)
                                         ]
@@ -4994,12 +5142,12 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                                     children: "✗"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                    lineNumber: 367,
+                                                    lineNumber: 404,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                lineNumber: 366,
+                                                lineNumber: 403,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5007,7 +5155,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                                 children: "Transaction Failed"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                lineNumber: 369,
+                                                lineNumber: 406,
                                                 columnNumber: 19
                                             }, this)
                                         ]
@@ -5015,7 +5163,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 343,
+                                lineNumber: 380,
                                 columnNumber: 13
                             }, this),
                             transactionStatus.hash && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -5026,13 +5174,13 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "View on Etherscan →"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 376,
+                                lineNumber: 413,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 342,
+                        lineNumber: 379,
                         columnNumber: 11
                     }, this),
                     transactionStatus.error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5040,17 +5188,17 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                         children: transactionStatus.error
                     }, void 0, false, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 389,
+                        lineNumber: 426,
                         columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                lineNumber: 341,
+                lineNumber: 378,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4",
+                className: "grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         children: [
@@ -5059,7 +5207,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "Target:"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 398,
+                                lineNumber: 435,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5070,40 +5218,13 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 399,
+                                lineNumber: 436,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 397,
-                        columnNumber: 9
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-gray-400",
-                                children: "Current:"
-                            }, void 0, false, {
-                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 402,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-white ml-2",
-                                children: [
-                                    currentValue.toFixed(2),
-                                    " μg/m³"
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 403,
-                                columnNumber: 11
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 401,
+                        lineNumber: 434,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5113,7 +5234,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "Reward:"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 406,
+                                lineNumber: 439,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5121,13 +5242,13 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: ethReward > 0 ? `${ethReward.toFixed(3)} ETH` : 'TBD'
                             }, void 0, false, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 407,
+                                lineNumber: 440,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 405,
+                        lineNumber: 438,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5137,7 +5258,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: "Deadline:"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 412,
+                                lineNumber: 445,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5145,19 +5266,19 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                                 children: deadlineDate.toLocaleDateString()
                             }, void 0, false, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 413,
+                                lineNumber: 446,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 411,
+                        lineNumber: 444,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                lineNumber: 396,
+                lineNumber: 433,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5172,7 +5293,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 419,
+                        lineNumber: 452,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5184,7 +5305,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 422,
+                        lineNumber: 455,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5196,13 +5317,13 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 425,
+                        lineNumber: 458,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                lineNumber: 418,
+                lineNumber: 451,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5215,7 +5336,17 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                         children: isConfirming ? '⏳ Confirming Transaction...' : isClaiming ? '📝 Submitting Transaction...' : canClaim ? '💰 Claim ETH Reward' : '🔒 Cannot Claim Yet'
                     }, void 0, false, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 433,
+                        lineNumber: 466,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        onClick: ()=>setShowCancelConfirm(true),
+                        className: "bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300",
+                        title: "Delete this commitment",
+                        children: "🗑️ Delete"
+                    }, void 0, false, {
+                        fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                        lineNumber: 481,
                         columnNumber: 9
                     }, this),
                     !isAchieved && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5223,7 +5354,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                         children: "📈 Continue working towards target"
                     }, void 0, false, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 450,
+                        lineNumber: 490,
                         columnNumber: 11
                     }, this),
                     isRewardClaimed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5231,23 +5362,82 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }) {
                         children: "✅ Reward successfully claimed"
                     }, void 0, false, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 456,
+                        lineNumber: 496,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                lineNumber: 431,
+                lineNumber: 464,
                 columnNumber: 7
+            }, this),
+            showCancelConfirm && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed inset-0 bg-black/50 flex items-center justify-center z-50",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "bg-gray-800 border border-red-500/30 rounded-lg p-6 max-w-md mx-4",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                            className: "text-lg font-bold text-white mb-4",
+                            children: "⚠️ Delete Commitment"
+                        }, void 0, false, {
+                            fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                            lineNumber: 506,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-gray-300 mb-6",
+                            children: "Are you sure you want to delete this commitment? This will remove it from all views."
+                        }, void 0, false, {
+                            fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                            lineNumber: 507,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex gap-3",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    onClick: handleDeleteCommitment,
+                                    className: "bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300",
+                                    children: "Yes, Delete"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                    lineNumber: 511,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    onClick: ()=>setShowCancelConfirm(false),
+                                    className: "bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300",
+                                    children: "No, Keep"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                    lineNumber: 517,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                            lineNumber: 510,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                    lineNumber: 505,
+                    columnNumber: 11
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                lineNumber: 504,
+                columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-        lineNumber: 324,
+        lineNumber: 361,
         columnNumber: 5
     }, this);
 }
-_s(RewardCommitmentCard, "a1RjcVjdlqyaffuMbaTOdjnPWvk=", false, function() {
+_s(RewardCommitmentCard, "tWyPQ80n6hFeuUCWPt4lxCzHEno=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useAccount$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAccount"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useWriteContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useWriteContract"],
@@ -5322,7 +5512,7 @@ function PublicOfficialRewards() {
                     className: "animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"
                 }, void 0, false, {
                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                    lineNumber: 520,
+                    lineNumber: 586,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5330,13 +5520,13 @@ function PublicOfficialRewards() {
                     children: "Loading rewards..."
                 }, void 0, false, {
                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                    lineNumber: 521,
+                    lineNumber: 587,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-            lineNumber: 519,
+            lineNumber: 585,
             columnNumber: 7
         }, this);
     }
@@ -5357,7 +5547,7 @@ function PublicOfficialRewards() {
                                     children: "💰 Rewards Dashboard"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                    lineNumber: 535,
+                                    lineNumber: 601,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5365,13 +5555,13 @@ function PublicOfficialRewards() {
                                     children: "Claim rewards for verified environmental achievements"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                    lineNumber: 536,
+                                    lineNumber: 602,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                            lineNumber: 534,
+                            lineNumber: 600,
                             columnNumber: 11
                         }, this),
                         address && userEthBalance && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5382,7 +5572,7 @@ function PublicOfficialRewards() {
                                     children: "Your ETH Balance"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                    lineNumber: 542,
+                                    lineNumber: 608,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5393,99 +5583,64 @@ function PublicOfficialRewards() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                    lineNumber: 543,
+                                    lineNumber: 609,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                            lineNumber: 541,
+                            lineNumber: 607,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                    lineNumber: 533,
+                    lineNumber: 599,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                lineNumber: 532,
+                lineNumber: 598,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "grid grid-cols-1 md:grid-cols-2 gap-4",
-                children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "bg-blue-900/20 border border-blue-500/30 rounded-lg p-4",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                className: "text-sm text-blue-300 mb-1",
-                                children: "Your Commitments"
-                            }, void 0, false, {
-                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 554,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-2xl text-white font-mono",
-                                children: userCommitmentCount
-                            }, void 0, false, {
-                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 555,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-xs text-gray-400",
-                                children: "Created by your wallet"
-                            }, void 0, false, {
-                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 556,
-                                columnNumber: 11
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 553,
-                        columnNumber: 9
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "bg-purple-900/20 border border-purple-500/30 rounded-lg p-4",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                className: "text-sm text-purple-300 mb-1",
-                                children: "Reward Status"
-                            }, void 0, false, {
-                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 560,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-lg text-white font-mono",
-                                children: "Ready to Claim"
-                            }, void 0, false, {
-                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 561,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-xs text-gray-400",
-                                children: "Judge verified commitments"
-                            }, void 0, false, {
-                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 562,
-                                columnNumber: 11
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 559,
-                        columnNumber: 9
-                    }, this)
-                ]
-            }, void 0, true, {
+                className: "grid grid-cols-1 gap-4",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "bg-purple-900/20 border border-purple-500/30 rounded-lg p-4",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                            className: "text-sm text-purple-300 mb-1",
+                            children: "Reward Status"
+                        }, void 0, false, {
+                            fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                            lineNumber: 620,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-lg text-white font-mono",
+                            children: "Ready to Claim"
+                        }, void 0, false, {
+                            fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                            lineNumber: 621,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-xs text-gray-400",
+                            children: "Judge verified commitments"
+                        }, void 0, false, {
+                            fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                            lineNumber: 622,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                    lineNumber: 619,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                lineNumber: 552,
+                lineNumber: 618,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5496,7 +5651,7 @@ function PublicOfficialRewards() {
                         children: "🏆 Your Commitments & Rewards"
                     }, void 0, false, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 568,
+                        lineNumber: 628,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5509,7 +5664,7 @@ function PublicOfficialRewards() {
                                     children: "Please connect your wallet to view your commitments"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                    lineNumber: 573,
+                                    lineNumber: 633,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5517,13 +5672,13 @@ function PublicOfficialRewards() {
                                     children: "Only commitments created by your wallet will be shown"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                    lineNumber: 574,
+                                    lineNumber: 634,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                            lineNumber: 572,
+                            lineNumber: 632,
                             columnNumber: 13
                         }, this) : !userCommitmentIds || userCommitmentIds.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "text-center py-8",
@@ -5533,7 +5688,7 @@ function PublicOfficialRewards() {
                                     children: "No commitments found for your wallet"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                    lineNumber: 580,
+                                    lineNumber: 640,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5546,7 +5701,7 @@ function PublicOfficialRewards() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                    lineNumber: 581,
+                                    lineNumber: 641,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5557,13 +5712,32 @@ function PublicOfficialRewards() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                    lineNumber: 584,
+                                    lineNumber: 644,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    onClick: ()=>{
+                                        console.log('🔍 REWARDS DEBUG INFO:', {
+                                            address,
+                                            userCommitmentIds: userCommitmentIds?.map((id)=>id.toString()),
+                                            totalCommitmentId: totalCommitmentId?.toString(),
+                                            cancelledCommitments: JSON.parse(localStorage.getItem('cancelledCommitments') || '{}'),
+                                            allCommitmentIds: Array.from({
+                                                length: totalCommitmentId ? Number(totalCommitmentId) - 1 : 0
+                                            }, (_, i)=>(i + 1).toString())
+                                        });
+                                    },
+                                    className: "mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm",
+                                    children: "🔍 Debug Info"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                    lineNumber: 649,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                            lineNumber: 579,
+                            lineNumber: 639,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                             children: (()=>{
@@ -5579,6 +5753,88 @@ function PublicOfficialRewards() {
                                     activeCommitments: activeCommitments.map((id)=>id.toString()),
                                     displayCommitments: displayCommitments.map((id)=>id.toString())
                                 });
+                                if (displayCommitments.length === 0) {
+                                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "text-center py-8",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "text-4xl mb-4",
+                                                children: "🌱"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                                lineNumber: 685,
+                                                columnNumber: 23
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-gray-400 mb-2",
+                                                children: "No active commitments"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                                lineNumber: 686,
+                                                columnNumber: 23
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-sm text-gray-500",
+                                                children: "Your commitments may be filtered out or cancelled"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                                lineNumber: 687,
+                                                columnNumber: 23
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-sm text-gray-400 mt-2",
+                                                children: [
+                                                    "Showing ",
+                                                    displayCommitments.length,
+                                                    " active commitments (same as Live Feed)"
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                                lineNumber: 688,
+                                                columnNumber: 23
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "mt-4",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                    onClick: ()=>{
+                                                        console.log('🔍 PublicOfficialRewards Debug Info:', {
+                                                            walletAddress: address,
+                                                            isWalletConnected: isConnected,
+                                                            contractAddress: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].GOVERNANCE_CONTRACT,
+                                                            totalCommitmentId: totalCommitmentId?.toString(),
+                                                            userCommitmentIds: userCommitmentIds?.map((id)=>id.toString()),
+                                                            cancelledCommitments: JSON.parse(localStorage.getItem('cancelledCommitments') || '{}'),
+                                                            activeCommitments: activeCommitments.map((id)=>id.toString()),
+                                                            displayCommitments: displayCommitments.map((id)=>id.toString())
+                                                        });
+                                                        // Check if there are ANY commitments on this contract
+                                                        if (totalCommitmentId && Number(totalCommitmentId) > 1) {
+                                                            console.log('✅ Contract HAS commitments, but none for your wallet or all filtered out');
+                                                            console.log('This means commitments were created with a different wallet address or cancelled');
+                                                        } else {
+                                                            console.log('❌ Contract has NO commitments at all');
+                                                            console.log('You need to create commitments first');
+                                                        }
+                                                    },
+                                                    className: "px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700",
+                                                    children: "🔍 Debug Info"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                                    lineNumber: 694,
+                                                    columnNumber: 25
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                                lineNumber: 693,
+                                                columnNumber: 23
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/components/PublicOfficialRewards.tsx",
+                                        lineNumber: 684,
+                                        columnNumber: 21
+                                    }, this);
+                                }
                                 return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5590,7 +5846,7 @@ function PublicOfficialRewards() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                            lineNumber: 610,
+                                            lineNumber: 727,
                                             columnNumber: 21
                                         }, this),
                                         displayCommitments.map((commitmentId)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(RewardCommitmentCard, {
@@ -5598,7 +5854,7 @@ function PublicOfficialRewards() {
                                                 currentPM25FromOracle: currentPM25FromOracle
                                             }, commitmentId.toString(), false, {
                                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                                lineNumber: 614,
+                                                lineNumber: 731,
                                                 columnNumber: 23
                                             }, this))
                                     ]
@@ -5607,13 +5863,13 @@ function PublicOfficialRewards() {
                         }, void 0, false)
                     }, void 0, false, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 570,
+                        lineNumber: 630,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                lineNumber: 567,
+                lineNumber: 627,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5624,7 +5880,7 @@ function PublicOfficialRewards() {
                         children: "ℹ️ How Rewards Work"
                     }, void 0, false, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 630,
+                        lineNumber: 747,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5636,30 +5892,30 @@ function PublicOfficialRewards() {
                                         children: "1. Achieve Target:"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                        lineNumber: 632,
+                                        lineNumber: 749,
                                         columnNumber: 14
                                     }, this),
                                     " Meet your environmental commitment target (e.g., reduce PM2.5 below threshold)"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 632,
+                                lineNumber: 749,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        children: "2. Oracle Verification:"
+                                        children: "2. Verification Process:"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                        lineNumber: 633,
+                                        lineNumber: 750,
                                         columnNumber: 14
                                     }, this),
-                                    " Chainlink oracles automatically verify your achievement using real environmental data"
+                                    " Your achievement will be verified using environmental data and judge review"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 633,
+                                lineNumber: 750,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5668,48 +5924,48 @@ function PublicOfficialRewards() {
                                         children: "3. Claim Reward:"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                        lineNumber: 634,
+                                        lineNumber: 751,
                                         columnNumber: 14
                                     }, this),
-                                    " Once Oracle confirms target achievement, claim your ETH reward using the button above"
+                                    " Once verification is complete, claim your ETH reward using the button above"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 634,
+                                lineNumber: 751,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        children: "4. Automatic Distribution:"
+                                        children: "4. Reward Distribution:"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                        lineNumber: 635,
+                                        lineNumber: 752,
                                         columnNumber: 14
                                     }, this),
-                                    " Rewards are distributed instantly to your wallet"
+                                    " Rewards are processed and sent to your wallet"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                                lineNumber: 635,
+                                lineNumber: 752,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                        lineNumber: 631,
+                        lineNumber: 748,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-                lineNumber: 629,
+                lineNumber: 746,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/PublicOfficialRewards.tsx",
-        lineNumber: 530,
+        lineNumber: 596,
         columnNumber: 5
     }, this);
 }
@@ -7182,7 +7438,7 @@ function CyberpunkDashboard() {
         abi: CIVIC_CONTRACT_ABI,
         functionName: 'nextCommitmentId'
     });
-    const { data: userCommitments, refetch: refetchUserCommitments } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useReadContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useReadContract"])({
+    const { data: userCommitments, refetch: refetchUserCommitments, error: userCommitmentsError, isLoading: userCommitmentsLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useReadContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useReadContract"])({
         address: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].GOVERNANCE_CONTRACT,
         abi: CIVIC_CONTRACT_ABI,
         functionName: 'getOfficialCommitments',
@@ -7193,6 +7449,38 @@ function CyberpunkDashboard() {
             enabled: !!address && isConnected
         }
     });
+    // Debug log for userCommitments call
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "CyberpunkDashboard.useEffect": ()=>{
+            console.log('🔍 UserCommitments Call Debug:', {
+                address: address,
+                isConnected: isConnected,
+                contractAddress: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].GOVERNANCE_CONTRACT,
+                enabled: !!address && isConnected,
+                userCommitments: userCommitments,
+                userCommitmentsError: userCommitmentsError,
+                userCommitmentsLoading: userCommitmentsLoading,
+                // Additional debugging
+                userCommitmentsRaw: userCommitments,
+                userCommitmentsType: typeof userCommitments,
+                userCommitmentsIsArray: Array.isArray(userCommitments)
+            });
+            // If there's an error, log it in detail
+            if (userCommitmentsError) {
+                console.error('❌ UserCommitments Error Details:', {
+                    message: userCommitmentsError.message,
+                    cause: userCommitmentsError.cause,
+                    stack: userCommitmentsError.stack
+                });
+            }
+        }
+    }["CyberpunkDashboard.useEffect"], [
+        address,
+        isConnected,
+        userCommitments,
+        userCommitmentsError,
+        userCommitmentsLoading
+    ]);
     // Get the latest commitment (if any exist) - nextCommitmentId - 1 is the current highest id
     const currentCommitmentId = nextCommitmentId && nextCommitmentId > 1n ? nextCommitmentId - 1n : null;
     const latestCommitmentId = currentCommitmentId;
@@ -7205,6 +7493,18 @@ function CyberpunkDashboard() {
         ] : undefined,
         query: {
             enabled: !!latestCommitmentId
+        }
+    });
+    // Test fetching commitment ID 1 if it exists
+    const { data: testCommitment1 } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useReadContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useReadContract"])({
+        address: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].GOVERNANCE_CONTRACT,
+        abi: CIVIC_CONTRACT_ABI,
+        functionName: 'getCommitment',
+        args: [
+            1n
+        ],
+        query: {
+            enabled: !!nextCommitmentId && nextCommitmentId > 1n
         }
     });
     // USE NEW ORACLE DATA HOOK - DISABLED FOR NOW, USING REAL CHAINLINK DATA
@@ -7391,6 +7691,14 @@ function CyberpunkDashboard() {
                 }
                 // Show success modal instead of browser alert
                 setShowSuccessModal(true);
+                // Refresh user commitments to show the new commitment in Live Feed
+                // Add a small delay to ensure blockchain state is updated
+                console.log('🔄 Refreshing user commitments after successful creation...');
+                setTimeout({
+                    "CyberpunkDashboard.useEffect": ()=>{
+                        refetchUserCommitments();
+                    }
+                }["CyberpunkDashboard.useEffect"], 1000); // 1 second delay
                 // Clear the form
                 setNewCommitment({
                     title: '',
@@ -7784,7 +8092,10 @@ ${errorMessage}${gasGuidance}
         latestCommitment: latestCommitment,
         userCommitments: userCommitments?.map((id)=>id.toString()),
         userCommitmentsLength: userCommitments?.length,
+        userCommitmentsError: userCommitmentsError?.message,
+        userCommitmentsLoading: userCommitmentsLoading,
         contractAddress: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].COMMITMENT_CONTRACT,
+        governanceContract: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].GOVERNANCE_CONTRACT,
         ethBalance: ethBalance?.value?.toString(),
         balance: balance,
         isConnected: isConnected,
@@ -7792,7 +8103,11 @@ ${errorMessage}${gasGuidance}
         createHash: createHash,
         isCreateConfirming: isCreateConfirming,
         isCreateConfirmed: isCreateConfirmed,
-        createError: createError?.message
+        createError: createError?.message,
+        // Additional debugging
+        hasCommitments: nextCommitmentId && nextCommitmentId > 1n,
+        shouldHaveUserCommitments: !!address && isConnected && nextCommitmentId && nextCommitmentId > 1n,
+        testCommitment1: testCommitment1
     });
     console.log('🔍 Network Debug:', {
         chainId: chainId,
@@ -7887,7 +8202,7 @@ ${errorMessage}${gasGuidance}
             currentRole: userRole
         }, void 0, false, {
             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-            lineNumber: 839,
+            lineNumber: 890,
             columnNumber: 12
         }, this);
     }
@@ -7899,7 +8214,7 @@ ${errorMessage}${gasGuidance}
                 currentRole: userRole
             }, void 0, false, {
                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                lineNumber: 845,
+                lineNumber: 896,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7921,7 +8236,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "PM2.5 Levels"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 855,
+                                                        lineNumber: 906,
                                                         columnNumber: 17
                                                     }, this),
                                                     pm25Value !== null && !pm25LoadingState ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7929,27 +8244,27 @@ ${errorMessage}${gasGuidance}
                                                         title: "Live API Data"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 857,
+                                                        lineNumber: 908,
                                                         columnNumber: 19
                                                     }, this) : pm25LoadingState ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "w-2 h-2 bg-yellow-400 rounded-full animate-pulse",
                                                         title: "Loading..."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 859,
+                                                        lineNumber: 910,
                                                         columnNumber: 19
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "w-2 h-2 bg-red-400 rounded-full",
                                                         title: "No Data"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 861,
+                                                        lineNumber: 912,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 854,
+                                                lineNumber: 905,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -7957,7 +8272,7 @@ ${errorMessage}${gasGuidance}
                                                 children: pm25Value !== null ? pm25Value.toFixed(2) : '--'
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 864,
+                                                lineNumber: 915,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -7968,13 +8283,13 @@ ${errorMessage}${gasGuidance}
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 867,
+                                                lineNumber: 918,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 853,
+                                        lineNumber: 904,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7982,13 +8297,13 @@ ${errorMessage}${gasGuidance}
                                         children: "🏭"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 871,
+                                        lineNumber: 922,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 852,
+                                lineNumber: 903,
                                 columnNumber: 11
                             }, this),
                             pm25Value !== null && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8000,18 +8315,18 @@ ${errorMessage}${gasGuidance}
                                     }
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                    lineNumber: 875,
+                                    lineNumber: 926,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 874,
+                                lineNumber: 925,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                        lineNumber: 851,
+                        lineNumber: 902,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8030,7 +8345,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "Air Quality Index"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 884,
+                                                        lineNumber: 935,
                                                         columnNumber: 17
                                                     }, this),
                                                     aqiValue !== null && !aqiLoadingState ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8038,27 +8353,27 @@ ${errorMessage}${gasGuidance}
                                                         title: "Live API Data"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 886,
+                                                        lineNumber: 937,
                                                         columnNumber: 19
                                                     }, this) : aqiLoadingState ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "w-2 h-2 bg-yellow-400 rounded-full animate-pulse",
                                                         title: "Loading..."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 888,
+                                                        lineNumber: 939,
                                                         columnNumber: 19
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "w-2 h-2 bg-red-400 rounded-full",
                                                         title: "No Data"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 890,
+                                                        lineNumber: 941,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 883,
+                                                lineNumber: 934,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8066,7 +8381,7 @@ ${errorMessage}${gasGuidance}
                                                 children: aqiValue !== null ? Math.round(aqiValue) : '--'
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 893,
+                                                lineNumber: 944,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8077,13 +8392,13 @@ ${errorMessage}${gasGuidance}
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 896,
+                                                lineNumber: 947,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 882,
+                                        lineNumber: 933,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8091,13 +8406,13 @@ ${errorMessage}${gasGuidance}
                                         children: "🌬️"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 900,
+                                        lineNumber: 951,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 881,
+                                lineNumber: 932,
                                 columnNumber: 11
                             }, this),
                             aqiValue !== null && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8109,18 +8424,18 @@ ${errorMessage}${gasGuidance}
                                     }
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                    lineNumber: 904,
+                                    lineNumber: 955,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 903,
+                                lineNumber: 954,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                        lineNumber: 880,
+                        lineNumber: 931,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8139,7 +8454,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "Forest Cover"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 913,
+                                                        lineNumber: 964,
                                                         columnNumber: 17
                                                     }, this),
                                                     forestValue !== null && !forestLoadingState ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8147,27 +8462,27 @@ ${errorMessage}${gasGuidance}
                                                         title: "Live API Data"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 915,
+                                                        lineNumber: 966,
                                                         columnNumber: 19
                                                     }, this) : forestLoadingState ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "w-2 h-2 bg-yellow-400 rounded-full animate-pulse",
                                                         title: "Loading..."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 917,
+                                                        lineNumber: 968,
                                                         columnNumber: 19
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "w-2 h-2 bg-red-400 rounded-full",
                                                         title: "No Data"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 919,
+                                                        lineNumber: 970,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 912,
+                                                lineNumber: 963,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8175,7 +8490,7 @@ ${errorMessage}${gasGuidance}
                                                 children: forestValue !== null ? forestValue.toFixed(1) : '--'
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 922,
+                                                lineNumber: 973,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8186,13 +8501,13 @@ ${errorMessage}${gasGuidance}
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 925,
+                                                lineNumber: 976,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 911,
+                                        lineNumber: 962,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8200,13 +8515,13 @@ ${errorMessage}${gasGuidance}
                                         children: "🌳"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 929,
+                                        lineNumber: 980,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 910,
+                                lineNumber: 961,
                                 columnNumber: 11
                             }, this),
                             forestValue !== null && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8218,18 +8533,18 @@ ${errorMessage}${gasGuidance}
                                     }
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                    lineNumber: 933,
+                                    lineNumber: 984,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 932,
+                                lineNumber: 983,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                        lineNumber: 909,
+                        lineNumber: 960,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8245,7 +8560,7 @@ ${errorMessage}${gasGuidance}
                                                 children: "ETH Balance"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 941,
+                                                lineNumber: 992,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8253,7 +8568,7 @@ ${errorMessage}${gasGuidance}
                                                 children: parseFloat(balance).toFixed(4)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 942,
+                                                lineNumber: 993,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8261,13 +8576,13 @@ ${errorMessage}${gasGuidance}
                                                 children: "ETH"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 943,
+                                                lineNumber: 994,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 940,
+                                        lineNumber: 991,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8275,13 +8590,13 @@ ${errorMessage}${gasGuidance}
                                         children: "💰"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 945,
+                                        lineNumber: 996,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 939,
+                                lineNumber: 990,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8293,24 +8608,24 @@ ${errorMessage}${gasGuidance}
                                     }
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                    lineNumber: 948,
+                                    lineNumber: 999,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 947,
+                                lineNumber: 998,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                        lineNumber: 938,
+                        lineNumber: 989,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                lineNumber: 850,
+                lineNumber: 901,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8329,24 +8644,24 @@ ${errorMessage}${gasGuidance}
                                             children: tab.icon
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                            lineNumber: 967,
+                                            lineNumber: 1018,
                                             columnNumber: 17
                                         }, this),
                                         tab.name
                                     ]
                                 }, tab.id, true, {
                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                    lineNumber: 958,
+                                    lineNumber: 1009,
                                     columnNumber: 15
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                            lineNumber: 956,
+                            lineNumber: 1007,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                        lineNumber: 955,
+                        lineNumber: 1006,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8365,14 +8680,14 @@ ${errorMessage}${gasGuidance}
                                                         className: "w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 979,
+                                                        lineNumber: 1030,
                                                         columnNumber: 19
                                                     }, this),
                                                     "Live Environmental Feed"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 978,
+                                                lineNumber: 1029,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8383,13 +8698,13 @@ ${errorMessage}${gasGuidance}
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 982,
+                                                lineNumber: 1033,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 977,
+                                        lineNumber: 1028,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8403,13 +8718,13 @@ ${errorMessage}${gasGuidance}
                                                         className: "ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 991,
+                                                        lineNumber: 1042,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 989,
+                                                lineNumber: 1040,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8426,7 +8741,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "🏭 PM2.5 Air Quality"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 997,
+                                                                        lineNumber: 1048,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8434,13 +8749,13 @@ ${errorMessage}${gasGuidance}
                                                                         children: pm25Loading ? 'LOADING...' : pm25Value !== null ? 'LIVE' : 'NO DATA'
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 998,
+                                                                        lineNumber: 1049,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 996,
+                                                                lineNumber: 1047,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8448,7 +8763,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: pm25Loading ? '...' : pm25Value !== null ? `${pm25Value.toFixed(2)} μg/m³` : 'No Data'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1002,
+                                                                lineNumber: 1053,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8456,7 +8771,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: pm25Value !== null ? pm25Value < 10 ? '✅ Good Air Quality' : pm25Value < 25 ? '⚠️ Moderate' : '❌ Unhealthy' : 'API not connected'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1005,
+                                                                lineNumber: 1056,
                                                                 columnNumber: 21
                                                             }, this),
                                                             pm25Value !== null && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8468,18 +8783,18 @@ ${errorMessage}${gasGuidance}
                                                                     }
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                    lineNumber: 1010,
+                                                                    lineNumber: 1061,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1009,
+                                                                lineNumber: 1060,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 995,
+                                                        lineNumber: 1046,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8493,7 +8808,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "🌬️ Air Quality Index"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1017,
+                                                                        lineNumber: 1068,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8501,13 +8816,13 @@ ${errorMessage}${gasGuidance}
                                                                         children: aqiLoading ? 'LOADING...' : aqiValue !== null ? 'LIVE' : 'NO DATA'
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1018,
+                                                                        lineNumber: 1069,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1016,
+                                                                lineNumber: 1067,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8515,7 +8830,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: aqiLoading ? '...' : aqiValue !== null ? `${Math.round(aqiValue)} AQI` : 'No Data'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1022,
+                                                                lineNumber: 1073,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8523,7 +8838,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: aqiValue !== null ? aqiValue <= 50 ? '✅ Good' : aqiValue <= 100 ? '⚠️ Moderate' : '❌ Unhealthy' : 'API not connected'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1025,
+                                                                lineNumber: 1076,
                                                                 columnNumber: 21
                                                             }, this),
                                                             aqiValue !== null && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8535,18 +8850,18 @@ ${errorMessage}${gasGuidance}
                                                                     }
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                    lineNumber: 1030,
+                                                                    lineNumber: 1081,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1029,
+                                                                lineNumber: 1080,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1015,
+                                                        lineNumber: 1066,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8560,7 +8875,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "🌳 Forest Coverage"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1037,
+                                                                        lineNumber: 1088,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8568,13 +8883,13 @@ ${errorMessage}${gasGuidance}
                                                                         children: forestLoading ? 'LOADING...' : forestValue !== null ? 'LIVE' : 'NO DATA'
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1038,
+                                                                        lineNumber: 1089,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1036,
+                                                                lineNumber: 1087,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8582,7 +8897,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: forestLoading ? '...' : forestValue !== null ? `${forestValue.toFixed(1)}%` : 'No Data'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1042,
+                                                                lineNumber: 1093,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8590,7 +8905,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: forestValue !== null ? forestValue > 70 ? '✅ Excellent' : forestValue > 50 ? '⚠️ Moderate' : '❌ Critical' : 'API not connected'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1045,
+                                                                lineNumber: 1096,
                                                                 columnNumber: 21
                                                             }, this),
                                                             forestValue !== null && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8602,24 +8917,24 @@ ${errorMessage}${gasGuidance}
                                                                     }
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                    lineNumber: 1050,
+                                                                    lineNumber: 1101,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1049,
+                                                                lineNumber: 1100,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1035,
+                                                        lineNumber: 1086,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 994,
+                                                lineNumber: 1045,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8627,13 +8942,13 @@ ${errorMessage}${gasGuidance}
                                                 children: "Data sourced from OpenAQ + NASA + Environmental APIs • Updates every 30 seconds"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1056,
+                                                lineNumber: 1107,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 988,
+                                        lineNumber: 1039,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8644,10 +8959,66 @@ ${errorMessage}${gasGuidance}
                                                 children: "📋 Active Environmental Commitments"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1063,
+                                                lineNumber: 1114,
                                                 columnNumber: 17
                                             }, this),
-                                            userCommitments && userCommitments.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            userCommitmentsLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "text-center py-8",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "text-purple-400 mb-2",
+                                                        children: "⏳"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                        lineNumber: 1120,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-gray-400",
+                                                        children: "Loading commitments..."
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                        lineNumber: 1121,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                lineNumber: 1119,
+                                                columnNumber: 19
+                                            }, this) : userCommitmentsError ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "text-center py-8",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "text-red-400 mb-2",
+                                                        children: "❌"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                        lineNumber: 1125,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-red-400",
+                                                        children: "Error loading commitments"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                        lineNumber: 1126,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-sm text-gray-500 mt-1",
+                                                        children: userCommitmentsError.message
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                        lineNumber: 1127,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                lineNumber: 1124,
+                                                columnNumber: 19
+                                            }, this) : userCommitments && userCommitments.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "space-y-4",
                                                 children: (()=>{
                                                     // Filter out cancelled commitments
@@ -8659,14 +9030,14 @@ ${errorMessage}${gasGuidance}
                                                             onCancel: handleCancelCommitment
                                                         }, commitmentId.toString(), false, {
                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                            lineNumber: 1075,
+                                                            lineNumber: 1137,
                                                             columnNumber: 32
                                                         }, this);
                                                     });
                                                 })()
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1068,
+                                                lineNumber: 1130,
                                                 columnNumber: 19
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "text-center py-8",
@@ -8676,7 +9047,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "🌱"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1085,
+                                                        lineNumber: 1147,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8684,7 +9055,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "No active commitments"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1086,
+                                                        lineNumber: 1148,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8692,19 +9063,84 @@ ${errorMessage}${gasGuidance}
                                                         children: "Create your first environmental commitment to get started"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1087,
+                                                        lineNumber: 1149,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "mt-4 space-x-2",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                onClick: ()=>{
+                                                                    console.log('🔄 Manual refetch of userCommitments...');
+                                                                    refetchUserCommitments();
+                                                                },
+                                                                className: "px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700",
+                                                                children: "🔄 Refresh Commitments"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                                lineNumber: 1153,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                onClick: ()=>{
+                                                                    console.log('🔍 Debug Contract Info:');
+                                                                    console.log('Contract Address:', __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].GOVERNANCE_CONTRACT);
+                                                                    console.log('Current Wallet:', address);
+                                                                    console.log('Network:', __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].NETWORK);
+                                                                    console.log('Chain ID:', __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].CHAIN_ID);
+                                                                    console.log('User Commitments:', userCommitments);
+                                                                    console.log('Total Commitments:', nextCommitmentId ? Number(nextCommitmentId) - 1 : 0);
+                                                                    // Check if there are ANY commitments on this contract
+                                                                    if (nextCommitmentId && Number(nextCommitmentId) > 1) {
+                                                                        console.log('✅ Contract HAS commitments, but none for your wallet');
+                                                                        console.log('This means commitments were created with a different wallet address');
+                                                                    } else {
+                                                                        console.log('❌ Contract has NO commitments at all');
+                                                                        console.log('You need to create commitments first');
+                                                                    }
+                                                                },
+                                                                className: "px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700",
+                                                                children: "🔍 Debug Info"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                                lineNumber: 1163,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                onClick: ()=>{
+                                                                    console.log('🔍 Full Diagnostic Info:', {
+                                                                        walletAddress: address,
+                                                                        isWalletConnected: isConnected,
+                                                                        contractAddress: __TURBOPACK__imported__module__$5b$project$5d2f$config$2f$contracts$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONTRACT_CONFIG"].GOVERNANCE_CONTRACT,
+                                                                        nextCommitmentId: nextCommitmentId?.toString(),
+                                                                        userCommitments: userCommitments,
+                                                                        userCommitmentsError: userCommitmentsError?.message,
+                                                                        testCommitment1: testCommitment1
+                                                                    });
+                                                                },
+                                                                className: "px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700",
+                                                                children: "🔍 Debug Info"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                                lineNumber: 1187,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/components/CyberpunkDashboard.tsx",
+                                                        lineNumber: 1152,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1084,
+                                                lineNumber: 1146,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1062,
+                                        lineNumber: 1113,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8715,7 +9151,7 @@ ${errorMessage}${gasGuidance}
                                                 children: "📈 Recent Activity"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1094,
+                                                lineNumber: 1210,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8734,7 +9170,7 @@ ${errorMessage}${gasGuidance}
                                                                                 className: "w-2 h-2 bg-green-400 rounded-full"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1101,
+                                                                                lineNumber: 1217,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8742,13 +9178,13 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Oracle Data Updated"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1102,
+                                                                                lineNumber: 1218,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1100,
+                                                                        lineNumber: 1216,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8756,13 +9192,13 @@ ${errorMessage}${gasGuidance}
                                                                         children: lastUpdated.toLocaleTimeString()
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1104,
+                                                                        lineNumber: 1220,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1099,
+                                                                lineNumber: 1215,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8776,13 +9212,13 @@ ${errorMessage}${gasGuidance}
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1106,
+                                                                lineNumber: 1222,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1098,
+                                                        lineNumber: 1214,
                                                         columnNumber: 21
                                                     }, this),
                                                     latestCommitment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8798,7 +9234,7 @@ ${errorMessage}${gasGuidance}
                                                                                 className: "w-2 h-2 bg-purple-400 rounded-full"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1120,
+                                                                                lineNumber: 1236,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8806,13 +9242,13 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Commitment Active"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1121,
+                                                                                lineNumber: 1237,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1119,
+                                                                        lineNumber: 1235,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8820,13 +9256,13 @@ ${errorMessage}${gasGuidance}
                                                                         children: "Monitoring"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1123,
+                                                                        lineNumber: 1239,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1118,
+                                                                lineNumber: 1234,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8837,13 +9273,13 @@ ${errorMessage}${gasGuidance}
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1125,
+                                                                lineNumber: 1241,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1117,
+                                                        lineNumber: 1233,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8859,7 +9295,7 @@ ${errorMessage}${gasGuidance}
                                                                                 className: "w-2 h-2 bg-cyan-400 rounded-full animate-pulse"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1132,
+                                                                                lineNumber: 1248,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8867,13 +9303,13 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "System Status"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1133,
+                                                                                lineNumber: 1249,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1131,
+                                                                        lineNumber: 1247,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8881,13 +9317,13 @@ ${errorMessage}${gasGuidance}
                                                                         children: pm25Value !== null || aqiValue !== null || forestValue !== null ? '✅ Online' : '⚠️ Connecting...'
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1135,
+                                                                        lineNumber: 1251,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1130,
+                                                                lineNumber: 1246,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8895,13 +9331,13 @@ ${errorMessage}${gasGuidance}
                                                                 children: pm25Value !== null || aqiValue !== null || forestValue !== null ? 'All systems operational • Blockchain connected • Oracles active' : 'Connecting to blockchain • Initializing oracles...'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1139,
+                                                                lineNumber: 1255,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1129,
+                                                        lineNumber: 1245,
                                                         columnNumber: 19
                                                     }, this),
                                                     pm25Value === null && aqiValue === null && forestValue === null && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8917,7 +9353,7 @@ ${errorMessage}${gasGuidance}
                                                                                 className: "w-2 h-2 bg-yellow-400 rounded-full animate-pulse"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1151,
+                                                                                lineNumber: 1267,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8925,13 +9361,13 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Waiting for Oracle Data"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1152,
+                                                                                lineNumber: 1268,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1150,
+                                                                        lineNumber: 1266,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8939,13 +9375,13 @@ ${errorMessage}${gasGuidance}
                                                                         children: "Initializing..."
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1154,
+                                                                        lineNumber: 1270,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1149,
+                                                                lineNumber: 1265,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8953,41 +9389,41 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Connecting to Chainlink oracles for real-time environmental data"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1156,
+                                                                lineNumber: 1272,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1148,
+                                                        lineNumber: 1264,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1095,
+                                                lineNumber: 1211,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1093,
+                                        lineNumber: 1209,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 976,
+                                lineNumber: 1027,
                                 columnNumber: 13
                             }, this),
                             activeTab === 'judge' && userRole === 'judge' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$JudgePanel$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1167,
+                                lineNumber: 1283,
                                 columnNumber: 13
                             }, this),
                             activeTab === 'achievements' && userRole === 'judge' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$AchievementTimeline$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1171,
+                                lineNumber: 1287,
                                 columnNumber: 13
                             }, this),
                             activeTab === 'old-judge' && userRole === 'judge' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9000,25 +9436,25 @@ ${errorMessage}${gasGuidance}
                                                 className: "w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1177,
+                                                lineNumber: 1293,
                                                 columnNumber: 17
                                             }, this),
                                             "Judge Panel - Manual Verification (Legacy)"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1176,
+                                        lineNumber: 1292,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$JudgePanel$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1180,
+                                        lineNumber: 1296,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1175,
+                                lineNumber: 1291,
                                 columnNumber: 13
                             }, this),
                             activeTab === 'create' && userRole === 'public_official' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9031,14 +9467,14 @@ ${errorMessage}${gasGuidance}
                                                 className: "w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1187,
+                                                lineNumber: 1303,
                                                 columnNumber: 17
                                             }, this),
                                             "Create Environmental Commitment"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1186,
+                                        lineNumber: 1302,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -9055,7 +9491,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Title"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1194,
+                                                                lineNumber: 1310,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -9070,13 +9506,13 @@ ${errorMessage}${gasGuidance}
                                                                 placeholder: "Environmental commitment title"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1195,
+                                                                lineNumber: 1311,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1193,
+                                                        lineNumber: 1309,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9086,7 +9522,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Metric Type"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1205,
+                                                                lineNumber: 1321,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -9102,7 +9538,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "🏭 PM2.5 Air Quality"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1211,
+                                                                        lineNumber: 1327,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -9110,7 +9546,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "🌬️ Air Quality Index"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1212,
+                                                                        lineNumber: 1328,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -9118,25 +9554,25 @@ ${errorMessage}${gasGuidance}
                                                                         children: "🌳 Forest Cover"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1213,
+                                                                        lineNumber: 1329,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1206,
+                                                                lineNumber: 1322,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1204,
+                                                        lineNumber: 1320,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1192,
+                                                lineNumber: 1308,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9146,7 +9582,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "Description"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1219,
+                                                        lineNumber: 1335,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -9161,13 +9597,13 @@ ${errorMessage}${gasGuidance}
                                                         placeholder: "Describe your environmental commitment..."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1220,
+                                                        lineNumber: 1336,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1218,
+                                                lineNumber: 1334,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9180,7 +9616,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Official Name"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1232,
+                                                                lineNumber: 1348,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -9195,13 +9631,13 @@ ${errorMessage}${gasGuidance}
                                                                 placeholder: "Your name"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1233,
+                                                                lineNumber: 1349,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1231,
+                                                        lineNumber: 1347,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9211,7 +9647,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Role"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1243,
+                                                                lineNumber: 1359,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -9226,19 +9662,19 @@ ${errorMessage}${gasGuidance}
                                                                 placeholder: "Your role/position"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1244,
+                                                                lineNumber: 1360,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1242,
+                                                        lineNumber: 1358,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1230,
+                                                lineNumber: 1346,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9251,7 +9687,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Target Value"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1257,
+                                                                lineNumber: 1373,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -9267,13 +9703,13 @@ ${errorMessage}${gasGuidance}
                                                                 placeholder: "Target value"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1258,
+                                                                lineNumber: 1374,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1256,
+                                                        lineNumber: 1372,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9283,7 +9719,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Deadline"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1269,
+                                                                lineNumber: 1385,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -9298,13 +9734,13 @@ ${errorMessage}${gasGuidance}
                                                                 className: "w-full bg-black/50 border border-cyan-500/30 rounded-lg p-3 text-white focus:border-cyan-400"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1270,
+                                                                lineNumber: 1386,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1268,
+                                                        lineNumber: 1384,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9314,7 +9750,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Stake (ETH)"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1280,
+                                                                lineNumber: 1396,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -9331,19 +9767,19 @@ ${errorMessage}${gasGuidance}
                                                                 placeholder: "100"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1281,
+                                                                lineNumber: 1397,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1279,
+                                                        lineNumber: 1395,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1255,
+                                                lineNumber: 1371,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9356,7 +9792,7 @@ ${errorMessage}${gasGuidance}
                                                             children: "⛽"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                            lineNumber: 1297,
+                                                            lineNumber: 1413,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9367,7 +9803,7 @@ ${errorMessage}${gasGuidance}
                                                                     children: "Transaction Cost Breakdown"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                    lineNumber: 1299,
+                                                                    lineNumber: 1415,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9381,7 +9817,7 @@ ${errorMessage}${gasGuidance}
                                                                                     children: "Stake Amount:"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                    lineNumber: 1302,
+                                                                                    lineNumber: 1418,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -9392,13 +9828,13 @@ ${errorMessage}${gasGuidance}
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                    lineNumber: 1303,
+                                                                                    lineNumber: 1419,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                            lineNumber: 1301,
+                                                                            lineNumber: 1417,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9409,7 +9845,7 @@ ${errorMessage}${gasGuidance}
                                                                                     children: "Estimated Gas Fee:"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                    lineNumber: 1306,
+                                                                                    lineNumber: 1422,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -9417,13 +9853,13 @@ ${errorMessage}${gasGuidance}
                                                                                     children: "~0.004 ETH (~$10.00)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                    lineNumber: 1307,
+                                                                                    lineNumber: 1423,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                            lineNumber: 1305,
+                                                                            lineNumber: 1421,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9434,7 +9870,7 @@ ${errorMessage}${gasGuidance}
                                                                                     children: "Total Cost:"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                    lineNumber: 1310,
+                                                                                    lineNumber: 1426,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -9445,19 +9881,19 @@ ${errorMessage}${gasGuidance}
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                    lineNumber: 1311,
+                                                                                    lineNumber: 1427,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                            lineNumber: 1309,
+                                                                            lineNumber: 1425,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                    lineNumber: 1300,
+                                                                    lineNumber: 1416,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9468,7 +9904,7 @@ ${errorMessage}${gasGuidance}
                                                                             children: "Gas fees"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                            lineNumber: 1315,
+                                                                            lineNumber: 1431,
                                                                             columnNumber: 28
                                                                         }, this),
                                                                         " are paid to Ethereum network validators and cannot be refunded. Your ",
@@ -9476,13 +9912,13 @@ ${errorMessage}${gasGuidance}
                                                                             children: "stake will be returned with 50% bonus (150% total)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                            lineNumber: 1316,
+                                                                            lineNumber: 1432,
                                                                             columnNumber: 30
                                                                         }, this),
                                                                         " if environmental target is achieved.",
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                            lineNumber: 1317,
+                                                                            lineNumber: 1433,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         "⚡ This transaction calls ",
@@ -9490,31 +9926,31 @@ ${errorMessage}${gasGuidance}
                                                                             children: "CivicXChainGovernance.createCommitment()"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                            lineNumber: 1317,
+                                                                            lineNumber: 1433,
                                                                             columnNumber: 55
                                                                         }, this),
                                                                         " with your ETH stake."
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                    lineNumber: 1314,
+                                                                    lineNumber: 1430,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                            lineNumber: 1298,
+                                                            lineNumber: 1414,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                    lineNumber: 1296,
+                                                    lineNumber: 1412,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1295,
+                                                lineNumber: 1411,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -9528,36 +9964,36 @@ ${errorMessage}${gasGuidance}
                                                             className: "animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                            lineNumber: 1330,
+                                                            lineNumber: 1446,
                                                             columnNumber: 23
                                                         }, this),
                                                         "Creating Commitment..."
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                    lineNumber: 1329,
+                                                    lineNumber: 1445,
                                                     columnNumber: 21
                                                 }, this) : '🚀 Create Commitment'
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1323,
+                                                lineNumber: 1439,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1191,
+                                        lineNumber: 1307,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1185,
+                                lineNumber: 1301,
                                 columnNumber: 13
                             }, this),
                             activeTab === 'social' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$PublicOfficialSocialFeed$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1342,
+                                lineNumber: 1458,
                                 columnNumber: 13
                             }, this),
                             activeTab === 'track' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9570,35 +10006,30 @@ ${errorMessage}${gasGuidance}
                                                 className: "w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1348,
+                                                lineNumber: 1464,
                                                 columnNumber: 17
                                             }, this),
-                                            "Citizen Social Feed"
+                                            "Social Feed"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1347,
+                                        lineNumber: 1463,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$JudgeSocialFeed$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1353,
+                                        lineNumber: 1469,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1346,
+                                lineNumber: 1462,
                                 columnNumber: 13
                             }, this),
                             activeTab === 'rewards' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$PublicOfficialRewards$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1359,
-                                columnNumber: 13
-                            }, this),
-                            activeTab === 'rewards' && userRole === 'citizen' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$PublicOfficialRewards$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
-                                fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1363,
+                                lineNumber: 1475,
                                 columnNumber: 13
                             }, this),
                             activeTab === 'projects' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9611,14 +10042,14 @@ ${errorMessage}${gasGuidance}
                                                 className: "w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1369,
+                                                lineNumber: 1481,
                                                 columnNumber: 17
                                             }, this),
                                             "Environmental Projects"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1368,
+                                        lineNumber: 1480,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9629,7 +10060,7 @@ ${errorMessage}${gasGuidance}
                                                 children: "🌱 Available Environmental Projects"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1375,
+                                                lineNumber: 1487,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9643,7 +10074,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "🌳 Tree Planting Initiative"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1381,
+                                                                lineNumber: 1493,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -9651,7 +10082,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Plant trees in designated urban areas to improve air quality"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1382,
+                                                                lineNumber: 1494,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9664,7 +10095,7 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Reward:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1385,
+                                                                                lineNumber: 1497,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -9672,13 +10103,13 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "0.05 ETH per tree"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1386,
+                                                                                lineNumber: 1498,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1384,
+                                                                        lineNumber: 1496,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9688,26 +10119,26 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Verification:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1389,
+                                                                                lineNumber: 1501,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                 children: "Photo + GPS location"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1390,
+                                                                                lineNumber: 1502,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1388,
+                                                                        lineNumber: 1500,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1383,
+                                                                lineNumber: 1495,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -9715,13 +10146,13 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Select Project"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1393,
+                                                                lineNumber: 1505,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1380,
+                                                        lineNumber: 1492,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9732,7 +10163,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "♻️ Waste Cleanup"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1399,
+                                                                lineNumber: 1511,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -9740,7 +10171,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Clean up plastic waste from rivers and beaches"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1400,
+                                                                lineNumber: 1512,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9753,7 +10184,7 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Reward:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1403,
+                                                                                lineNumber: 1515,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -9761,13 +10192,13 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "0.03 ETH per kg"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1404,
+                                                                                lineNumber: 1516,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1402,
+                                                                        lineNumber: 1514,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9777,26 +10208,26 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Verification:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1407,
+                                                                                lineNumber: 1519,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                 children: "Photo + weight proof"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1408,
+                                                                                lineNumber: 1520,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1406,
+                                                                        lineNumber: 1518,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1401,
+                                                                lineNumber: 1513,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -9804,13 +10235,13 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Select Project"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1411,
+                                                                lineNumber: 1523,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1398,
+                                                        lineNumber: 1510,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9821,7 +10252,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "🔋 Energy Conservation"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1417,
+                                                                lineNumber: 1529,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -9829,7 +10260,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Reduce household energy consumption by 20%"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1418,
+                                                                lineNumber: 1530,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9842,7 +10273,7 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Reward:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1421,
+                                                                                lineNumber: 1533,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -9850,13 +10281,13 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "0.1 ETH monthly"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1422,
+                                                                                lineNumber: 1534,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1420,
+                                                                        lineNumber: 1532,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9866,26 +10297,26 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Verification:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1425,
+                                                                                lineNumber: 1537,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                 children: "Utility bill comparison"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1426,
+                                                                                lineNumber: 1538,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1424,
+                                                                        lineNumber: 1536,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1419,
+                                                                lineNumber: 1531,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -9893,13 +10324,13 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Select Project"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1429,
+                                                                lineNumber: 1541,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1416,
+                                                        lineNumber: 1528,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9910,7 +10341,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "🚲 Sustainable Transport"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1435,
+                                                                lineNumber: 1547,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -9918,7 +10349,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Use bike or public transport instead of car"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1436,
+                                                                lineNumber: 1548,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9931,7 +10362,7 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Reward:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1439,
+                                                                                lineNumber: 1551,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -9939,13 +10370,13 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "0.02 ETH per day"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1440,
+                                                                                lineNumber: 1552,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1438,
+                                                                        lineNumber: 1550,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9955,26 +10386,26 @@ ${errorMessage}${gasGuidance}
                                                                                 children: "Verification:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1443,
+                                                                                lineNumber: 1555,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                 children: "GPS tracking app"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                                lineNumber: 1444,
+                                                                                lineNumber: 1556,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1442,
+                                                                        lineNumber: 1554,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1437,
+                                                                lineNumber: 1549,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -9982,25 +10413,25 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Select Project"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1447,
+                                                                lineNumber: 1559,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1434,
+                                                        lineNumber: 1546,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1379,
+                                                lineNumber: 1491,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1374,
+                                        lineNumber: 1486,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10011,7 +10442,7 @@ ${errorMessage}${gasGuidance}
                                                 children: "📋 My Selected Projects"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1456,
+                                                lineNumber: 1568,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10022,7 +10453,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "🎯"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1458,
+                                                        lineNumber: 1570,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -10030,7 +10461,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "No projects selected yet"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1459,
+                                                        lineNumber: 1571,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -10038,25 +10469,25 @@ ${errorMessage}${gasGuidance}
                                                         children: "Choose a project above to get started"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1460,
+                                                        lineNumber: 1572,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1457,
+                                                lineNumber: 1569,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1455,
+                                        lineNumber: 1567,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1367,
+                                lineNumber: 1479,
                                 columnNumber: 13
                             }, this),
                             activeTab === 'submit' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10069,14 +10500,14 @@ ${errorMessage}${gasGuidance}
                                                 className: "w-2 h-2 bg-blue-400 rounded-full mr-3 animate-pulse"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1469,
+                                                lineNumber: 1581,
                                                 columnNumber: 17
                                             }, this),
                                             "Submit Proof for Verification"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1468,
+                                        lineNumber: 1580,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10087,7 +10518,7 @@ ${errorMessage}${gasGuidance}
                                                 children: "📸 Submit Evidence for Judge Approval"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1475,
+                                                lineNumber: 1587,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10100,7 +10531,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Select Project"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1481,
+                                                                lineNumber: 1593,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -10111,7 +10542,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "Choose your project..."
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1485,
+                                                                        lineNumber: 1597,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -10119,7 +10550,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "🌳 Tree Planting Initiative"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1486,
+                                                                        lineNumber: 1598,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -10127,7 +10558,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "♻️ Waste Cleanup"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1487,
+                                                                        lineNumber: 1599,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -10135,7 +10566,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "🔋 Energy Conservation"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1488,
+                                                                        lineNumber: 1600,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -10143,19 +10574,19 @@ ${errorMessage}${gasGuidance}
                                                                         children: "🚲 Sustainable Transport"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1489,
+                                                                        lineNumber: 1601,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1484,
+                                                                lineNumber: 1596,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1480,
+                                                        lineNumber: 1592,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10165,7 +10596,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Upload Evidence Photos"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1494,
+                                                                lineNumber: 1606,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10176,7 +10607,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "📷"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1498,
+                                                                        lineNumber: 1610,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -10184,7 +10615,7 @@ ${errorMessage}${gasGuidance}
                                                                         children: "Drag and drop photos here, or click to browse"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1499,
+                                                                        lineNumber: 1611,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -10194,7 +10625,7 @@ ${errorMessage}${gasGuidance}
                                                                         className: "hidden"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1500,
+                                                                        lineNumber: 1612,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -10202,19 +10633,19 @@ ${errorMessage}${gasGuidance}
                                                                         children: "Choose Files"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                        lineNumber: 1501,
+                                                                        lineNumber: 1613,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1497,
+                                                                lineNumber: 1609,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1493,
+                                                        lineNumber: 1605,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10224,7 +10655,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Description"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1508,
+                                                                lineNumber: 1620,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -10232,13 +10663,13 @@ ${errorMessage}${gasGuidance}
                                                                 placeholder: "Describe your environmental action and provide any additional details..."
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1511,
+                                                                lineNumber: 1623,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1507,
+                                                        lineNumber: 1619,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10248,7 +10679,7 @@ ${errorMessage}${gasGuidance}
                                                                 children: "Location (Optional)"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1518,
+                                                                lineNumber: 1630,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -10257,13 +10688,13 @@ ${errorMessage}${gasGuidance}
                                                                 placeholder: "Enter location or GPS coordinates"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                                lineNumber: 1521,
+                                                                lineNumber: 1633,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1517,
+                                                        lineNumber: 1629,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -10271,19 +10702,19 @@ ${errorMessage}${gasGuidance}
                                                         children: "Submit for Judge Verification"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1528,
+                                                        lineNumber: 1640,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1479,
+                                                lineNumber: 1591,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1474,
+                                        lineNumber: 1586,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10294,7 +10725,7 @@ ${errorMessage}${gasGuidance}
                                                 children: "⏳ Pending Verifications"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1536,
+                                                lineNumber: 1648,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10305,7 +10736,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "📋"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1538,
+                                                        lineNumber: 1650,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -10313,7 +10744,7 @@ ${errorMessage}${gasGuidance}
                                                         children: "No pending submissions"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1539,
+                                                        lineNumber: 1651,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -10321,37 +10752,37 @@ ${errorMessage}${gasGuidance}
                                                         children: "Submit proof above to get started"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                        lineNumber: 1540,
+                                                        lineNumber: 1652,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1537,
+                                                lineNumber: 1649,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1535,
+                                        lineNumber: 1647,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1467,
+                                lineNumber: 1579,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                        lineNumber: 974,
+                        lineNumber: 1025,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                lineNumber: 954,
+                lineNumber: 1005,
                 columnNumber: 7
             }, this),
             showSuccessModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10366,7 +10797,7 @@ ${errorMessage}${gasGuidance}
                                 children: "🎉"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1553,
+                                lineNumber: 1665,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -10374,7 +10805,7 @@ ${errorMessage}${gasGuidance}
                                 children: "Commitment Created Successfully!"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1554,
+                                lineNumber: 1666,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10386,12 +10817,12 @@ ${errorMessage}${gasGuidance}
                                             children: "Transaction Hash:"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                            lineNumber: 1557,
+                                            lineNumber: 1669,
                                             columnNumber: 20
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1557,
+                                        lineNumber: 1669,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -10399,7 +10830,7 @@ ${errorMessage}${gasGuidance}
                                         children: createHash
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1558,
+                                        lineNumber: 1670,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -10409,7 +10840,7 @@ ${errorMessage}${gasGuidance}
                                                 children: "Commitment ID:"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1560,
+                                                lineNumber: 1672,
                                                 columnNumber: 20
                                             }, this),
                                             " ",
@@ -10417,7 +10848,7 @@ ${errorMessage}${gasGuidance}
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1560,
+                                        lineNumber: 1672,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10428,7 +10859,7 @@ ${errorMessage}${gasGuidance}
                                                 children: "✅ Synced to backend for judge verification"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1563,
+                                                lineNumber: 1675,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -10436,58 +10867,64 @@ ${errorMessage}${gasGuidance}
                                                 children: "Check the Track Status tab to see your new commitment."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                                lineNumber: 1564,
+                                                lineNumber: 1676,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                        lineNumber: 1562,
+                                        lineNumber: 1674,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1556,
+                                lineNumber: 1668,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                onClick: ()=>setShowSuccessModal(false),
+                                onClick: ()=>{
+                                    setShowSuccessModal(false);
+                                    // Refresh commitments one more time when user closes modal
+                                    console.log('🔄 Final refresh when closing success modal...');
+                                    refetchUserCommitments();
+                                },
                                 className: "px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all",
                                 children: "OK"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                                lineNumber: 1568,
+                                lineNumber: 1680,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                        lineNumber: 1552,
+                        lineNumber: 1664,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                    lineNumber: 1551,
+                    lineNumber: 1663,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-                lineNumber: 1550,
+                lineNumber: 1662,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/CyberpunkDashboard.tsx",
-        lineNumber: 843,
+        lineNumber: 894,
         columnNumber: 5
     }, this);
 }
-_s1(CyberpunkDashboard, "0YIIxkltXgsCXatFpDMg49DgUy4=", false, function() {
+_s1(CyberpunkDashboard, "Y4ejFfrKYKQADcuXIgEjJucXbFU=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useAccount$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAccount"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useChainId$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChainId"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useBalance$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useBalance"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useReadContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useReadContract"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useReadContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useReadContract"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useReadContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useReadContract"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$wagmi$2f$dist$2f$esm$2f$hooks$2f$useReadContract$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useReadContract"],
@@ -11055,72 +11492,10 @@ function OracleDataDisplay({ className = '' }) {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         className: "text-lg",
-                                        children: "🏭"
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                        lineNumber: 122,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "text-sm text-gray-300",
-                                        children: "CO2 Levels"
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                        lineNumber: 123,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                lineNumber: 121,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "text-right",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "text-orange-400 font-mono text-sm",
-                                        children: [
-                                            oracleData.co2.value !== null ? oracleData.co2.value.toFixed(1) : '--',
-                                            " ppm"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                        lineNumber: 126,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "text-xs text-gray-400",
-                                        children: oracleData.co2.status === 'live' ? '✅ Live' : '❌ Error'
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                        lineNumber: 129,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                lineNumber: 125,
-                                columnNumber: 11
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                        lineNumber: 120,
-                        columnNumber: 9
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "flex items-center justify-between",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "flex items-center space-x-2",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "text-lg",
                                         children: "🌳"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                        lineNumber: 138,
+                                        lineNumber: 124,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -11128,13 +11503,13 @@ function OracleDataDisplay({ className = '' }) {
                                         children: "Forest Cover"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                        lineNumber: 139,
+                                        lineNumber: 125,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                lineNumber: 137,
+                                lineNumber: 123,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -11148,7 +11523,7 @@ function OracleDataDisplay({ className = '' }) {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                        lineNumber: 142,
+                                        lineNumber: 128,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -11156,19 +11531,19 @@ function OracleDataDisplay({ className = '' }) {
                                         children: oracleData.forestCover.status === 'live' ? '✅ Live' : '❌ Error'
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                        lineNumber: 145,
+                                        lineNumber: 131,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                                lineNumber: 141,
+                                lineNumber: 127,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                        lineNumber: 136,
+                        lineNumber: 122,
                         columnNumber: 9
                     }, this)
                 ]
@@ -11186,7 +11561,7 @@ function OracleDataDisplay({ className = '' }) {
                             children: "Data sourced from Chainlink Oracles"
                         }, void 0, false, {
                             fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                            lineNumber: 154,
+                            lineNumber: 140,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -11195,18 +11570,18 @@ function OracleDataDisplay({ className = '' }) {
                             children: "🔄 Refresh"
                         }, void 0, false, {
                             fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                            lineNumber: 155,
+                            lineNumber: 141,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                    lineNumber: 153,
+                    lineNumber: 139,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/OracleDataDisplay.tsx",
-                lineNumber: 152,
+                lineNumber: 138,
                 columnNumber: 7
             }, this)
         ]
