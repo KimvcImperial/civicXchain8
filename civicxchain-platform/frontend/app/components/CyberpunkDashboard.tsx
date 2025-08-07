@@ -7,7 +7,7 @@ import { mainnet } from 'viem/chains';
 import { CHAINLINK_AGGREGATOR_ABI } from '../../config/contracts';
 import { CONTRACT_CONFIG } from '../../config/contracts';
 import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi';
-// Using CIVIC_GOVERNANCE_ABI imported above for all governance functions
+// Using CIVIC_GOVERNANCE_ABI consistently for ALL contract calls
 import AchievementTimeline from './AchievementTimeline';
 import JudgePanel from './JudgePanel';
 import JudgeSocialFeed from './JudgeSocialFeed';
@@ -26,7 +26,7 @@ import RoleBasedLogin, { UserRole } from './RoleBasedLogin';
 function CommitmentCard({ commitmentId, onCancel }: { commitmentId: bigint, onCancel?: (id: bigint) => void }) {
   const { data: commitment } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'getCommitment',
     args: [commitmentId],
   });
@@ -131,6 +131,7 @@ export default function CyberpunkDashboard() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   // Create mainnet client for Chainlink oracles
   const mainnetClient = createPublicClient({
@@ -163,13 +164,13 @@ export default function CyberpunkDashboard() {
   // Read contract data with refetch capability
   const { data: nextCommitmentId, refetch: refetchCommitmentId } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'nextCommitmentId',
   });
 
   const { data: userCommitments, refetch: refetchUserCommitments, error: userCommitmentsError, isLoading: userCommitmentsLoading } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'getOfficialCommitments',
     args: [address as `0x${string}`],
     query: {
@@ -190,7 +191,10 @@ export default function CyberpunkDashboard() {
       // Additional debugging
       userCommitmentsRaw: userCommitments,
       userCommitmentsType: typeof userCommitments,
-      userCommitmentsIsArray: Array.isArray(userCommitments)
+      userCommitmentsIsArray: Array.isArray(userCommitments),
+      // Expected data from our test
+      expectedAddress: '0xE46f6d0f815497fb6b64aD75c5020FD93bc72e57',
+      addressMatch: address?.toLowerCase() === '0xE46f6d0f815497fb6b64aD75c5020FD93bc72e57'.toLowerCase()
     });
 
     // If there's an error, log it in detail
@@ -201,6 +205,14 @@ export default function CyberpunkDashboard() {
         stack: userCommitmentsError.stack
       });
     }
+
+    // Log success case too
+    if (userCommitments && Array.isArray(userCommitments) && userCommitments.length > 0) {
+      console.log('✅ UserCommitments SUCCESS:', {
+        count: userCommitments.length,
+        commitmentIds: userCommitments.map(id => id.toString())
+      });
+    }
   }, [address, isConnected, userCommitments, userCommitmentsError, userCommitmentsLoading]);
 
   // Get the latest commitment (if any exist) - nextCommitmentId - 1 is the current highest id
@@ -209,7 +221,7 @@ export default function CyberpunkDashboard() {
 
   const { data: latestCommitment, refetch: refetchLatestCommitment } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'getCommitment',
     args: latestCommitmentId ? [latestCommitmentId] : undefined,
     query: {
@@ -220,7 +232,7 @@ export default function CyberpunkDashboard() {
   // Test fetching commitment ID 1 if it exists
   const { data: testCommitment1 } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'getCommitment',
     args: [1n],
     query: {
@@ -675,32 +687,80 @@ ${errorMessage}${gasGuidance}
     const idToCancel = commitmentId || latestCommitmentId;
     if (!idToCancel) return;
 
-    // Confirm local deletion
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this commitment?\n\n' +
-      '⚠️ This will remove it from the display only (no blockchain transaction).\n' +
-      '🔄 The commitment will still exist on the blockchain.\n\n' +
-      'This action can be undone by refreshing the page.'
-    );
+    // Check if this is a recently created commitment (within last 5 minutes)
+    const commitmentAge = Date.now() - (Number(idToCancel) * 60000); // Rough estimate
+    const isRecentlyCreated = commitmentAge < 5 * 60 * 1000; // 5 minutes
+
+    // Enhanced confirmation for PERMANENT cancellation
+    let confirmMessage = '🗑️ PERMANENTLY delete this commitment from display?\n\n' +
+      '⚠️ This will PERMANENTLY hide it from your dashboard.\n' +
+      '🔄 The commitment will still exist on the blockchain.\n' +
+      '💾 This setting will persist across browser restarts.\n\n';
+
+    if (isRecentlyCreated) {
+      confirmMessage += '🆕 This appears to be a recently created commitment!\n' +
+        'Are you sure you want to permanently hide it so soon?\n\n';
+    }
+
+    confirmMessage += '⚠️ This action is permanent and cannot be easily undone.';
+
+    const confirmed = window.confirm(confirmMessage);
 
     if (!confirmed) return;
 
     try {
       console.log('🗑️ Deleting commitment locally:', idToCancel.toString());
 
-      // Mark as cancelled in localStorage (same as other components)
-      const cancelled = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
-      cancelled[idToCancel.toString()] = {
+      // PERMANENT CANCELLATION: Mark as permanently cancelled with robust storage
+      const STORAGE_KEY = 'civicxchain_permanently_cancelled_commitments';
+      let cancelled = {};
+
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          cancelled = JSON.parse(stored);
+        }
+      } catch (parseError) {
+        console.warn('⚠️ Error parsing cancelled commitments, starting fresh:', parseError);
+        cancelled = {};
+      }
+
+      const commitmentId = idToCancel.toString();
+      cancelled[commitmentId] = {
         cancelled: true,
         timestamp: Date.now(),
-        reason: 'Dashboard deleted'
+        reason: 'User deleted from dashboard',
+        id: Number(idToCancel),
+        permanentlyHidden: true
       };
-      localStorage.setItem('cancelledCommitments', JSON.stringify(cancelled));
 
-      // Refresh the page to update the display
-      setTimeout(() => window.location.reload(), 100);
+      // Save to localStorage with error handling
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cancelled));
+        console.log(`✅ Commitment ${commitmentId} PERMANENTLY cancelled and persisted to storage`);
+
+        // Also save to sessionStorage as backup
+        try {
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(cancelled));
+        } catch (sessionError) {
+          console.warn('Could not save to sessionStorage backup');
+        }
+
+      } catch (storageError) {
+        console.error('❌ Failed to save cancelled commitment:', storageError);
+        alert('Warning: Could not permanently save cancellation. It may reappear after refresh.');
+      }
+
+      // Force component re-render instead of full page reload for better stability
+      setForceUpdate(prev => prev + 1);
+
+      // Also trigger a small delay to ensure state updates
+      setTimeout(() => {
+        setForceUpdate(prev => prev + 1);
+      }, 100);
+
     } catch (err) {
-      console.error('Error deleting commitment locally:', err);
+      console.error('❌ Error deleting commitment locally:', err);
       alert('Error deleting commitment: ' + (err as Error).message);
     }
   };
@@ -1127,82 +1187,102 @@ ${errorMessage}${gasGuidance}
                     <p className="text-sm text-gray-500 mt-1">{userCommitmentsError.message}</p>
                   </div>
                 ) : userCommitments && userCommitments.length > 0 ? (
-                  <div className="space-y-4">
-                    {(() => {
-                      // Filter out cancelled commitments
-                      const cancelledCommitments = JSON.parse(localStorage.getItem('cancelledCommitments') || '{}');
-                      const activeCommitments = userCommitments.filter(id => !cancelledCommitments[id.toString()]?.cancelled);
+                  (() => {
+                    // PERMANENT PERSISTENCE: Load cancelled commitments with multiple fallbacks
+                    let cancelledCommitments = {};
+                    const STORAGE_KEY = 'civicxchain_permanently_cancelled_commitments';
 
-                      return activeCommitments.slice(-3).reverse().map((commitmentId) => {
-                        return <CommitmentCard
-                          key={commitmentId.toString()}
-                          commitmentId={commitmentId}
-                          onCancel={handleCancelCommitment}
-                        />;
-                      });
-                    })()}
-                  </div>
+                    try {
+                      // Try localStorage first (primary storage)
+                      let stored = localStorage.getItem(STORAGE_KEY);
+                      if (!stored) {
+                        // Fallback to old key for migration
+                        stored = localStorage.getItem('cancelledCommitments');
+                        if (stored) {
+                          // Migrate to new key
+                          localStorage.setItem(STORAGE_KEY, stored);
+                          localStorage.removeItem('cancelledCommitments');
+                        }
+                      }
+
+                      if (stored) {
+                        cancelledCommitments = JSON.parse(stored);
+                        console.log('📂 Loaded permanently cancelled commitments:', Object.keys(cancelledCommitments).length, 'entries');
+                      }
+                    } catch (error) {
+                      console.warn('⚠️ Error reading cancelled commitments, starting fresh:', error);
+                      // Clear corrupted data but don't lose everything
+                      try {
+                        localStorage.removeItem(STORAGE_KEY);
+                        localStorage.removeItem('cancelledCommitments');
+                      } catch (e) {
+                        console.warn('Could not clear corrupted storage');
+                      }
+                    }
+
+                    // Filter out PERMANENTLY cancelled commitments
+                    const activeCommitments = userCommitments.filter(id => {
+                      const commitmentId = id.toString();
+                      const isCancelled = cancelledCommitments[commitmentId]?.cancelled === true;
+
+                      if (isCancelled) {
+                        console.log(`🚫 Commitment ${commitmentId} is permanently cancelled - hiding from display`);
+                      }
+
+                      return !isCancelled;
+                    });
+
+                    console.log('🔍 Commitment filtering debug:');
+                    console.log('userCommitments:', userCommitments);
+                    console.log('cancelledCommitments:', cancelledCommitments);
+                    console.log('activeCommitments:', activeCommitments);
+                    console.log('activeCommitments length:', activeCommitments.length);
+
+                    // Enhanced debugging for new commitment detection with PERMANENT storage
+                    if (userCommitments && userCommitments.length > 0) {
+                      const latestCommitmentId = userCommitments[userCommitments.length - 1];
+                      const isLatestCancelled = cancelledCommitments[latestCommitmentId.toString()]?.cancelled;
+                      console.log('🆕 Latest commitment analysis (PERMANENT STORAGE):');
+                      console.log('  - Latest ID:', latestCommitmentId.toString());
+                      console.log('  - Is permanently cancelled:', isLatestCancelled);
+                      console.log('  - Should be active:', !isLatestCancelled);
+                      console.log('  - Total permanently cancelled:', Object.keys(cancelledCommitments).length);
+                      console.log('  - Storage key: civicxchain_permanently_cancelled_commitments');
+                    }
+
+                    if (activeCommitments.length === 0) {
+                      return (
+                        <div className="text-center py-8">
+                          <div className="text-4xl mb-4">🌱</div>
+                          <p className="text-gray-400 mb-2">No active commitments</p>
+                          <p className="text-sm text-gray-500">All commitments have been cancelled. Create a new environmental commitment to get started</p>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="space-y-4">
+                        {activeCommitments.slice(-3).reverse().map((commitmentId) => {
+                          return <CommitmentCard
+                            key={commitmentId.toString()}
+                            commitmentId={commitmentId}
+                            onCancel={handleCancelCommitment}
+                          />;
+                        })}
+                      </div>
+                    );
+                  })()
                 ) : (
                   <div className="text-center py-8">
                     <div className="text-4xl mb-4">🌱</div>
                     <p className="text-gray-400 mb-2">No active commitments</p>
                     <p className="text-sm text-gray-500">Create your first environmental commitment to get started</p>
 
-                    {/* Debug buttons to manually test contract calls */}
-                    <div className="mt-4 space-x-2">
-                      <button
-                        onClick={() => {
-                          console.log('🔄 Manual refetch of userCommitments...');
-                          refetchUserCommitments();
-                        }}
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700"
-                      >
-                        🔄 Refresh Commitments
-                      </button>
 
-                      <button
-                        onClick={() => {
-                          console.log('🔍 Debug Contract Info:');
-                          console.log('Contract Address:', CONTRACT_CONFIG.GOVERNANCE_CONTRACT);
-                          console.log('Current Wallet:', address);
-                          console.log('Network:', CONTRACT_CONFIG.NETWORK);
-                          console.log('Chain ID:', CONTRACT_CONFIG.CHAIN_ID);
-                          console.log('User Commitments:', userCommitments);
-                          console.log('Total Commitments:', nextCommitmentId ? Number(nextCommitmentId) - 1 : 0);
-
-                          // Check if there are ANY commitments on this contract
-                          if (nextCommitmentId && Number(nextCommitmentId) > 1) {
-                            console.log('✅ Contract HAS commitments, but none for your wallet');
-                            console.log('This means commitments were created with a different wallet address');
-                          } else {
-                            console.log('❌ Contract has NO commitments at all');
-                            console.log('You need to create commitments first');
-                          }
-                        }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
-                      >
-                        🔍 Debug Info
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          console.log('🔍 Full Diagnostic Info:', {
-                            walletAddress: address,
-                            isWalletConnected: isConnected,
-                            contractAddress: CONTRACT_CONFIG.GOVERNANCE_CONTRACT,
-                            nextCommitmentId: nextCommitmentId?.toString(),
-                            userCommitments: userCommitments,
-                            userCommitmentsError: userCommitmentsError?.message,
-                            testCommitment1: testCommitment1
-                          });
-                        }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
-                      >
-                        🔍 Debug Info
-                      </button>
-                    </div>
                   </div>
                 )}
+
+
               </div>
 
               {/* Recent Activity Feed */}

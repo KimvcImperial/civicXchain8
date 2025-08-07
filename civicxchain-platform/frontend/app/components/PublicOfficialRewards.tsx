@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount, useBalance } from 'wagmi';
-import { CONTRACT_CONFIG, CIVIC_CONTRACT_ABI } from '../../config/contracts';
+import { CONTRACT_CONFIG } from '../../config/contracts';
+import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi';
 
 // Transaction status tracking interface
 interface TransactionStatus {
@@ -99,7 +100,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
   // Check fulfillment status directly from blockchain (oracle-based verification)
   const { data: fulfillmentData } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'checkFulfillment',
     args: [commitmentId],
   });
@@ -107,7 +108,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
   // Get REAL commitment data from blockchain - USE GOVERNANCE_CONTRACT
   const { data: commitment } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`, // USE GOVERNANCE_CONTRACT
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'getCommitment',
     args: [commitmentId],
   });
@@ -115,7 +116,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
   // Check fulfillment status using the contract's checkFulfillment function (MOVED UP TO AVOID HOOKS RULE VIOLATION)
   const { data: fulfillmentStatus } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'checkFulfillment',
     args: [commitmentId],
   });
@@ -291,7 +292,7 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
 
       await writeContract({
         address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-        abi: CIVIC_CONTRACT_ABI,
+        abi: CIVIC_GOVERNANCE_ABI,
         functionName: 'claimEnvironmentalReward',
         args: [commitmentId],
       });
@@ -540,7 +541,7 @@ export default function PublicOfficialRewards() {
   // Get commitments for the connected wallet ONLY (not all commitments)
   const { data: userCommitmentIds } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'getOfficialCommitments',
     args: [address as `0x${string}`],
     query: {
@@ -566,7 +567,7 @@ export default function PublicOfficialRewards() {
   // Get total commitment count for comparison
   const { data: totalCommitmentId } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'nextCommitmentId',
   });
 

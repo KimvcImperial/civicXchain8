@@ -2,21 +2,22 @@
 
 import { useState } from 'react';
 import { useReadContract } from 'wagmi';
-import { CONTRACT_CONFIG, CIVIC_CONTRACT_ABI } from '../../config/contracts';
+import { CONTRACT_CONFIG } from '../../config/contracts';
+import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi';
 
 // Simple component to show ALL commitments from the blockchain
 function CommitmentCard({ commitmentId }: { commitmentId: bigint }) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const { data: commitment } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'getCommitment',
     args: [commitmentId],
   });
 
   const { data: fulfillmentStatus } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'checkFulfillment',
     args: [commitmentId],
   });
@@ -165,7 +166,7 @@ export default function UnifiedCommitmentViewer() {
   // Get total commitments from the GOVERNANCE_CONTRACT
   const { data: allCommitmentIds } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'nextCommitmentId',
   });
 

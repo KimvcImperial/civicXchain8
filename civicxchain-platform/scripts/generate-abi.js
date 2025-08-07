@@ -33,11 +33,11 @@ function generateABI() {
 
 export const CIVIC_COMMITMENT_ABI = ${JSON.stringify(abi, null, 2)} as const;
 
-// Contract addresses (update these when deploying)
+// Contract addresses (Sepolia deployment)
 export const CONTRACT_ADDRESSES = {
-  CIVIC_COMMITMENT: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // Update this after deployment
-  CHAIN_ID: 31337,
-  RPC_URL: 'http://localhost:8545'
+  CIVIC_COMMITMENT: '0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4', // Sepolia deployment
+  CHAIN_ID: 11155111,
+  RPC_URL: 'https://eth-sepolia.public.blastapi.io'
 } as const;
 `;
     

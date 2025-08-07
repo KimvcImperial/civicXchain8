@@ -13,23 +13,9 @@ module.exports = {
     }
   },
   networks: {
-    localhost: {
-      url: "http://127.0.0.1:8545",
-      chainId: 31337
-    },
-    hardhat: {
-      chainId: 31337,
-      // Enable state persistence
-      saveDeployments: true,
-      // Use a persistent data directory
-      mining: {
-        auto: true,
-        interval: 0
-      }
-    },
     // Sepolia testnet - PERMANENT persistence!
     sepolia: {
-      url: "https://sepolia.infura.io/v3/demo", // Public RPC - replace with your own for better reliability
+      url: "https://eth-sepolia.public.blastapi.io", // Public RPC endpoint
       chainId: 11155111,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: 20000000000, // 20 gwei

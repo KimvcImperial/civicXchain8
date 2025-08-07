@@ -460,9 +460,9 @@ export const CIVIC_COMMITMENT_ABI = [
   }
 ] as const;
 
-// Contract addresses (update these when deploying)
+// Contract addresses (Sepolia deployment only)
 export const CONTRACT_ADDRESSES = {
-  CIVIC_COMMITMENT: '0x5651E7F2E503dEB45E2D527bB383E2CDc68A1C78', // Sepolia deployment
+  CIVIC_COMMITMENT: '0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4', // Sepolia deployment
   CHAIN_ID: 11155111,
   RPC_URL: 'https://eth-sepolia.public.blastapi.io'
 } as const;

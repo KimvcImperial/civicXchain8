@@ -111,12 +111,11 @@ class ActiveCommitment(BaseModel):
     reward_claimed: bool
     progress_percentage: float
 
-# Contract addresses - UPDATE THESE WITH YOUR DEPLOYED CONTRACT ADDRESSES!
-# Replace the addresses below with the ones from your 'npm run deploy' output
+# Contract addresses - SEPOLIA TESTNET DEPLOYMENT
 CONTRACT_ADDRESSES = {
-    "commitment": "0x5FbDB2315678afecb367f032d93F642f64180aa3",  # CivicCommitmentContract
-    "environmental": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",  # EnvironmentalDataContract
-    "reward_nft": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",  # RewardNFTContract
+    "commitment": "0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4",  # CivicCommitmentContract (Sepolia)
+    "environmental": "0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD",  # EnvironmentalDataContract (Sepolia)
+    "reward_nft": "0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4",  # RewardNFTContract (Sepolia)
 }
 
 # INSTRUCTIONS:
@@ -937,22 +936,12 @@ API_KEYS = {
     "who": os.getenv("WHO_API_KEY")
 }
 
-# Network Configuration
+# Network Configuration - SEPOLIA ONLY
 NETWORK_CONFIG = {
-    "localhost": {
-        "rpc_url": "http://127.0.0.1:8545",
-        "chain_id": 31337,
-        "name": "Hardhat Local"
-    },
     "sepolia": {
-        "rpc_url": f"https://sepolia.infura.io/v3/{os.getenv('INFURA_PROJECT_ID')}",
+        "rpc_url": "https://eth-sepolia.public.blastapi.io",
         "chain_id": 11155111,
         "name": "Sepolia Testnet"
-    },
-    "polygon": {
-        "rpc_url": f"https://polygon-mainnet.infura.io/v3/{os.getenv('INFURA_PROJECT_ID')}",
-        "chain_id": 137,
-        "name": "Polygon Mainnet"
     }
 }
 

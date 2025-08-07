@@ -1,6 +1,10 @@
 #!/bin/bash
 
-echo "🚀 Starting CivicXChain Platform..."
+echo "🚀 Starting CivicXChain Platform (Sepolia Testnet)..."
+
+# Start backend
+echo "🐍 Starting backend..."
+cd backend && npm run dev &
 
 # Start frontend
 echo "📱 Starting frontend..."
@@ -8,10 +12,11 @@ cd frontend && npm run dev &
 
 echo "✅ CivicXChain is running!"
 echo "🌐 Frontend: http://localhost:3000"
+echo "🔗 Backend API: http://localhost:8000"
 echo ""
 echo "📋 Your contracts are deployed on Sepolia:"
-echo "   🏛️  Governance: 0x5651E7F2E503dEB45E2D527bB383E2CDc68A1C78"
-echo "   📊 Oracle: 0xfc6dA5DE0C9EB29b2161A1628D054D8740f887FC"
+echo "   🏛️  Governance: 0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4"
+echo "   📊 Oracle: 0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD"
 echo ""
 echo "Press Ctrl+C to stop all services"
 

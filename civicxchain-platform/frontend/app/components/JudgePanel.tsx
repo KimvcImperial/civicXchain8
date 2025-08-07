@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useReadContract, useAccount } from 'wagmi';
-import { CONTRACT_CONFIG, CIVIC_CONTRACT_ABI } from '../../config/contracts';
+import { CONTRACT_CONFIG } from '../../config/contracts';
+import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi';
 
 // Simple Judge Commitment Card - Same as Live Feed but with Verify Button
 function JudgeCommitmentCard({ commitmentId }: { commitmentId: bigint }) {
@@ -24,7 +25,7 @@ function JudgeCommitmentCard({ commitmentId }: { commitmentId: bigint }) {
   // Check oracle fulfillment status directly from blockchain
   const { data: fulfillmentData, error: fulfillmentError, isLoading: fulfillmentLoading } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'checkFulfillment',
     args: [commitmentId],
   });
@@ -44,7 +45,7 @@ function JudgeCommitmentCard({ commitmentId }: { commitmentId: bigint }) {
   // Get commitment data from blockchain (same as Live Feed)
   const { data: commitment } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'getCommitment',
     args: [commitmentId],
   });
@@ -272,7 +273,7 @@ export default function JudgePanel() {
   // Get SAME blockchain data as Live Feed - nextCommitmentId to know total commitments
   const { data: nextCommitmentId } = useReadContract({
     address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
-    abi: CIVIC_CONTRACT_ABI,
+    abi: CIVIC_GOVERNANCE_ABI,
     functionName: 'nextCommitmentId',
   });
 
