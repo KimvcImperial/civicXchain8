@@ -4,13 +4,12 @@
   "description": "CivicXChain - Environmental Commitment Platform with Blockchain",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run blockchain\" \"npm run backend\" \"npm run frontend\"",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
     "frontend": "cd civicxchain-platform/frontend && npm run dev",
     "backend": "cd civicxchain-platform/backend && npm run dev",
     "backend:python": "cd civicxchain-platform/backend && python app/main.py",
-    "blockchain": "cd civicxchain-platform && npx hardhat node",
     "compile": "cd civicxchain-platform && npx hardhat compile",
-    "deploy": "cd civicxchain-platform && npx hardhat run scripts/deploy.js --network localhost",
+    "deploy:sepolia": "cd civicxchain-platform && npx hardhat run scripts/deploy.js --network sepolia",
     "test": "cd civicxchain-platform && npx hardhat test",
     "install-all": "npm install && cd civicxchain-platform && npm install && cd frontend && npm install && cd ../backend && npm install",
     "setup": "npm run install-all && npm run compile"

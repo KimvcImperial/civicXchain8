@@ -50,12 +50,17 @@ export default function SimpleClaimerPage() {
     const active = commitment.isActive; // isActive
     const rewardClaimed = commitment.rewardClaimed; // rewardClaimed
 
+    // Check judge verification
+    const judgeVerifications = JSON.parse(localStorage.getItem('judgeVerifications') || '{}');
+    const isJudgeVerified = judgeVerifications[selectedCommitmentId.toString()]?.verified || false;
+
     return {
-      isClaimable: active && !rewardClaimed && deadlinePassed && fulfilled,
+      isClaimable: active && !rewardClaimed && deadlinePassed && fulfilled && isJudgeVerified,
       active,
       rewardClaimed,
       deadlinePassed,
       fulfilled,
+      isJudgeVerified,
       deadline: Number(commitment.deadline),
       currentValue: fulfillmentStatus[1],
       targetValue: fulfillmentStatus[2]
@@ -71,7 +76,15 @@ export default function SimpleClaimerPage() {
   };
 
   const handleClaimReward = () => {
-    if (!claimabilityCheck?.isClaimable) return;
+    if (!claimabilityCheck?.isClaimable) {
+      alert('❌ Cannot claim reward. Please check all requirements are met.');
+      return;
+    }
+
+    if (!claimabilityCheck?.isJudgeVerified) {
+      alert('❌ Judge approval required. Please ask a judge to approve this commitment first.');
+      return;
+    }
 
     try {
       writeContract({
@@ -176,6 +189,9 @@ export default function SimpleClaimerPage() {
               </p>
               <p className={claimabilityCheck.fulfilled ? 'text-green-400' : 'text-red-400'}>
                 ✅ Target Met: {claimabilityCheck.fulfilled ? 'Yes' : 'No'}
+              </p>
+              <p className={claimabilityCheck.isJudgeVerified ? 'text-green-400' : 'text-red-400'}>
+                🏛️ Judge Verified: {claimabilityCheck.isJudgeVerified ? 'Yes' : 'No'}
               </p>
               <p className={!claimabilityCheck.rewardClaimed ? 'text-green-400' : 'text-red-400'}>
                 ✅ Not Claimed: {!claimabilityCheck.rewardClaimed ? 'Yes' : 'No'}

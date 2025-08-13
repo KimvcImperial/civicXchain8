@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { CONTRACT_CONFIG, CIVIC_CONTRACT_ABI } from '../../config/contracts';
 
@@ -40,20 +40,41 @@ export default function SimpleJudgeTest() {
     hash,
   });
 
-  const handleJudgeVerify = () => {
+  // Handle transaction confirmation
+  useEffect(() => {
+    if (isConfirmed) {
+      setIsVerifying(false);
+    }
+  }, [isConfirmed]);
+
+  const handleJudgeVerify = async () => {
     setIsVerifying(true);
-    
-    // Store verification in localStorage (simple demo approach)
-    const verifications = JSON.parse(localStorage.getItem('judgeVerifications') || '{}');
-    verifications[selectedCommitmentId] = {
-      verified: true,
-      timestamp: Date.now(),
-      judge: 'Demo Judge'
-    };
-    localStorage.setItem('judgeVerifications', JSON.stringify(verifications));
-    
-    alert(`✅ Commitment ${selectedCommitmentId} verified by judge!`);
-    setIsVerifying(false);
+
+    try {
+      // Call smart contract to mark commitment as fulfilled
+      await writeContract({
+        address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+        abi: CIVIC_CONTRACT_ABI,
+        functionName: 'judgeApproveCommitment',
+        args: [BigInt(selectedCommitmentId)],
+      });
+
+      // Also store verification in localStorage for UI consistency
+      const verifications = JSON.parse(localStorage.getItem('judgeVerifications') || '{}');
+      verifications[selectedCommitmentId] = {
+        verified: true,
+        timestamp: Date.now(),
+        judge: 'Demo Judge',
+        method: 'blockchain_approval'
+      };
+      localStorage.setItem('judgeVerifications', JSON.stringify(verifications));
+
+      alert(`✅ Commitment ${selectedCommitmentId} verified by judge on blockchain!`);
+    } catch (error) {
+      console.error('Error verifying commitment:', error);
+      alert('Error verifying commitment: ' + (error as Error).message);
+      setIsVerifying(false);
+    }
   };
 
   const handleClaimReward = () => {
@@ -127,11 +148,12 @@ export default function SimpleJudgeTest() {
         {/* Judge Verification */}
         <button
           onClick={handleJudgeVerify}
-          disabled={isVerifying || isJudgeVerified}
+          disabled={isVerifying || isConfirming || isJudgeVerified}
           className="bg-green-500/20 hover:bg-green-500/30 text-green-400 px-4 py-2 rounded border border-green-500/30 disabled:opacity-50"
         >
-          {isJudgeVerified ? '✅ Already Verified' : 
-           isVerifying ? '⏳ Verifying...' : 
+          {isJudgeVerified ? '✅ Already Verified' :
+           isConfirming ? '⏳ Confirming...' :
+           isVerifying ? '🔄 Submitting...' :
            '⚖️ Judge Verify'}
         </button>
 

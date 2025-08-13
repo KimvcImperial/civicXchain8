@@ -46,8 +46,12 @@ export default function SimpleRewardClaimer() {
     const fulfilled = fulfillmentStatus[0]; // fulfilled
     const active = commitment[9]; // isActive
     const rewardClaimed = commitment[11]; // rewardClaimed
-    
-    return active && !rewardClaimed && deadlinePassed && fulfilled;
+
+    // Check judge verification
+    const judgeVerifications = JSON.parse(localStorage.getItem('judgeVerifications') || '{}');
+    const isJudgeVerified = judgeVerifications[selectedCommitmentId.toString()]?.verified || false;
+
+    return active && !rewardClaimed && deadlinePassed && fulfilled && isJudgeVerified;
   })() : false;
 
   const handleClaimReward = () => {
@@ -134,12 +138,17 @@ export default function SimpleRewardClaimer() {
               const fulfilled = fulfillmentStatus[0];
               const active = commitment[9];
               const rewardClaimed = commitment[11];
-              
+
+              // Check judge verification
+              const judgeVerifications = JSON.parse(localStorage.getItem('judgeVerifications') || '{}');
+              const isJudgeVerified = judgeVerifications[selectedCommitmentId.toString()]?.verified || false;
+
               return (
                 <>
                   <p>✅ Active: {active ? 'Yes' : 'No'}</p>
                   <p>✅ Deadline Passed: {deadlinePassed ? 'Yes' : 'No'}</p>
                   <p>✅ Environmental Target Met: {fulfilled ? 'Yes' : 'No'}</p>
+                  <p>🏛️ Judge Verified: {isJudgeVerified ? 'Yes' : 'No'}</p>
                   <p>✅ Reward Not Claimed: {!rewardClaimed ? 'Yes' : 'No'}</p>
                 </>
               );

@@ -669,6 +669,15 @@ ${errorMessage}${gasGuidance}
         return;
       }
 
+      // Check judge verification
+      const judgeVerifications = JSON.parse(localStorage.getItem('judgeVerifications') || '{}');
+      const isJudgeVerified = judgeVerifications[claimableCommitmentId.toString()]?.verified || false;
+
+      if (!isJudgeVerified) {
+        alert('❌ Judge approval required. Please ask a judge to approve this commitment first.');
+        return;
+      }
+
       console.log('✅ All conditions met, claiming reward...');
 
       claimReward({

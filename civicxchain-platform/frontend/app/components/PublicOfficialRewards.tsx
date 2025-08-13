@@ -228,8 +228,8 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
   const judgeVerifications = JSON.parse(localStorage.getItem('judgeVerifications') || '{}');
   const isManuallyVerifiedByJudge = judgeVerifications[commitmentId.toString()]?.verified || false;
 
-  // Use BOTH Oracle verification AND manual judge verification
-  const isJudgeVerified = isTargetAchievedByOracle || isManuallyVerifiedByJudge;
+  // STRICT LOGIC: Require MANUAL judge verification (not just oracle achievement)
+  const isJudgeVerified = isManuallyVerifiedByJudge;
 
   const handleClaimReward = async () => {
     setIsClaiming(true);
@@ -268,17 +268,16 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
       return;
     }
 
-    // SIMPLIFIED LOGIC: If judge verified, skip oracle check
-    if (!isJudgeVerified) {
+    // STRICT LOGIC: Require BOTH judge verification AND target achievement
+    if (!isManuallyVerifiedByJudge) {
       alert('❌ Judge approval required. Please ask a judge to approve this commitment first.');
       setIsClaiming(false);
       setTransactionStatus({ status: 'idle' });
       return;
     }
 
-    // Only check oracle achievement if judge hasn't approved
-    if (!isManuallyVerifiedByJudge && !isAchieved) {
-      alert('❌ Environmental target not achieved yet and no judge approval');
+    if (!isAchieved) {
+      alert('❌ Environmental target not achieved yet. Target must be met before claiming.');
       setIsClaiming(false);
       setTransactionStatus({ status: 'idle' });
       return;
@@ -337,8 +336,8 @@ function RewardCommitmentCard({ commitmentId, currentPM25FromOracle }: {
   };
 
   const status = getCommitmentStatus();
-  // SIMPLIFIED LOGIC: Only need judge verification and target achievement, no deadline check
-  const canClaim = isAchieved && isJudgeVerified && !isRewardClaimed;
+  // STRICT LOGIC: Require BOTH manual judge verification AND target achievement
+  const canClaim = isAchieved && isManuallyVerifiedByJudge && !isRewardClaimed;
 
   console.log('🔍 RewardCommitmentCard Debug:', {
     commitmentId: commitmentId.toString(),

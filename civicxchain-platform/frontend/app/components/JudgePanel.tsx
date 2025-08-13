@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useReadContract, useAccount } from 'wagmi';
+import { useReadContract, useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { CONTRACT_CONFIG } from '../../config/contracts';
 import { CIVIC_GOVERNANCE_ABI } from '../../config/governance-abi';
 
@@ -17,6 +17,13 @@ function JudgeCommitmentCard({ commitmentId }: { commitmentId: bigint }) {
 
   // Wallet connection hook (for display purposes)
   const { address } = useAccount();
+
+  // Smart contract write hook for judge approval
+  const { writeContract, data: hash, error } = useWriteContract();
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
 
 
 
@@ -70,41 +77,48 @@ function JudgeCommitmentCard({ commitmentId }: { commitmentId: bigint }) {
     } : null
   });
 
+  // Handle transaction confirmation
+  useEffect(() => {
+    if (isConfirmed) {
+      setRewardVerified(true);
+      setIsVerifying(false);
+      alert('✅ Judge approved! Reward verified on blockchain.\n\n📋 Next steps:\n1. Go to Rewards section\n2. Find this commitment\n3. Click "Claim Reward"\n\nNote: This commitment is now approved for reward claiming.');
+    }
+  }, [isConfirmed]);
 
-
-  // Simplified judge verification - Direct localStorage approach (always works)
+  // Smart contract judge verification - Calls judgeApproveCommitment on blockchain
   const handleVerifyReward = async () => {
     setIsVerifying(true);
     console.log('🎯 Judge approving reward for commitment:', commitmentId.toString());
 
-    // Simulate processing time
-    setTimeout(() => {
-      try {
-        console.log('✅ Judge verification: Using direct approval method');
+    try {
+      console.log('✅ Judge verification: Calling smart contract judgeApproveCommitment');
 
-        // Store judge verification in localStorage
-        const judgeVerifications = JSON.parse(localStorage.getItem('judgeVerifications') || '{}');
-        judgeVerifications[commitmentId.toString()] = {
-          verified: true,
-          timestamp: new Date().toISOString(),
-          method: 'direct_approval',
-          judgeAddress: address || 'demo_judge'
-        };
-        localStorage.setItem('judgeVerifications', JSON.stringify(judgeVerifications));
+      // Call the smart contract function to mark commitment as fulfilled
+      await writeContract({
+        address: CONTRACT_CONFIG.GOVERNANCE_CONTRACT as `0x${string}`,
+        abi: CIVIC_GOVERNANCE_ABI,
+        functionName: 'judgeApproveCommitment',
+        args: [BigInt(commitmentId)],
+      });
 
-        setRewardVerified(true);
-        setIsVerifying(false);
+      // Also store in localStorage for UI consistency
+      const judgeVerifications = JSON.parse(localStorage.getItem('judgeVerifications') || '{}');
+      judgeVerifications[commitmentId.toString()] = {
+        verified: true,
+        timestamp: new Date().toISOString(),
+        method: 'blockchain_approval',
+        judgeAddress: address || 'demo_judge'
+      };
+      localStorage.setItem('judgeVerifications', JSON.stringify(judgeVerifications));
 
-        alert('✅ Judge approved! Reward verified.\n\n📋 Next steps:\n1. Go to Rewards section\n2. Find this commitment\n3. Click "Claim Reward"\n\nNote: This commitment is now approved for reward claiming.');
+      console.log('✅ Judge verification transaction submitted');
 
-        console.log('✅ Judge approval completed successfully');
-
-      } catch (error: any) {
-        console.error('❌ Judge verification failed:', error);
-        setIsVerifying(false);
-        alert('❌ Failed to approve reward. Please try again.');
-      }
-    }, 1500); // 1.5 second delay to show processing
+    } catch (error) {
+      console.error('❌ Error in judge verification:', error);
+      setIsVerifying(false);
+      alert('Error submitting judge verification: ' + (error as Error).message);
+    }
   };
 
 
@@ -192,7 +206,7 @@ function JudgeCommitmentCard({ commitmentId }: { commitmentId: bigint }) {
           <div className="flex gap-3 items-center">
             <button
               onClick={handleVerifyReward}
-              disabled={isVerifying || isBlockchainFulfilled || rewardVerified}
+              disabled={isVerifying || isConfirming || isBlockchainFulfilled || rewardVerified}
               className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
                 isBlockchainFulfilled || rewardVerified
                   ? 'bg-green-600 text-white cursor-not-allowed'
@@ -202,7 +216,8 @@ function JudgeCommitmentCard({ commitmentId }: { commitmentId: bigint }) {
               }`}
             >
               {isBlockchainFulfilled || rewardVerified ? '✅ Judge Approved' :
-               isVerifying ? '🔄 Approving...' :
+               isConfirming ? '⏳ Confirming Transaction...' :
+               isVerifying ? '🔄 Submitting...' :
                '⚖️ Judge Approve Reward'}
             </button>
 
