@@ -329,7 +329,7 @@ contract CivicXChainGovernance is ERC20, Ownable, ReentrancyGuard {
         require(commitment.isActive, "Commitment not active");
         require(!commitment.rewardClaimed, "Reward already claimed");
 
-        // Mark as fulfilled by judge approval (bypasses oracle check)
+        // Mark as fulfilled by judge approval
         commitment.isFulfilled = true;
 
         // Emit event with current environmental value and token reward

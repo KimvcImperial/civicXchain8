@@ -6,7 +6,9 @@ This project runs exclusively on **Sepolia Testnet** - no local blockchain requi
 
 ### 📋 Contract Addresses (Sepolia)
 - **Governance Contract**: `0xE16F89910DF3Bd0f1C06b667F85D2b68582BA4c4`
-- **Environmental Oracle**: `0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD`
+- **Oracle Manager (Primary)**: `0x66EcF98372f6F15aAb7aBeBF2BF4aD9686d70089`
+- **Chainlink Oracle**: `0x3e4C486f6deD4211013662B7e0EA5c75D588A473`
+- **Fallback Oracle**: `0x660d07eE351eBB4BF55CFD9327c128459a7c2fBD`
 
 ### 🚀 Quick Start
 1. **Install dependencies**: `npm run install-all`
