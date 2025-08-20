@@ -397,7 +397,7 @@ class ActiveCommitment(BaseModel):
     reward_claimed: bool
     progress_percentage: float
 
-# Contract addresses - UPDATE THESE WITH YOUR DEPLOYED CONTRACT ADDRESSES!
+# Contract addresses - UPDATE THESE WITH DEPLOYED CONTRACT ADDRESSES!
 # Replace the addresses below with the ones from your 'npm run deploy' output
 CONTRACT_ADDRESSES = {
     "commitment": "0x5FbDB2315678afecb367f032d93F642f64180aa3",  # CivicCommitmentContract

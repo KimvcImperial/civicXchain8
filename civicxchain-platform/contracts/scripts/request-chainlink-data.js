@@ -8,9 +8,9 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log("🔑 Using account:", deployer.address);
 
-  // Contract addresses (update these after deployment)
-  const CHAINLINK_ORACLE_ADDRESS = "YOUR_CHAINLINK_ORACLE_ADDRESS"; // Update after deployment
-  const ORACLE_MANAGER_ADDRESS = "YOUR_ORACLE_MANAGER_ADDRESS";     // Update after deployment
+  // Contract addresses (deployed on Sepolia)
+  const CHAINLINK_ORACLE_ADDRESS = "0x3e4C486f6deD4211013662B7e0EA5c75D588A473"; // ChainlinkEnvironmentalOracle
+  const ORACLE_MANAGER_ADDRESS = "0x66EcF98372f6F15aAb7aBeBF2BF4aD9686d70089";     // OracleManager
 
   try {
     // Connect to ChainlinkEnvironmentalOracle
