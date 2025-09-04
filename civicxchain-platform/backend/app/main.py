@@ -1,5 +1,3 @@
-
-
 import sqlite3
 import os
 from fastapi import FastAPI, HTTPException

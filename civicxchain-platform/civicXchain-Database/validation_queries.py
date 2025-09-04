@@ -1,11 +1,29 @@
-"""import sqlite3
+# =============================================================================
+# PRODUCTION DATABASE (PostgreSQL) - For Production Deployment
+# =============================================================================
+
+import psycopg2
+import os
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 def run_validation_checks():
-    //Run various validation checks
-    
-    conn = sqlite3.connect('ecochain_satellite.db')
-    cursor = conn.cursor()
+    """Run various validation checks using PostgreSQL"""
+
+    try:
+        # Connect to PostgreSQL database
+        conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+        cursor = conn.cursor()
+    except Exception as e:
+        print(f"❌ PostgreSQL connection failed: {e}")
+        print("💡 Falling back to SQLite for development...")
+        # Fallback to SQLite if PostgreSQL is not available
+        import sqlite3
+        conn = sqlite3.connect('../backend/CivicXchain-Database/ecochain_satellite.db')
+        cursor = conn.cursor()
     
     print("🛰️ SATELLITE VALIDATION SYSTEM")
     print("=" * 40)
@@ -104,7 +122,7 @@ def simulate_real_time_check():
 if __name__ == "__main__":
     run_validation_checks()
     simulate_real_time_check()
-"""
+
 
 
 

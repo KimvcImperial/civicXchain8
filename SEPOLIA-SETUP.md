@@ -2,7 +2,7 @@
 
 ## ✅ What's Been Cleaned Up
 
-All Hardhat/localhost references have been removed. The project now runs **exclusively on Sepolia testnet**.
+All Hardhat/localhost references have been removed. The project now runs exclusively on Sepolia testnet.
 
 ### 🗑️ Removed:
 - Local blockchain (`npx hardhat node`)
